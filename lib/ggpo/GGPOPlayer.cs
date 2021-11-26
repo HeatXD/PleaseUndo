@@ -1,6 +1,6 @@
 namespace PleaseUndo
 {
-    enum GGPOPlayerType
+   public enum GGPOPlayerType
     {
         LOCAL,
         REMOTE,
