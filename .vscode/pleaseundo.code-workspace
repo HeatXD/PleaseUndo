@@ -5,6 +5,11 @@
     }
   ],
   "settings": {
+    "files.exclude": {
+      ".git": true,
+      "lib/bin": true,
+      "lib/obj": true
+    },
     // CSharp
     "csharp.referencesCodeLens.enabled": false,
     // Editor

@@ -2,11 +2,13 @@
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test.csproj", "{DBFE0EEC-1B46-413E-AB5E-615313D9A1F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PleaseUndo", "..\lib\PleaseUndo.csproj", "{85443D2A-A5A4-4CD7-8674-9B5DFE1E55A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-	Debug|Any CPU = Debug|Any CPU
-	ExportDebug|Any CPU = ExportDebug|Any CPU
-	ExportRelease|Any CPU = ExportRelease|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		ExportDebug|Any CPU = ExportDebug|Any CPU
+		ExportRelease|Any CPU = ExportRelease|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DBFE0EEC-1B46-413E-AB5E-615313D9A1F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -15,5 +17,11 @@ Global
 		{DBFE0EEC-1B46-413E-AB5E-615313D9A1F2}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
 		{DBFE0EEC-1B46-413E-AB5E-615313D9A1F2}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
 		{DBFE0EEC-1B46-413E-AB5E-615313D9A1F2}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+		{85443D2A-A5A4-4CD7-8674-9B5DFE1E55A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85443D2A-A5A4-4CD7-8674-9B5DFE1E55A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85443D2A-A5A4-4CD7-8674-9B5DFE1E55A2}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85443D2A-A5A4-4CD7-8674-9B5DFE1E55A2}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{85443D2A-A5A4-4CD7-8674-9B5DFE1E55A2}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{85443D2A-A5A4-4CD7-8674-9B5DFE1E55A2}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal
