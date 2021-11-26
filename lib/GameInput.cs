@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace PleaseUndo
 {
-    struct GameInput<T>
+    public struct GameInput<T>
     {
         const int GAMEINPUT_MAX_PLAYERS = 2;
 

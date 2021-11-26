@@ -14,44 +14,44 @@ namespace PleaseUndo
 
     public abstract class GGPOEvent
     {
-        GGPOEventCode code;
+        public GGPOEventCode code;
     }
 
     public class GGPOConnectedEvent : GGPOEvent
     {
-        GGPOPlayerHandle player;
+        public GGPOPlayerHandle player;
     }
 
     public class GGPOSynchronizingEvent : GGPOEvent
     {
-        GGPOPlayerHandle player;
-        int count;
-        int total;
+        public GGPOPlayerHandle player;
+        public int count;
+        public int total;
     }
 
     public class GGPOSynchronizedEvent : GGPOEvent
     {
-        GGPOPlayerHandle player;
+        public GGPOPlayerHandle player;
     }
 
     public class GGPODisconnectedEvent : GGPOEvent
     {
-        GGPOPlayerHandle player;
+        public GGPOPlayerHandle player;
     }
 
     public class GGPOTimesyncEvent : GGPOEvent
     {
-        int frames_ahead;
+        public int frames_ahead;
     }
 
     public class GGPOConnectionInterruptedEvent : GGPOEvent
     {
-        GGPOPlayerHandle player;
-        int disconnect_timeout;
+        public GGPOPlayerHandle player;
+        public int disconnect_timeout;
     }
 
     public class GGPOConnectionResumedEvent : GGPOEvent
     {
-        GGPOPlayerHandle player;
+        public GGPOPlayerHandle player;
     }
 }
