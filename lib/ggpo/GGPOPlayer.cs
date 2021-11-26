@@ -15,6 +15,8 @@ namespace PleaseUndo
 
     public struct GGPOPlayerHandle
     {
+        public const int GGPO_INVALID_HANDLE = -1;
+
         public int handle;
     }
 }
