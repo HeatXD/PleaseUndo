@@ -8,9 +8,9 @@ namespace PleaseUndo
         const int GAMEINPUT_MAX_PLAYERS = 2;
 
         T[] inputs;
-        int frame;
+        public int frame;
 
-        enum Constants
+        public enum Constants
         {
             NullFrame = -1
         }
