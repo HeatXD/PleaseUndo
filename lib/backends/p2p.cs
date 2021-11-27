@@ -67,19 +67,40 @@ namespace PleaseUndo
             cb.OnBeginGame();
         }
 
-        public override GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType values, int size)
+        public override GGPOErrorCode AddPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle)
         {
-            throw new System.NotImplementedException();
-        }
+            if (player.type == GGPOPlayerType.SPECTATOR)
+            {
+                // return AddSpectator(player->u.remote.ip_address, player->u.remote.port);
+            }
 
-        public override GGPOErrorCode AddPlayer(GGPOPlayer player, GGPOPlayerHandle handle)
-        {
-            throw new System.NotImplementedException();
+            int queue = player.player_num - 1;
+            if (player.player_num < 1 || player.player_num > _num_players)
+            {
+                return GGPOErrorCode.GGPO_ERRORCODE_PLAYER_OUT_OF_RANGE;
+            }
+            handle = QueueToPlayerHandle(queue);
+
+            if (player.type == GGPOPlayerType.REMOTE)
+            {
+                // AddRemotePlayer(player->u.remote.ip_address, player->u.remote.port, queue);
+            }
+            return GGPOErrorCode.GGPO_OK;
         }
 
         public override GGPOErrorCode SyncInput(InputType values, int size, ref int disconnect_flags)
         {
             throw new System.NotImplementedException();
+        }
+
+        public override GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType values, int size)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        GGPOPlayerHandle QueueToPlayerHandle(int queue)
+        {
+            return new GGPOPlayerHandle { handle = queue + 1 };
         }
     }
 }

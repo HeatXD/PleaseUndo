@@ -22,7 +22,7 @@ namespace PleaseUndo
         public const uint GGPO_MAX_PREDICTION_FRAMES = 8;
         public const uint GGPO_SPECTATOR_INPUT_INTERVAL = 4;
 
-        public abstract GGPOErrorCode AddPlayer(GGPOPlayer player, GGPOPlayerHandle handle);
+        public abstract GGPOErrorCode AddPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle);
         public abstract GGPOErrorCode SyncInput(InputType values, int size, ref int disconnect_flags);
         public abstract GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType values, int size);
         public GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }
@@ -45,9 +45,9 @@ namespace PleaseUndo
 
         #region TODO: Remove these public APIs for a proper C# API as they were only passthroughs to check if session (this) was null.
 
-        public GGPOErrorCode ggpo_add_player(/* GGPOSession session, */ GGPOPlayer player, GGPOPlayerHandle handle)
+        public GGPOErrorCode ggpo_add_player(/* GGPOSession session, */ GGPOPlayer player, ref GGPOPlayerHandle handle)
         {
-            return AddPlayer(player, handle);
+            return AddPlayer(player, ref handle);
         }
         public GGPOErrorCode ggpo_close_session()
         {
