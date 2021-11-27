@@ -1,23 +1,30 @@
+using System;
 using System.IO;
 
 namespace PleaseUndo
 {
     public class Logger
     {
-        const string logPath = "pu_log_info.txt";
-        static bool logToFile = true;
+        static string logPath = Environment.GetEnvironmentVariable("PU_LOG_FILE_PATH");
+        static bool ignoreLog = Environment.GetEnvironmentVariable("PU_LOG_IGNORE") == null;
+        static bool logToFile = Environment.GetEnvironmentVariable("PU_LOG_CREATE_FILE") != null;
+
         static bool firstLog = true;
 
         public static void Log(string fmt, params object[] args)
         {
-            if (logToFile)
+            if (ignoreLog)
             {
-                LogToFile(string.Format(fmt, args));
+                if (logToFile && logPath != null)
+                {
+                    LogToFile(string.Format(fmt, args));
+                }
+                else
+                {
+                    Console.WriteLine(string.Format(fmt, args));
+                }
             }
-            else
-            {
-                System.Console.WriteLine(string.Format(fmt, args));
-            }
+
         }
 
         public static void LogToFile(string message)
@@ -41,6 +48,7 @@ namespace PleaseUndo
                 throw new System.InvalidOperationException();
             }
         }
+
         public static void Assert(bool condition, string error_msg)
         {
             if (!condition)
