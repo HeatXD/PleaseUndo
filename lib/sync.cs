@@ -16,7 +16,6 @@ namespace PleaseUndo
             public GGPOSessionCallbacks callbacks;
             public int num_prediction_frames;
             public int num_players;
-            public int input_size;
         }
         protected class SavedFrame
         {
@@ -272,7 +271,7 @@ namespace PleaseUndo
             for (int i = 0; i < _config.num_players; i++)
             {
                 _input_queues[i] = new InputQueue<InputType>();
-                _input_queues[i].Init(i, _config.input_size);
+                _input_queues[i].Init(i);
             }
             return true;
         }

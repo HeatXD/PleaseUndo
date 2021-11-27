@@ -34,7 +34,6 @@ namespace PleaseUndo
         public GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }
         public GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
         public GGPOErrorCode GetNetworkStats(GGPONetworkStats stats, GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
-        public GGPOErrorCode Logv(string fmt, params string[] list) { /* ::Logv(fmt, list); */ return GGPOErrorCode.GGPO_OK; }
 
         public GGPOErrorCode SetFrameDelay(GGPOPlayerHandle player, int delay) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
         public GGPOErrorCode SetDisconnectTimeout(int timeout) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
@@ -94,16 +93,6 @@ namespace PleaseUndo
         public GGPOErrorCode ggpo_set_disconnect_notify_start(/* GGPOSession session, */ int timeout)
         {
             return SetDisconnectNotifyStart(timeout);
-        }
-        public GGPOErrorCode ggpo_log(/* GGPOSession session, */ string fmt, params string[] list)
-        {
-            Logger.Log(fmt, list);
-            return GGPOErrorCode.GGPO_OK;
-        }
-        // no need in C# but kept for sanity
-        public GGPOErrorCode ggpo_logv(/* GGPOSession session, */ string fmt, params string[] list)
-        {
-            return ggpo_log(fmt, list);
         }
 
         #endregion
