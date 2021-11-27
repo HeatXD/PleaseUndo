@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace PleaseUndo
 {
     public class Sync<InputType>
@@ -233,7 +231,7 @@ namespace PleaseUndo
             _savedstate.head = FindSavedFrameIndex(frame);
             SavedFrame state = _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
 
-            Logger.Log("=== Loading frame info %d (size: %d  checksum: %08x).\n", state.frame, state.cbuf, state.checksum);
+            Logger.Log("=== Loading frame info {0} (size: {1}  checksum: {2}).\n", state.frame, state.cbuf, state.checksum);
 
             Logger.Assert(state.buf != null && state.cbuf != 0);
             _callbacks.OnLoadGameState(state.buf, state.cbuf);
@@ -241,7 +239,7 @@ namespace PleaseUndo
             // Reset framecount and the head of the state ring-buffer to point in
             // advance of the current frame (as if we had just finished executing it).
             _framecount = state.frame;
-            _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
+            _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.Length;
         }
 
         protected void SaveCurrentFrame()
@@ -252,12 +250,12 @@ namespace PleaseUndo
             _callbacks.OnSaveGameState(ref state.buf, ref state.cbuf, ref state.checksum, state.frame);
 
             Logger.Log("=== Saved frame info {0} (size: {1}  checksum: {2}).\n", state.frame, state.cbuf, state.checksum);
-            _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
+            _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.Length;
         }
 
         protected int FindSavedFrameIndex(int frame)
         {
-            int i, count = _savedstate.frames.GetLength(0);
+            int i, count = _savedstate.frames.Length;
             for (i = 0; i < count; i++)
             {
                 if (_savedstate.frames[i].frame == frame)
@@ -277,7 +275,7 @@ namespace PleaseUndo
             int i = _savedstate.head - 1;
             if (i < 0)
             {
-                i = _savedstate.frames.GetLength(0) - 1;
+                i = _savedstate.frames.Length - 1;
             }
             return _savedstate.frames[i];
         }
