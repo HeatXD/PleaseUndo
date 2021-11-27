@@ -2,7 +2,7 @@ namespace PleaseUndo
 {
     public class Sync<InputType>
     {
-        const int MAX_PREDICTION_FRAMES = 8;
+        public const int MAX_PREDICTION_FRAMES = 8;
 
         public struct Event
         {
@@ -37,13 +37,13 @@ namespace PleaseUndo
         protected int _last_confirmed_frame = -1;
         protected int _max_prediction_frames = 0;
 
-        protected ConnectStatus _local_connect_status;
+        protected ConnectStatus[] _local_connect_status;
         protected RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
         protected InputQueue<InputType>[] _input_queues = null;
 
-        public Sync(ConnectStatus connect_status)
+        public Sync(ref ConnectStatus[] connect_status)
         {
-            _local_connect_status = connect_status; // Might be a pointer, so ConnectStatus being a struct might not be correct? god mutation is terrible
+            _local_connect_status = connect_status;
         }
 
         public void Init(Config config)

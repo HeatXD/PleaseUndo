@@ -2,34 +2,34 @@ namespace PleaseUndo
 {
     public struct GGPOSessionCallbacks
     {
-        public delegate bool BeginGameDelegate(string game);
+        public delegate bool OnEventDelegate(GGPOEvent ev);
+        public delegate bool BeginGameDelegate();
+        public delegate bool AdvanceFrameDelegate();
         public delegate bool LoadGameStateDelegate(byte[] buffer, int lent);
         public delegate bool SaveGameStateDelegate(ref byte[] buffer, ref int len, ref int checksum, int frame);
-        public delegate bool OnEventDelegate(GGPOEvent ev);
-        public delegate bool AdvanceFrameDelegate();
 
+        public OnEventDelegate OnEvent;
         public BeginGameDelegate OnBeginGame;
+        public AdvanceFrameDelegate OnAdvanceFrame;
         public SaveGameStateDelegate OnSaveGameState;
         public LoadGameStateDelegate OnLoadGameState;
-        public OnEventDelegate OnEvent;
-        public AdvanceFrameDelegate OnAdvanceFrame;
     }
 
     public abstract class GGPOSession<InputType>
     {
         public const uint GGPO_MAX_PLAYERS = 4;
-        public const uint GGPO_MAX_PREDICTION_FRAMES = 8;
         public const uint GGPO_MAX_SPECTATORS = 32;
+        public const uint GGPO_MAX_PREDICTION_FRAMES = 8;
         public const uint GGPO_SPECTATOR_INPUT_INTERVAL = 4;
 
-        public GGPOErrorCode DoPoll(int timeout) { return GGPOErrorCode.GGPO_OK; }
         public abstract GGPOErrorCode AddPlayer(GGPOPlayer player, GGPOPlayerHandle handle);
-        public abstract GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType values, int size);
         public abstract GGPOErrorCode SyncInput(InputType values, int size, ref int disconnect_flags);
-        public GGPOErrorCode IncrementFrame() { return GGPOErrorCode.GGPO_OK; }
+        public abstract GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType values, int size);
         public GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }
-        public GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
+        public GGPOErrorCode DoPoll(int timeout) { return GGPOErrorCode.GGPO_OK; }
+        public GGPOErrorCode IncrementFrame() { return GGPOErrorCode.GGPO_OK; }
         public GGPOErrorCode GetNetworkStats(GGPONetworkStats stats, GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
+        public GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
 
         public GGPOErrorCode SetFrameDelay(GGPOPlayerHandle player, int delay) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
         public GGPOErrorCode SetDisconnectTimeout(int timeout) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
