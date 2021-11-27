@@ -4,6 +4,12 @@ namespace PleaseUndo
 {
     public class RingBuffer<T>
     {
+        protected int _head = 0;
+        protected int _tail = 0;
+        protected int _size = 0;
+        protected int _capacity; /* was template N */
+        protected List<T> _elements; /* was a fixed size array */
+
         public RingBuffer(int capacity)
         {
             _capacity = capacity;
@@ -46,11 +52,5 @@ namespace PleaseUndo
         {
             return _size == 0;
         }
-
-        protected int _head;
-        protected int _tail;
-        protected int _size;
-        protected int _capacity; /* was template N */
-        protected List<T> _elements; /* was a fixed size array */
     }
 }
