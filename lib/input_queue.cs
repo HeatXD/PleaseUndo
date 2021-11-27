@@ -20,17 +20,13 @@ namespace PleaseUndo
 
         protected int _frame_delay;
 
-        protected List<GameInput<InputType>> _inputs; // Fixed size INPUT_QUEUE_LENGTH
+        protected List<GameInput<InputType>> _inputs = new List<GameInput<InputType>>(INPUT_QUEUE_LENGTH);
         protected GameInput<InputType> _prediction;
 
         public InputQueue(int input_size = DEFAULT_INPUT_SIZE)
         {
-            _inputs = new List<GameInput<InputType>>(INPUT_QUEUE_LENGTH);
-
             Init(-1, input_size);
         }
-
-        int PREVIOUS_FRAME(int offset) => (((offset) == 0) ? (INPUT_QUEUE_LENGTH - 1) : ((offset) - 1));
 
         public void Init(int id, int input_size)
         {
@@ -322,5 +318,7 @@ namespace PleaseUndo
             }
             Logger.Assert(_length <= INPUT_QUEUE_LENGTH);
         }
+
+        int PREVIOUS_FRAME(int offset) => (((offset) == 0) ? (INPUT_QUEUE_LENGTH - 1) : ((offset) - 1));
     }
 }

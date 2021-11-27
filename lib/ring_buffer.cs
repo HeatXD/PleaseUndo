@@ -8,7 +8,7 @@ namespace PleaseUndo
         protected int _tail = 0;
         protected int _size = 0;
         protected int _capacity; /* was template N */
-        protected List<T> _elements; /* was a fixed size array */
+        protected List<T> _elements; /* was a N fixed size array */
 
         public RingBuffer(int capacity)
         {

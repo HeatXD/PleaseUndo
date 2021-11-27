@@ -6,7 +6,7 @@ namespace PleaseUndo
     {
         protected int _size = 0;
         protected int _capacity; /* was template N */
-        protected List<T> _elements;
+        protected List<T> _elements; /* was a N fixed size array */
 
         public StaticBuffer(int capacity)
         {
