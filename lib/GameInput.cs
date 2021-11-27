@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Linq;
 
 namespace PleaseUndo
@@ -31,23 +30,43 @@ namespace PleaseUndo
         {
             if (!inputs_only && frame != game_input.frame)
             {
-                Log("frames don't match");
+                Logger.Log("frames don't match: {0}, {1}\n", frame, game_input.frame);
             }
             if (Enumerable.SequenceEqual(inputs, game_input.inputs))
             {
-                Log("inputs don't match\n");
+                Logger.Log("inputs don't match: {0}, {1}\n", inputs, game_input.inputs);
             }
             return (inputs_only ||
              game_input.frame == frame &&
              Enumerable.SequenceEqual(inputs, game_input.inputs));
         }
 
+        public void Log(string prefix, bool show_frame)
+        {
+            Logger.Log("{0} {1}\n", prefix, Desc(show_frame));
+        }
+
+        public string Desc(bool show_frame)
+        {
+            string desc = "";
+            if (show_frame)
+            {
+                desc += string.Format("frame: {0} ", frame);
+            }
+
+            for (int i = 0; i < inputs.Length; i++)
+            {
+                if (Value(i))
+                {
+                    desc += string.Format("{0} ", inputs[i]);
+                }
+            }
+            return desc;
+        }
         public void Erase() => inputs = new T[GAMEINPUT_MAX_PLAYERS];
         public bool IsNull() => frame == (int)Constants.NullFrame;
         public bool Value(int i) => inputs[i] != null;
         public void Set(int i, T input) => inputs[i] = input;
         public void Clear(int i) => inputs[i] = default(T);
-        public void Desc() => System.Console.WriteLine("TODO");
-        public void Log(string msg) => System.Console.WriteLine(msg);
     }
 }
