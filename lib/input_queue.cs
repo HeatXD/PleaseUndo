@@ -265,9 +265,8 @@ namespace PleaseUndo
             /*
              * Add the frame to the back of the queue
              */
-            var input_with_frame = input;
-            input_with_frame.frame = frame_number; // _inputs[_head].frame = frame_number;
-            _inputs[_head] = input_with_frame;
+            _inputs[_head] = input;
+            _inputs[_head].frame = frame_number;
             _head = (_head + 1) % INPUT_QUEUE_LENGTH;
             _length++;
             _first_frame = false;
