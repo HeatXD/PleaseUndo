@@ -18,32 +18,32 @@ namespace PleaseUndo
             public int num_players;
             public int input_size;
         }
-        public class SavedFrame
+        protected class SavedFrame
         {
             public byte[] buf;
             public int cbuf = 0;
             public int frame = -1;
             public int checksum = 0;
         };
-        public class SavedState
+        protected class SavedState
         {
             public SavedFrame[] frames = new SavedFrame[MAX_PREDICTION_FRAMES + 2];
             public int head = 0;
         }
 
-        GGPOSessionCallbacks _callbacks;
-        SavedState _savedstate;
-        Config _config;
+        protected GGPOSessionCallbacks _callbacks;
+        protected SavedState _savedstate = new SavedState(); // be cautious: should be a struct
+        protected Config _config;
 
-        bool _rollingback;
-        int _last_confirmed_frame;
-        int _framecount;
-        int _max_prediction_frames;
+        protected bool _rollingback;
+        protected int _last_confirmed_frame;
+        protected int _framecount;
+        protected int _max_prediction_frames;
 
-        List<InputQueue<InputType>> _input_queues;
+        protected List<InputQueue<InputType>> _input_queues;
 
-        RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
-        // UdpMsg::connect_status* _local_connect_status;
+        protected RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
+        //protected UdpMsg::connect_status[] _local_connect_status;
 
         public void Init(Config config)
         {
