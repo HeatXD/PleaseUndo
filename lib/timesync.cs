@@ -9,36 +9,36 @@ namespace PleaseUndo
         const int MIN_FRAME_ADVANTAGE = 3;
         const int MAX_FRAME_ADVANTAGE = 9;
 
-        protected List<int> _local = new List<int>(FRAME_WINDOW_SIZE);
-        protected List<int> _remote = new List<int>(FRAME_WINDOW_SIZE);
-        protected List<GameInput<InputType>> _last_inputs = new List<GameInput<InputType>>(MIN_UNIQUE_FRAMES);
         protected int _count;
         protected int _next_prediction;
+        protected int[] _local = new int[FRAME_WINDOW_SIZE];
+        protected int[] _remote = new int[FRAME_WINDOW_SIZE];
+        protected GameInput<InputType>[] _last_inputs = new GameInput<InputType>[MIN_UNIQUE_FRAMES];
 
         public void advance_frame(GameInput<InputType> input, int advantage, int radvantage)
         {
             // Remember the last frame and frame advantage
-            _last_inputs[input.frame % _last_inputs.Count] = input;
-            _local[input.frame % _local.Count] = advantage;
-            _remote[input.frame % _remote.Count] = radvantage;
+            _last_inputs[input.frame % _last_inputs.Length] = input;
+            _local[input.frame % _local.Length] = advantage;
+            _remote[input.frame % _remote.Length] = radvantage;
         }
         public int recommend_frame_wait_duration(bool require_idle_input)
         {
             // Average our local and remote frame advantages
             int i, sum = 0;
             float advantage, radvantage;
-            for (i = 0; i < _local.Count; i++)
+            for (i = 0; i < _local.Length; i++)
             {
                 sum += _local[i];
             }
-            advantage = sum / (float)_local.Count;
+            advantage = sum / (float)_local.Length;
 
             sum = 0;
-            for (i = 0; i < _remote.Count; i++)
+            for (i = 0; i < _remote.Length; i++)
             {
                 sum += _remote[i];
             }
-            radvantage = sum / (float)_remote.Count;
+            radvantage = sum / (float)_remote.Length;
 
             _count = 0;
             _count++;
@@ -71,7 +71,7 @@ namespace PleaseUndo
             // Street Fighter), which could cause the player to miss moves.
             if (require_idle_input)
             {
-                for (i = 1; i < _last_inputs.Count; i++)
+                for (i = 1; i < _last_inputs.Length; i++)
                 {
                     if (!_last_inputs[i].Equal(_last_inputs[0], true))
                     {

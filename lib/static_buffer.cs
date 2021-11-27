@@ -6,26 +6,21 @@ namespace PleaseUndo
     {
         protected int _size = 0;
         protected int _capacity; /* was template N */
-        protected List<T> _elements; /* was a N fixed size array */
+        protected T[] _elements; /* was a N fixed size array */
 
         public StaticBuffer(int capacity)
         {
             _capacity = capacity;
-            _elements = new List<T>(capacity);
+            _elements = new T[capacity];
         }
 
-        public T this[int i]
+        public ref T this[int i]
         {
             get
             {
                 Logger.Assert(i >= 0 && i < _size);
-                return (_elements[i]);
+                return ref _elements[i];
             }
-            // set
-            // {
-            //     Logger.Assert(i >= 0 && i < _size);
-            //     _elements[i] = value;
-            // }
         }
 
         public void push_back(T t)

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace PleaseUndo
 {
     public class InputQueue<InputType>
@@ -20,7 +18,7 @@ namespace PleaseUndo
 
         protected int _frame_delay;
 
-        protected List<GameInput<InputType>> _inputs = new List<GameInput<InputType>>(INPUT_QUEUE_LENGTH);
+        protected GameInput<InputType>[] _inputs = new GameInput<InputType>[INPUT_QUEUE_LENGTH];
         protected GameInput<InputType> _prediction;
 
         public InputQueue(int input_size = DEFAULT_INPUT_SIZE)
@@ -44,8 +42,9 @@ namespace PleaseUndo
             _prediction.Init((int)GameInput<InputType>.Constants.NullFrame, null, input_size);
 
             // memset(_inputs, 0, sizeof _inputs);
-            for (int i = 0; i < _inputs.Count; i++)
+            for (int i = 0; i < _inputs.Length; i++)
             {
+                _inputs[i] = new GameInput<InputType>();
                 // _inputs[i].size = input_size; // Not needed in C#
             }
         }

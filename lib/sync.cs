@@ -40,7 +40,7 @@ namespace PleaseUndo
         protected int _framecount = 0;
         protected int _max_prediction_frames = 0;
 
-        protected List<InputQueue<InputType>> _input_queues = null;
+        protected InputQueue<InputType>[] _input_queues = null;
 
         protected RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
         //protected UdpMsg::connect_status[] _local_connect_status;
@@ -267,7 +267,7 @@ namespace PleaseUndo
         }
         protected bool CreateQueues(Config config)
         {
-            _input_queues = new List<InputQueue<InputType>>(_config.num_players);
+            _input_queues = new InputQueue<InputType>[_config.num_players];
 
             for (int i = 0; i < _config.num_players; i++)
             {

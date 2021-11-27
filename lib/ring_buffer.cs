@@ -8,24 +8,12 @@ namespace PleaseUndo
         protected int _tail = 0;
         protected int _size = 0;
         protected int _capacity; /* was template N */
-        protected List<T> _elements; /* was a N fixed size array */
+        protected readonly T[] _elements; /* was a N fixed size array */
 
         public RingBuffer(int capacity)
         {
             _capacity = capacity;
-            _elements = new List<T>(capacity);
-        }
-
-        public T front()
-        {
-            Logger.Assert(_size != _capacity);
-            return _elements[_tail];
-        }
-
-        public T item(int i)
-        {
-            Logger.Assert(i < _size);
-            return _elements[(_tail + i) % _capacity];
+            _elements = new T[capacity];
         }
 
         public void pop()
@@ -41,6 +29,18 @@ namespace PleaseUndo
             _elements[_head] = t;
             _head = (_head + 1) % _capacity;
             _size++;
+        }
+
+        public T item(int i)
+        {
+            Logger.Assert(i < _size);
+            return _elements[(_tail + i) % _capacity];
+        }
+
+        public T front()
+        {
+            Logger.Assert(_size != _capacity);
+            return _elements[_tail];
         }
 
         public int size()
