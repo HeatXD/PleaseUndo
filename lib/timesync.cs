@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace PleaseUndo
 {
-    class TimeSync<InputType>
+    public class TimeSync<InputType>
     {
         const int FRAME_WINDOW_SIZE = 40;
         const int MIN_UNIQUE_FRAMES = 10;

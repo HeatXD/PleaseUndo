@@ -36,11 +36,11 @@ namespace PleaseUndo
         protected Config _config;
 
         protected bool _rollingback;
-        protected int _last_confirmed_frame;
-        protected int _framecount;
-        protected int _max_prediction_frames;
+        protected int _last_confirmed_frame = -1;
+        protected int _framecount = 0;
+        protected int _max_prediction_frames = 0;
 
-        protected List<InputQueue<InputType>> _input_queues;
+        protected List<InputQueue<InputType>> _input_queues = null;
 
         protected RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
         //protected UdpMsg::connect_status[] _local_connect_status;
