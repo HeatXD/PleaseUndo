@@ -2,21 +2,17 @@ namespace PleaseUndo
 {
     public struct GGPOSessionCallbacks
     {
-        public delegate bool begin_game(string game);
-        public delegate bool save_game_state(out byte[] buffer, out int len, out int checksum, int frame);
-        public delegate bool load_game_state(byte[] buffer, int lent);
-        public delegate bool log_game_state(string filename, byte[] buffer, int len);
-        public delegate bool free_buffer(byte[] buffer); // no need in C# but kept for sanity
-        public delegate bool advance_frame(int flags); // flags -> unused
-        public delegate bool on_event(GGPOEvent ev);
+        public delegate bool BeginGameDelegate(string game);
+        public delegate bool LoadGameStateDelegate(byte[] buffer, int lent);
+        public delegate bool SaveGameStateDelegate(out byte[] buffer, out int len, out int checksum, int frame);
+        public delegate bool OnEventDelegate(GGPOEvent ev);
+        public delegate bool AdvanceFrameDelegate();
 
-        public event begin_game OnBeginGame;
-        public event save_game_state OnSaveGameState;
-        public event load_game_state OnLoadGameState;
-        public event log_game_state OnLogGameState;
-        public event free_buffer OnFreeBuffer;
-        public event advance_frame OnAdvanceFrame;
-        public event on_event OnEvent;
+        public BeginGameDelegate OnBeginGame;
+        public SaveGameStateDelegate OnSaveGameState;
+        public LoadGameStateDelegate OnLoadGameState;
+        public OnEventDelegate OnEvent;
+        public AdvanceFrameDelegate OnAdvanceFrame;
     }
 
     public abstract class GGPOSession<InputType>

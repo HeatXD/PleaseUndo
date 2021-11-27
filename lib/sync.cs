@@ -30,19 +30,23 @@ namespace PleaseUndo
             public int head = 0;
         }
 
-        protected GGPOSessionCallbacks _callbacks;
-        protected SavedState _savedstate = new SavedState(); // be cautious: should be a struct
         protected Config _config;
+        protected SavedState _savedstate = new SavedState(); // be cautious: should be a struct
+        protected GGPOSessionCallbacks _callbacks;
 
         protected bool _rollingback;
-        protected int _last_confirmed_frame = -1;
         protected int _framecount = 0;
+        protected int _last_confirmed_frame = -1;
         protected int _max_prediction_frames = 0;
 
+        protected ConnectStatus _local_connect_status;
+        protected RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
         protected InputQueue<InputType>[] _input_queues = null;
 
-        protected RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
-        //protected UdpMsg::connect_status[] _local_connect_status;
+        public Sync(ConnectStatus connect_status)
+        {
+            _local_connect_status = connect_status; // Might be a pointer, so ConnectStatus being a struct might not be correct? god mutation is terrible
+        }
 
         public void Init(Config config)
         {
@@ -93,10 +97,12 @@ namespace PleaseUndo
 
             return true;
         }
+
         public void AddRemoteInput(int queue, GameInput<InputType> input)
         {
             _input_queues[queue].AddInput(input);
         }
+
         public int GetConfirmedInputs(InputType values, int size, int frame)
         {
             // int disconnect_flags = 0;
@@ -122,6 +128,7 @@ namespace PleaseUndo
             // return disconnect_flags;
             return 0;
         }
+
         public int SynchronizeInputs(InputType values, int size)
         {
             // int disconnect_flags = 0;
@@ -147,6 +154,7 @@ namespace PleaseUndo
             // return disconnect_flags;
             return 0;
         }
+
         public void CheckSimulation(int timeout)
         {
             int seek_to;
@@ -155,6 +163,7 @@ namespace PleaseUndo
                 AdjustSimulation(seek_to);
             }
         }
+
         public void AdjustSimulation(int seek_to)
         {
             int framecount = _framecount;
@@ -176,7 +185,7 @@ namespace PleaseUndo
             ResetPrediction(_framecount);
             for (int i = 0; i < count; i++)
             {
-                // _callbacks.advance_frame(0);
+                _callbacks.OnAdvanceFrame(/*0*/);
             }
             Logger.Assert(_framecount == framecount);
 
@@ -184,13 +193,23 @@ namespace PleaseUndo
 
             Logger.Log("---\n");
         }
+
         public void IncrementFrame()
         {
             _framecount++;
             SaveCurrentFrame();
         }
-        public int GetFrameCount() { return _framecount; }
-        public bool InRollback() { return _rollingback; }
+
+        public int GetFrameCount()
+        {
+            return _framecount;
+        }
+
+        public bool InRollback()
+        {
+            return _rollingback;
+        }
+
         public bool GetEvent(out Event? e)
         {
             if (_event_queue.size() > 0)
@@ -218,27 +237,25 @@ namespace PleaseUndo
             Logger.Log("=== Loading frame info %d (size: %d  checksum: %08x).\n", state.frame, state.cbuf, state.checksum);
 
             Logger.Assert(state.buf != null && state.cbuf != 0);
-            // _callbacks.load_game_state(state->buf, state->cbuf);
+            _callbacks.OnLoadGameState(state.buf, state.cbuf);
 
             // Reset framecount and the head of the state ring-buffer to point in
             // advance of the current frame (as if we had just finished executing it).
             _framecount = state.frame;
             _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
         }
+
         protected void SaveCurrentFrame()
         {
             SavedFrame state = _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
-            if (state.buf != null)
-            {
-                //  _callbacks.free_buffer(state.buf); // not needed in C#
-                state.buf = null;
-            }
+            state.buf = null;
             state.frame = _framecount;
-            // _callbacks.save_game_state(out state.buf, out state.cbuf, out state.checksum, state.frame);
+            _callbacks.OnSaveGameState(out state.buf, out state.cbuf, out state.checksum, state.frame);
 
             Logger.Log("=== Saved frame info {0} (size: {1}  checksum: {2}).\n", state.frame, state.cbuf, state.checksum);
             _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
         }
+
         protected int FindSavedFrameIndex(int frame)
         {
             int i, count = _savedstate.frames.GetLength(0);
@@ -255,6 +272,7 @@ namespace PleaseUndo
             }
             return i;
         }
+
         protected SavedFrame GetLastSavedFrame()
         {
             int i = _savedstate.head - 1;
@@ -264,6 +282,7 @@ namespace PleaseUndo
             }
             return _savedstate.frames[i];
         }
+
         protected bool CreateQueues(Config config)
         {
             _input_queues = new InputQueue<InputType>[_config.num_players];
@@ -275,6 +294,7 @@ namespace PleaseUndo
             }
             return true;
         }
+
         protected bool CheckSimulationConsistency(out int seekTo)
         {
             int first_incorrect = (int)GameInput<InputType>.Constants.NullFrame;
@@ -298,6 +318,7 @@ namespace PleaseUndo
             seekTo = first_incorrect;
             return false;
         }
+
         protected void ResetPrediction(int frameNumber)
         {
             for (int i = 0; i < _config.num_players; i++)
