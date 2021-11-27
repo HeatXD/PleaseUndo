@@ -8,6 +8,7 @@ namespace PleaseUndo
         static string logPath = Environment.GetEnvironmentVariable("PU_LOG_FILE_PATH");
         static string ignoreLog = Environment.GetEnvironmentVariable("PU_LOG_IGNORE");
         static string logToFile = Environment.GetEnvironmentVariable("PU_LOG_CREATE_FILE");
+        static string logUseTimestamp = Environment.GetEnvironmentVariable("PU_LOG_USE_TIMESTAMP");
 
         static bool firstLog = true;
 
@@ -15,13 +16,20 @@ namespace PleaseUndo
         {
             if (ignoreLog == null)
             {
+                string message = string.Format(fmt, args);
+
+                if (logUseTimestamp != null)
+                {
+                    message = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss ") + message;
+                }
+
                 if (logToFile != null && logPath != null)
                 {
-                    LogToFile(string.Format(fmt, args));
+                    LogToFile(message);
                 }
                 else
                 {
-                    Console.WriteLine(string.Format(fmt, args));
+                    Console.WriteLine(message);
                 }
             }
 
@@ -44,7 +52,7 @@ namespace PleaseUndo
         {
             if (!condition)
             {
-                Log("Assertion Error Program Halted\n");
+                Log("Assertion Error!\n");
                 throw new System.InvalidOperationException();
             }
         }
@@ -53,7 +61,7 @@ namespace PleaseUndo
         {
             if (!condition)
             {
-                Log("Assertion Error Program Halted: {0}\n", error_msg);
+                Log("Assertion Error: {0}\n", error_msg);
                 throw new System.InvalidOperationException();
             }
         }

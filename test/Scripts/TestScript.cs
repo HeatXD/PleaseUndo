@@ -7,6 +7,7 @@ public class TestScript : Node
 	{
 		System.Environment.SetEnvironmentVariable("PU_LOG_IGNORE", null);
 		System.Environment.SetEnvironmentVariable("PU_LOG_FILE_PATH", "logs.txt");
+		System.Environment.SetEnvironmentVariable("PU_LOG_USE_TIMESTAMP", "x");
 		System.Environment.SetEnvironmentVariable("PU_LOG_CREATE_FILE", "x");
 
 		GameInput<int> input = new GameInput<int>();
