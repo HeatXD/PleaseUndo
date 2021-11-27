@@ -30,8 +30,8 @@ namespace PleaseUndo
 
         public GGPOErrorCode DoPoll(int timeout) { return GGPOErrorCode.GGPO_OK; }
         public abstract GGPOErrorCode AddPlayer(GGPOPlayer player, GGPOPlayerHandle handle);
-        public abstract GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, GameInput<InputType> values, int size);
-        public abstract GGPOErrorCode SyncInput(GameInput<InputType> values, int size, int[] disconnect_flags);
+        public abstract GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType values, int size);
+        public abstract GGPOErrorCode SyncInput(InputType values, int size, int[] disconnect_flags);
         public GGPOErrorCode IncrementFrame() { return GGPOErrorCode.GGPO_OK; }
         public GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }
         public GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
@@ -54,8 +54,8 @@ namespace PleaseUndo
         public GGPOErrorCode ggpo_close_session() { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
         public GGPOErrorCode ggpo_set_frame_delay(/* GGPOSession session, */ GGPOPlayerHandle player, int frame_delay) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
         public GGPOErrorCode ggpo_idle(/* GGPOSession session, */ GGPOPlayerHandle player, int timeout) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
-        public GGPOErrorCode ggpo_add_local_input(/* GGPOSession session, */ GGPOPlayerHandle player, GameInput<InputType> values, int size) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
-        public GGPOErrorCode ggpo_synchronize_input(/* GGPOSession session, */ GameInput<InputType> values, int size, out int disconnect_flags) { disconnect_flags = 0; return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
+        public GGPOErrorCode ggpo_add_local_input(/* GGPOSession session, */ GGPOPlayerHandle player, InputType values, int size) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
+        public GGPOErrorCode ggpo_synchronize_input(/* GGPOSession session, */ InputType values, int size, out int disconnect_flags) { disconnect_flags = 0; return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
         public GGPOErrorCode ggpo_disconnect_player(/* GGPOSession session, */ GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
         public GGPOErrorCode ggpo_advance_frame(/* GGPOSession session, */) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
         public GGPOErrorCode ggpo_get_network_stats(/* GGPOSession session, */ GGPOPlayerHandle player, GGPONetworkStats stats) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }

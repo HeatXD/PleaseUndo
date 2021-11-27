@@ -98,7 +98,7 @@ namespace PleaseUndo
         {
             _input_queues[queue].AddInput(input);
         }
-        public int GetConfirmedInputs(GameInput<InputType> values, int size, int frame)
+        public int GetConfirmedInputs(InputType values, int size, int frame)
         {
             // int disconnect_flags = 0;
             // char* output = (char*)values;
@@ -123,7 +123,7 @@ namespace PleaseUndo
             // return disconnect_flags;
             return 0;
         }
-        public int SynchronizeInputs(GameInput<InputType> values, int size)
+        public int SynchronizeInputs(InputType values, int size)
         {
             // int disconnect_flags = 0;
             // char* output = (char*)values;
@@ -228,17 +228,17 @@ namespace PleaseUndo
         }
         protected void SaveCurrentFrame()
         {
-            // SavedFrame state = _savedstate.frames + _savedstate.head;
-            // if (state.buf)
-            // {
-            //     _callbacks.free_buffer(state.buf); // not needed in C#
-            //     state.buf = NULL;
-            // }
-            // state.frame = _framecount;
+            SavedFrame state = _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
+            if (state.buf != null)
+            {
+                //  _callbacks.free_buffer(state.buf); // not needed in C#
+                state.buf = null;
+            }
+            state.frame = _framecount;
             // _callbacks.save_game_state(out state.buf, out state.cbuf, out state.checksum, state.frame);
 
-            // Logger.Log("=== Saved frame info %d (size: %d  checksum: %08x).\n", state->frame, state->cbuf, state->checksum);
-            // _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
+            Logger.Log("=== Saved frame info {0} (size: {1}  checksum: {2}).\n", state.frame, state.cbuf, state.checksum);
+            _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
         }
         protected int FindSavedFrameIndex(int frame)
         {
