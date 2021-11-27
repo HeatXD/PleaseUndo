@@ -2,10 +2,26 @@ using System.Collections.Generic;
 
 namespace PleaseUndo
 {
-    class InputQueue<InputType>
+    public class InputQueue<InputType>
     {
         const int INPUT_QUEUE_LENGTH = 128;
         const int DEFAULT_INPUT_SIZE = 4;
+
+        protected int _id;
+        protected int _head;
+        protected int _tail;
+        protected int _length;
+        protected bool _first_frame;
+
+        protected int _last_user_added_frame;
+        protected int _last_added_frame;
+        protected int _first_incorrect_frame;
+        protected int _last_frame_requested;
+
+        protected int _frame_delay;
+
+        protected List<GameInput<InputType>> _inputs; // Fixed size INPUT_QUEUE_LENGTH
+        protected GameInput<InputType> _prediction;
 
         public InputQueue(int input_size = DEFAULT_INPUT_SIZE)
         {
@@ -306,21 +322,5 @@ namespace PleaseUndo
             }
             Logger.Assert(_length <= INPUT_QUEUE_LENGTH);
         }
-
-        protected int _id;
-        protected int _head;
-        protected int _tail;
-        protected int _length;
-        protected bool _first_frame;
-
-        protected int _last_user_added_frame;
-        protected int _last_added_frame;
-        protected int _first_incorrect_frame;
-        protected int _last_frame_requested;
-
-        protected int _frame_delay;
-
-        List<GameInput<InputType>> _inputs; // Fixed size INPUT_QUEUE_LENGTH
-        GameInput<InputType> _prediction;
     }
 }

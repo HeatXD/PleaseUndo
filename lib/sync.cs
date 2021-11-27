@@ -18,32 +18,32 @@ namespace PleaseUndo
             public int num_players;
             public int input_size;
         }
-        public class SavedFrame
+        protected class SavedFrame
         {
             public byte[] buf;
             public int cbuf = 0;
             public int frame = -1;
             public int checksum = 0;
         };
-        public class SavedState
+        protected class SavedState
         {
             public SavedFrame[] frames = new SavedFrame[MAX_PREDICTION_FRAMES + 2];
             public int head = 0;
         }
 
-        GGPOSessionCallbacks _callbacks;
-        SavedState _savedstate;
-        Config _config;
+        protected GGPOSessionCallbacks _callbacks;
+        protected SavedState _savedstate = new SavedState(); // be cautious: should be a struct
+        protected Config _config;
 
-        bool _rollingback;
-        int _last_confirmed_frame;
-        int _framecount;
-        int _max_prediction_frames;
+        protected bool _rollingback;
+        protected int _last_confirmed_frame;
+        protected int _framecount;
+        protected int _max_prediction_frames;
 
-        List<InputQueue<InputType>> _input_queues;
+        protected List<InputQueue<InputType>> _input_queues;
 
-        RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
-        // UdpMsg::connect_status* _local_connect_status;
+        protected RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
+        //protected UdpMsg::connect_status[] _local_connect_status;
 
         public void Init(Config config)
         {
@@ -98,7 +98,7 @@ namespace PleaseUndo
         {
             _input_queues[queue].AddInput(input);
         }
-        public int GetConfirmedInputs(GameInput<InputType> values, int size, int frame)
+        public int GetConfirmedInputs(InputType values, int size, int frame)
         {
             // int disconnect_flags = 0;
             // char* output = (char*)values;
@@ -123,7 +123,7 @@ namespace PleaseUndo
             // return disconnect_flags;
             return 0;
         }
-        public int SynchronizeInputs(GameInput<InputType> values, int size)
+        public int SynchronizeInputs(InputType values, int size)
         {
             // int disconnect_flags = 0;
             // char* output = (char*)values;
@@ -228,17 +228,17 @@ namespace PleaseUndo
         }
         protected void SaveCurrentFrame()
         {
-            // SavedFrame state = _savedstate.frames + _savedstate.head;
-            // if (state.buf)
-            // {
-            //     _callbacks.free_buffer(state.buf); // not needed in C#
-            //     state.buf = NULL;
-            // }
-            // state.frame = _framecount;
+            SavedFrame state = _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
+            if (state.buf != null)
+            {
+                //  _callbacks.free_buffer(state.buf); // not needed in C#
+                state.buf = null;
+            }
+            state.frame = _framecount;
             // _callbacks.save_game_state(out state.buf, out state.cbuf, out state.checksum, state.frame);
 
-            // Logger.Log("=== Saved frame info %d (size: %d  checksum: %08x).\n", state->frame, state->cbuf, state->checksum);
-            // _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
+            Logger.Log("=== Saved frame info {0} (size: {1}  checksum: {2}).\n", state.frame, state.cbuf, state.checksum);
+            _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
         }
         protected int FindSavedFrameIndex(int frame)
         {

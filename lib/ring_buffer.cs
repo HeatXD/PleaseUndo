@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace PleaseUndo
 {
-    class RingBuffer<T>
+    public class RingBuffer<T>
     {
         public RingBuffer(int capacity)
         {
