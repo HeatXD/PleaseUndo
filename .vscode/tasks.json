@@ -7,7 +7,7 @@
       "label": "build",
       "command": "dotnet",
       "options": {
-        "cwd": "test"
+        "cwd": "test" // Godot project
       },
       "type": "shell",
       "args": [
