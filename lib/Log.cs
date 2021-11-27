@@ -6,7 +6,6 @@ namespace PleaseUndo
     {
         const string logPath = "pu_log_info.txt";
         static bool logToFile = true;
-
         static bool firstLog = true;
 
         public static void Log(string fmt, params object[] args)
@@ -38,6 +37,15 @@ namespace PleaseUndo
         {
             if (!condition)
             {
+                Log("Assertion Error Program Halted");
+                throw new System.InvalidOperationException();
+            }
+        }
+        public static void Assert(bool condition, string error_msg)
+        {
+            if (!condition)
+            {
+                Log("Assertion Error Program Halted: {0}", error_msg);
                 throw new System.InvalidOperationException();
             }
         }
