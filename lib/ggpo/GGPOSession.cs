@@ -4,7 +4,7 @@ namespace PleaseUndo
     {
         public delegate bool BeginGameDelegate(string game);
         public delegate bool LoadGameStateDelegate(byte[] buffer, int lent);
-        public delegate bool SaveGameStateDelegate(out byte[] buffer, out int len, out int checksum, int frame);
+        public delegate bool SaveGameStateDelegate(ref byte[] buffer, ref int len, ref int checksum, int frame);
         public delegate bool OnEventDelegate(GGPOEvent ev);
         public delegate bool AdvanceFrameDelegate();
 
@@ -25,7 +25,7 @@ namespace PleaseUndo
         public GGPOErrorCode DoPoll(int timeout) { return GGPOErrorCode.GGPO_OK; }
         public abstract GGPOErrorCode AddPlayer(GGPOPlayer player, GGPOPlayerHandle handle);
         public abstract GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType values, int size);
-        public abstract GGPOErrorCode SyncInput(InputType values, int size, out int disconnect_flags);
+        public abstract GGPOErrorCode SyncInput(InputType values, int size, ref int disconnect_flags);
         public GGPOErrorCode IncrementFrame() { return GGPOErrorCode.GGPO_OK; }
         public GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }
         public GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
@@ -37,9 +37,9 @@ namespace PleaseUndo
 
         #region TODO: Create facade pattern
 
-        public static GGPOErrorCode ggpo_start_session(out GGPOSession<InputType> session, GGPOSessionCallbacks cb, string game, int num_players, int input_size, ushort localport) { session = null; return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
-        public static GGPOErrorCode ggpo_start_synctest(out GGPOSession<InputType> session, GGPOSessionCallbacks cb, string game, int num_players, int input_size, int frames) { session = null; return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
-        public static GGPOErrorCode ggpo_start_spectating(out GGPOSession<InputType> session, GGPOSessionCallbacks cb, string game, int num_players, int input_size, ushort local_port, string host_ip, ushort host_port) { session = null; return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
+        public static GGPOErrorCode ggpo_start_session(ref GGPOSession<InputType> session, GGPOSessionCallbacks cb, string game, int num_players, int input_size, ushort localport) { session = null; return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
+        public static GGPOErrorCode ggpo_start_synctest(ref GGPOSession<InputType> session, GGPOSessionCallbacks cb, string game, int num_players, int input_size, int frames) { session = null; return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
+        public static GGPOErrorCode ggpo_start_spectating(ref GGPOSession<InputType> session, GGPOSessionCallbacks cb, string game, int num_players, int input_size, ushort local_port, string host_ip, ushort host_port) { session = null; return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }
 
         #endregion
 
@@ -66,9 +66,9 @@ namespace PleaseUndo
         {
             return AddLocalInput(player, values, size);
         }
-        public GGPOErrorCode ggpo_synchronize_input(/* GGPOSession session, */ InputType values, int size, out int disconnect_flags)
+        public GGPOErrorCode ggpo_synchronize_input(/* GGPOSession session, */ InputType values, int size, ref int disconnect_flags)
         {
-            return SyncInput(values, size, out disconnect_flags);
+            return SyncInput(values, size, ref disconnect_flags);
         }
         public GGPOErrorCode ggpo_disconnect_player(/* GGPOSession session, */ GGPOPlayerHandle handle)
         {

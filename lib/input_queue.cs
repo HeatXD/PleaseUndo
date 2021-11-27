@@ -101,7 +101,7 @@ namespace PleaseUndo
             Logger.Assert(_length >= 0);
         }
 
-        public bool GetInput(int requested_frame, out GameInput<InputType>? input)
+        public bool GetInput(int requested_frame, ref GameInput<InputType> input)
         {
             Logger.Log("requesting input frame {0}.\n", requested_frame);
 
@@ -203,14 +203,13 @@ namespace PleaseUndo
              */
             input.frame = new_frame;
         }
-        public bool GetConfirmedInput(int requested_frame, out GameInput<InputType>? input)
+        public bool GetConfirmedInput(int requested_frame, ref GameInput<InputType> input)
         {
             Logger.Assert(_first_incorrect_frame == (int)GameInput<InputType>.Constants.NullFrame || requested_frame < _first_incorrect_frame);
 
             int offset = requested_frame % INPUT_QUEUE_LENGTH;
             if (_inputs[offset].frame != requested_frame)
             {
-                input = null;
                 return false;
             }
             input = _inputs[offset];

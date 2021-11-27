@@ -157,8 +157,8 @@ namespace PleaseUndo
 
         public void CheckSimulation(int timeout)
         {
-            int seek_to;
-            if (!CheckSimulationConsistency(out seek_to))
+            int seek_to = 0;
+            if (!CheckSimulationConsistency(ref seek_to))
             {
                 AdjustSimulation(seek_to);
             }
@@ -210,7 +210,7 @@ namespace PleaseUndo
             return _rollingback;
         }
 
-        public bool GetEvent(out Event? e)
+        public bool GetEvent(ref Event e)
         {
             if (_event_queue.size() > 0)
             {
@@ -218,7 +218,6 @@ namespace PleaseUndo
                 _event_queue.pop();
                 return true;
             }
-            e = null;
             return false;
         }
 
@@ -250,7 +249,7 @@ namespace PleaseUndo
             SavedFrame state = _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
             state.buf = null;
             state.frame = _framecount;
-            _callbacks.OnSaveGameState(out state.buf, out state.cbuf, out state.checksum, state.frame);
+            _callbacks.OnSaveGameState(ref state.buf, ref state.cbuf, ref state.checksum, state.frame);
 
             Logger.Log("=== Saved frame info {0} (size: {1}  checksum: {2}).\n", state.frame, state.cbuf, state.checksum);
             _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
@@ -295,7 +294,7 @@ namespace PleaseUndo
             return true;
         }
 
-        protected bool CheckSimulationConsistency(out int seekTo)
+        protected bool CheckSimulationConsistency(ref int seekTo)
         {
             int first_incorrect = (int)GameInput<InputType>.Constants.NullFrame;
             for (int i = 0; i < _config.num_players; i++)
@@ -312,7 +311,6 @@ namespace PleaseUndo
             if (first_incorrect == (int)GameInput<InputType>.Constants.NullFrame)
             {
                 Logger.Log("prediction ok.  proceeding.\n");
-                seekTo = 0; // ??
                 return true;
             }
             seekTo = first_incorrect;
