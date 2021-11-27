@@ -37,7 +37,7 @@ namespace PleaseUndo
         {
             if (!condition)
             {
-                Log("Assertion Error Program Halted");
+                Log("Assertion Error Program Halted\n");
                 throw new System.InvalidOperationException();
             }
         }
@@ -45,7 +45,7 @@ namespace PleaseUndo
         {
             if (!condition)
             {
-                Log("Assertion Error Program Halted: {0}", error_msg);
+                Log("Assertion Error Program Halted: {0}\n", error_msg);
                 throw new System.InvalidOperationException();
             }
         }
