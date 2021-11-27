@@ -79,7 +79,7 @@ namespace PleaseUndo
             int frames_behind = _framecount - _last_confirmed_frame;
             if (_framecount >= _max_prediction_frames && frames_behind >= _max_prediction_frames)
             {
-                Log("Rejecting input from emulator: reached prediction barrier.\n");
+                Logger.Log("Rejecting input from emulator: reached prediction barrier.\n");
                 return false;
             }
 
@@ -88,7 +88,7 @@ namespace PleaseUndo
                 SaveCurrentFrame();
             }
 
-            Log("Sending undelayed local frame %d to queue %d.\n", _framecount, queue);
+            Logger.Log("Sending undelayed local frame %d to queue %d.\n", _framecount, queue);
             input.frame = _framecount;
             _input_queues[queue].AddInput(input);
 
@@ -103,7 +103,7 @@ namespace PleaseUndo
             // int disconnect_flags = 0;
             // char* output = (char*)values;
 
-            // ASSERT(size >= _config.num_players * _config.input_size);
+            // Logger.Assert(size >= _config.num_players * _config.input_size);
 
             // memset(output, 0, size);
             // for (int i = 0; i < _config.num_players; i++)
@@ -128,7 +128,7 @@ namespace PleaseUndo
             // int disconnect_flags = 0;
             // char* output = (char*)values;
 
-            // ASSERT(size >= _config.num_players * _config.input_size);
+            // Logger.Assert(size >= _config.num_players * _config.input_size);
 
             // memset(output, 0, size);
             // for (int i = 0; i < _config.num_players; i++)
@@ -161,14 +161,14 @@ namespace PleaseUndo
             int framecount = _framecount;
             int count = _framecount - seek_to;
 
-            Log("Catching up\n");
+            Logger.Log("Catching up\n");
             _rollingback = true;
 
             /*
              * Flush our input queue and load the last frame.
              */
             LoadFrame(seek_to);
-            ASSERT(_framecount == seek_to);
+            Logger.Assert(_framecount == seek_to);
 
             /*
              * Advance frame by frame (stuffing notifications back to 
@@ -179,11 +179,11 @@ namespace PleaseUndo
             {
                 // _callbacks.advance_frame(0);
             }
-            ASSERT(_framecount == framecount);
+            Logger.Assert(_framecount == framecount);
 
             _rollingback = false;
 
-            Log("---\n");
+            Logger.Log("---\n");
         }
         public void IncrementFrame()
         {
@@ -208,7 +208,7 @@ namespace PleaseUndo
         {
             if (frame == _framecount)
             {
-                Log("Skipping NOP.\n");
+                Logger.Log("Skipping NOP.\n");
                 return;
             }
 
@@ -216,9 +216,9 @@ namespace PleaseUndo
             _savedstate.head = FindSavedFrameIndex(frame);
             SavedFrame state = _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
 
-            Log("=== Loading frame info %d (size: %d  checksum: %08x).\n", state.frame, state.cbuf, state.checksum);
+            Logger.Log("=== Loading frame info %d (size: %d  checksum: %08x).\n", state.frame, state.cbuf, state.checksum);
 
-            ASSERT(state.buf != null && state.cbuf != 0);
+            Logger.Assert(state.buf != null && state.cbuf != 0);
             // _callbacks.load_game_state(state->buf, state->cbuf);
 
             // Reset framecount and the head of the state ring-buffer to point in
@@ -237,7 +237,7 @@ namespace PleaseUndo
             // state.frame = _framecount;
             // _callbacks.save_game_state(out state.buf, out state.cbuf, out state.checksum, state.frame);
 
-            // Log("=== Saved frame info %d (size: %d  checksum: %08x).\n", state->frame, state->cbuf, state->checksum);
+            // Logger.Log("=== Saved frame info %d (size: %d  checksum: %08x).\n", state->frame, state->cbuf, state->checksum);
             // _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.GetLength(0);
         }
         protected int FindSavedFrameIndex(int frame)
@@ -252,7 +252,7 @@ namespace PleaseUndo
             }
             if (i == count)
             {
-                ASSERT(false);
+                Logger.Assert(false);
             }
             return i;
         }
@@ -282,7 +282,7 @@ namespace PleaseUndo
             for (int i = 0; i < _config.num_players; i++)
             {
                 int incorrect = _input_queues[i].GetFirstIncorrectFrame();
-                Log("considering incorrect frame %d reported by queue %d.\n", incorrect, i);
+                Logger.Log("considering incorrect frame %d reported by queue %d.\n", incorrect, i);
 
                 if (incorrect != (int)GameInput<InputType>.Constants.NullFrame && (first_incorrect == (int)GameInput<InputType>.Constants.NullFrame || incorrect < first_incorrect))
                 {
@@ -292,7 +292,7 @@ namespace PleaseUndo
 
             if (first_incorrect == (int)GameInput<InputType>.Constants.NullFrame)
             {
-                Log("prediction ok.  proceeding.\n");
+                Logger.Log("prediction ok.  proceeding.\n");
                 seekTo = 0; // ??
                 return true;
             }
@@ -305,15 +305,6 @@ namespace PleaseUndo
             {
                 _input_queues[i].ResetPrediction(frameNumber);
             }
-        }
-
-        void Log(string fmt, params object[] list)
-        {
-
-        }
-        void ASSERT(bool condition)
-        {
-            if (!condition) throw new System.ArgumentException();
         }
     }
 }

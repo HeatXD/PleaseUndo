@@ -15,5 +15,13 @@ namespace PleaseUndo
         {
 
         }
+
+        public static void Assert(bool condition)
+        {
+            if (!condition)
+            {
+                throw new System.InvalidOperationException();
+            }
+        }
     }
 }
