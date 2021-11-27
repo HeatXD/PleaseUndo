@@ -173,7 +173,7 @@ namespace PleaseUndo
 
             return false;
         }
-        public void AddInput(GameInput<InputType> input)
+        public void AddInput(ref GameInput<InputType> input)
         {
             int new_frame;
 

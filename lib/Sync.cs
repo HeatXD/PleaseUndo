@@ -75,7 +75,7 @@ namespace PleaseUndo
             _input_queues[queue].SetFrameDelay(delay);
         }
 
-        public bool AddLocalInput(int queue, GameInput<InputType> input)
+        public bool AddLocalInput(int queue, ref GameInput<InputType> input)
         {
             int frames_behind = _framecount - _last_confirmed_frame;
             if (_framecount >= _max_prediction_frames && frames_behind >= _max_prediction_frames)
@@ -91,14 +91,14 @@ namespace PleaseUndo
 
             Logger.Log("Sending undelayed local frame %d to queue %d.\n", _framecount, queue);
             input.frame = _framecount;
-            _input_queues[queue].AddInput(input);
+            _input_queues[queue].AddInput(ref input);
 
             return true;
         }
 
-        public void AddRemoteInput(int queue, GameInput<InputType> input)
+        public void AddRemoteInput(int queue, ref GameInput<InputType> input)
         {
-            _input_queues[queue].AddInput(input);
+            _input_queues[queue].AddInput(ref input);
         }
 
         public int GetConfirmedInputs(InputType values, int size, int frame)
@@ -229,7 +229,7 @@ namespace PleaseUndo
 
             // Move the head pointer back and load it up
             _savedstate.head = FindSavedFrameIndex(frame);
-            SavedFrame state = _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
+            ref SavedFrame state = ref _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
 
             Logger.Log("=== Loading frame info {0} (size: {1}  checksum: {2}).\n", state.frame, state.cbuf, state.checksum);
 
@@ -244,7 +244,7 @@ namespace PleaseUndo
 
         protected void SaveCurrentFrame()
         {
-            SavedFrame state = _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
+            ref SavedFrame state = ref _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
             state.buf = null;
             state.frame = _framecount;
             _callbacks.OnSaveGameState(ref state.buf, ref state.cbuf, ref state.checksum, state.frame);
@@ -270,14 +270,14 @@ namespace PleaseUndo
             return i;
         }
 
-        protected SavedFrame GetLastSavedFrame()
+        protected ref SavedFrame GetLastSavedFrame()
         {
             int i = _savedstate.head - 1;
             if (i < 0)
             {
                 i = _savedstate.frames.Length - 1;
             }
-            return _savedstate.frames[i];
+            return ref _savedstate.frames[i];
         }
 
         protected bool CreateQueues(Config config)
