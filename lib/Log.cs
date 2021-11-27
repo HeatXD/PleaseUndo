@@ -6,5 +6,13 @@ namespace PleaseUndo
         {
             System.Console.WriteLine(string.Format(fmt, args));
         }
+
+        public static void Assert(bool condition)
+        {
+            if (!condition)
+            {
+                throw new System.InvalidOperationException();
+            }
+        }
     }
 }
