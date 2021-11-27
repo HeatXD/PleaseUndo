@@ -6,16 +6,16 @@ namespace PleaseUndo
     public class Logger
     {
         static string logPath = Environment.GetEnvironmentVariable("PU_LOG_FILE_PATH");
-        static bool ignoreLog = Environment.GetEnvironmentVariable("PU_LOG_IGNORE") == null;
-        static bool logToFile = Environment.GetEnvironmentVariable("PU_LOG_CREATE_FILE") != null;
+        static string ignoreLog = Environment.GetEnvironmentVariable("PU_LOG_IGNORE");
+        static string logToFile = Environment.GetEnvironmentVariable("PU_LOG_CREATE_FILE");
 
         static bool firstLog = true;
 
         public static void Log(string fmt, params object[] args)
         {
-            if (ignoreLog)
+            if (ignoreLog == null)
             {
-                if (logToFile && logPath != null)
+                if (logToFile != null && logPath != null)
                 {
                     LogToFile(string.Format(fmt, args));
                 }
