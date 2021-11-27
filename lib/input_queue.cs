@@ -43,7 +43,7 @@ namespace PleaseUndo
         }
         public int GetLastConfirmedFrame()
         {
-            Log("returning last confirmed frame %d.\n", _last_added_frame);
+            Logger.Log("returning last confirmed frame {0}.\n", _last_added_frame);
             return _last_added_frame;
         }
         public int GetFirstIncorrectFrame()
@@ -63,7 +63,7 @@ namespace PleaseUndo
         {
             ASSERT(_first_incorrect_frame == (int)GameInput<InputType>.Constants.NullFrame || frame <= _first_incorrect_frame);
 
-            Log("resetting all prediction errors back to frame %d.\n", frame);
+            Logger.Log("resetting all prediction errors back to frame {0}.\n", frame);
 
             /*
              * There's nothing really to do other than reset our prediction
@@ -82,7 +82,7 @@ namespace PleaseUndo
                 frame = System.Math.Min(frame, _last_frame_requested);
             }
 
-            Log("discarding confirmed frames up to %d (last_added:%d length:%d [head:%d tail:%d]).\n", frame, _last_added_frame, _length, _head, _tail);
+            Logger.Log("discarding confirmed frames up to {0} (last_added:{1} length:{2} [head:{3} tail:{4}]).\n", frame, _last_added_frame, _length, _head, _tail);
             if (frame >= _last_added_frame)
             {
                 _tail = _head;
@@ -91,14 +91,14 @@ namespace PleaseUndo
             {
                 int offset = frame - _inputs[_tail].frame + 1;
 
-                Log("difference of %d frames.\n", offset);
+                Logger.Log("difference of {0} frames.\n", offset);
                 ASSERT(offset >= 0);
 
                 _tail = (_tail + offset) % INPUT_QUEUE_LENGTH;
                 _length -= offset;
             }
 
-            Log("after discarding, new tail is %d (frame:%d).\n", _tail, _inputs[_tail].frame);
+            Logger.Log("after discarding, new tail is {0} (frame:{1}).\n", _tail, _inputs[_tail].frame);
             ASSERT(_length >= 0);
         }
         public bool GetConfirmedInput(int requested_frame, out GameInput<InputType>? input)
@@ -116,7 +116,7 @@ namespace PleaseUndo
         }
         public bool GetInput(int requested_frame, out GameInput<InputType>? input)
         {
-            Log("requesting input frame %d.\n", requested_frame);
+            Logger.Log("requesting input frame {0}.\n", requested_frame);
 
             /*
              * No one should ever try to grab any input when we have a prediction
@@ -146,7 +146,7 @@ namespace PleaseUndo
                     offset = (offset + _tail) % INPUT_QUEUE_LENGTH;
                     ASSERT(_inputs[offset].frame == requested_frame);
                     input = _inputs[offset];
-                    Log("returning confirmed frame number %d.\n", ((GameInput<InputType>)input).frame);
+                    Logger.Log("returning confirmed frame number {0}.\n", ((GameInput<InputType>)input).frame);
                     return true;
                 }
 
@@ -157,17 +157,17 @@ namespace PleaseUndo
                  */
                 if (requested_frame == 0)
                 {
-                    Log("basing new prediction frame from nothing, you're client wants frame 0.\n");
+                    Logger.Log("basing new prediction frame from nothing, you're client wants frame 0.\n");
                     _prediction.Erase();
                 }
                 else if (_last_added_frame == (int)GameInput<InputType>.Constants.NullFrame)
                 {
-                    Log("basing new prediction frame from nothing, since we have no frames yet.\n");
+                    Logger.Log("basing new prediction frame from nothing, since we have no frames yet.\n");
                     _prediction.Erase();
                 }
                 else
                 {
-                    Log("basing new prediction frame from previously added frame (queue entry:%d, frame:%d).\n", PREVIOUS_FRAME(_head), _inputs[PREVIOUS_FRAME(_head)].frame);
+                    Logger.Log("basing new prediction frame from previously added frame (queue entry:{0}, frame:{1}).\n", PREVIOUS_FRAME(_head), _inputs[PREVIOUS_FRAME(_head)].frame);
                     _prediction = _inputs[PREVIOUS_FRAME(_head)];
                 }
                 _prediction.frame++;
@@ -182,7 +182,7 @@ namespace PleaseUndo
              */
             input = _prediction;
             _prediction.frame = requested_frame; // was input.frame = requested_frame, but should be equivalent?
-            Log("returning prediction frame number %d (%d).\n", ((GameInput<InputType>)input).frame, _prediction.frame);
+            Logger.Log("returning prediction frame number {0} ({1}).\n", ((GameInput<InputType>)input).frame, _prediction.frame);
 
             return false;
         }
@@ -190,7 +190,7 @@ namespace PleaseUndo
         {
             int new_frame;
 
-            Log("adding input frame number %d to queue.\n", input.frame);
+            Logger.Log("adding input frame number {0} to queue.\n", input.frame);
 
             /*
              * These next two lines simply verify that inputs are passed in 
@@ -220,7 +220,7 @@ namespace PleaseUndo
 
         protected int AdvanceQueueHead(int frame)
         {
-            Log("advancing queue head to frame %d.\n", frame);
+            Logger.Log("advancing queue head to frame {0}.\n", frame);
 
             int expected_frame = _first_frame ? 0 : _inputs[PREVIOUS_FRAME(_head)].frame + 1;
 
@@ -233,7 +233,7 @@ namespace PleaseUndo
                  * time we shoved a frame into the system.  In this case, there's
                  * no room on the queue.  Toss it.
                  */
-                Log("Dropping input frame %d (expected next frame to be %d).\n", frame, expected_frame);
+                Logger.Log("Dropping input frame {0} (expected next frame to be {1}).\n", frame, expected_frame);
                 return (int)GameInput<InputType>.Constants.NullFrame;
             }
 
@@ -245,7 +245,7 @@ namespace PleaseUndo
                  * last frame in the queue several times in order to fill the space
                  * left.
                  */
-                Log("Adding padding frame %d to account for change in frame delay.\n", expected_frame);
+                Logger.Log("Adding padding frame {0} to account for change in frame delay.\n", expected_frame);
                 var last_frame = _inputs[PREVIOUS_FRAME(_head)];
                 AddDelayedInputToQueue(last_frame, expected_frame);
                 expected_frame++;
@@ -256,7 +256,7 @@ namespace PleaseUndo
         }
         protected void AddDelayedInputToQueue(GameInput<InputType> input, int frame_number)
         {
-            Log("adding delayed input frame number %d to queue.\n", frame_number);
+            Logger.Log("adding delayed input frame number {0} to queue.\n", frame_number);
 
             // ASSERT(input.size == _prediction.size); // Not needed in C#
 
@@ -289,7 +289,7 @@ namespace PleaseUndo
                  */
                 if (_first_incorrect_frame == (int)GameInput<InputType>.Constants.NullFrame && !_prediction.Equal(input, true))
                 {
-                    Log("frame %d does not match prediction.  marking error.\n", frame_number);
+                    Logger.Log("frame {0} does not match prediction.  marking error.\n", frame_number);
                     _first_incorrect_frame = frame_number;
                 }
 
@@ -301,7 +301,7 @@ namespace PleaseUndo
                  */
                 if (_prediction.frame == _last_frame_requested && _first_incorrect_frame == (int)GameInput<InputType>.Constants.NullFrame)
                 {
-                    Log("prediction is correct!  dumping out of prediction mode.\n");
+                    Logger.Log("prediction is correct!  dumping out of prediction mode.\n");
                     _prediction.frame = (int)GameInput<InputType>.Constants.NullFrame;
                 }
                 else
@@ -310,10 +310,6 @@ namespace PleaseUndo
                 }
             }
             ASSERT(_length <= INPUT_QUEUE_LENGTH);
-        }
-        protected void Log(string fmt, params object[] list)
-        {
-
         }
 
         protected int _id;
