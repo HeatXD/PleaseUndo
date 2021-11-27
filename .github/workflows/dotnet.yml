@@ -19,6 +19,6 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore PleaseUndo.csproj
+      run: dotnet restore lib/PleaseUndo.csproj
     - name: Build
-      run: dotnet build PleaseUndo.csproj --no-restore
+      run: dotnet build lib/PleaseUndo.csproj --no-restore
