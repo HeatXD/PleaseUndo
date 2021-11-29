@@ -2,14 +2,20 @@ namespace PleaseUndo
 {
     public class NetProto : IPollSink
     {
-        public struct Stats
+        public class Event { }
+        public class InputEvent : Event
         {
-            public int ping;
-            public int remote_frame_advantage;
-            public int local_frame_advantage;
-            public int send_queue_len;
-            // Udp::Stats          udp;
-        };
+            GameInput<object> input;
+        }
+        public class SynchronizingEvent : Event
+        {
+            int total;
+            int count;
+        }
+        public class NetworkInterruptedEvent : Event
+        {
+            int disconnect_timeout;
+        }
 
         public enum State
         {
@@ -19,11 +25,13 @@ namespace PleaseUndo
             Disconnected
         };
 
-        public struct QueueEntry
+        public struct Stats
         {
-            public int queue_time;
-            // sockaddr_in dest_addr;
-            public NetMsg msg;
+            public int ping;
+            public int remote_frame_advantage;
+            public int local_frame_advantage;
+            public int send_queue_len;
+            // Udp::Stats          udp;
         };
 
         public struct OO_Packet
@@ -35,17 +43,27 @@ namespace PleaseUndo
 
         public struct InnerState
         {
-            public struct Sync
+            public struct SyncState
             {
                 public uint roundtrips_remaining;
                 public uint random;
             };
-            public struct Running
+            public struct RunningState
             {
                 public uint last_quality_report_time;
                 public uint last_network_stats_interval;
                 public uint last_input_packet_recv_time;
             }
+
+            public SyncState Sync;
+            public RunningState Running;
         }
+
+        public struct QueueEntry
+        {
+            public int queue_time;
+            // sockaddr_in dest_addr;
+            public NetMsg msg;
+        };
     }
 }
