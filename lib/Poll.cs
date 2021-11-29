@@ -1,10 +1,10 @@
 namespace PleaseUndo
 {
-    public interface IPollSink
+    public abstract class IPollSink
     {
-        bool OnMsgPoll(ref object cookie) => true;
-        bool OnLoopPoll(ref object cookie) => true;
-        bool OnPeriodicPoll(ref object cookie, int last_fired) => true;
+        public virtual bool OnMsgPoll(ref object cookie) => true;
+        public virtual bool OnLoopPoll(ref object cookie) => true;
+        public virtual bool OnPeriodicPoll(ref object cookie, int last_fired) => true;
     }
 
     public class Poll
@@ -25,19 +25,19 @@ namespace PleaseUndo
             _periodic_sinks = new StaticBuffer<PollPeriodicSinkCb>(SINK_SIZE);
         }
 
-        public void RegisterMsgLoop(ref IPollSink sink, object cookie = null)
+        public void RegisterMsgLoop(ref IPollSink sink, ref object cookie)
         {
-            _msg_sinks.PushBack(new PollSinkCb(ref sink, cookie));
+            _msg_sinks.PushBack(new PollSinkCb(ref sink, ref cookie));
         }
 
-        public void RegisterPeriodic(ref IPollSink sink, int interval, object cookie = null)
+        public void RegisterPeriodic(ref IPollSink sink, int interval, ref object cookie)
         {
-            _periodic_sinks.PushBack(new PollPeriodicSinkCb(ref sink, cookie, interval));
+            _periodic_sinks.PushBack(new PollPeriodicSinkCb(ref sink, ref cookie, interval));
         }
 
         public void RegisterLoop(ref IPollSink sink, object cookie = null)
         {
-            _loop_sinks.PushBack(new PollSinkCb(ref sink, cookie));
+            _loop_sinks.PushBack(new PollSinkCb(ref sink, ref cookie));
         }
 
         public void Run()
@@ -107,7 +107,7 @@ namespace PleaseUndo
             public IPollSink sink;
             public object cookie;
 
-            public PollSinkCb(ref IPollSink sink, object cookie = null)
+            public PollSinkCb(ref IPollSink sink, ref object cookie)
             {
                 this.sink = sink;
                 this.cookie = cookie;
@@ -119,8 +119,8 @@ namespace PleaseUndo
             public int interval;
             public int last_fired;
 
-            public PollPeriodicSinkCb(ref IPollSink sink, object cookie = null, int interval = 0)
-                : base(ref sink, cookie)
+            public PollPeriodicSinkCb(ref IPollSink sink, ref object cookie, int interval = 0)
+                : base(ref sink, ref cookie)
             {
                 this.interval = interval;
                 this.last_fired = 0;

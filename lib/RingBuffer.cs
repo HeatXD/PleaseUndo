@@ -14,14 +14,14 @@ namespace PleaseUndo
             _elements = new T[capacity];
         }
 
-        public void pop()
+        public void Pop()
         {
             Logger.Assert(_size != _capacity);
             _tail = (_tail + 1) % _capacity;
             _size--;
         }
 
-        public void push(T t)
+        public void Push(T t)
         {
             Logger.Assert(_size != _capacity - 1);
             _elements[_head] = t;
@@ -29,24 +29,24 @@ namespace PleaseUndo
             _size++;
         }
 
-        public T item(int i)
+        public T Item(int i)
         {
             Logger.Assert(i < _size);
             return _elements[(_tail + i) % _capacity];
         }
 
-        public T front()
+        public T Front()
         {
             Logger.Assert(_size != _capacity);
             return _elements[_tail];
         }
 
-        public int size()
+        public int Size()
         {
             return _size;
         }
 
-        public bool empty()
+        public bool Empty()
         {
             return _size == 0;
         }

@@ -210,10 +210,10 @@ namespace PleaseUndo
 
         public bool GetEvent(ref Event e)
         {
-            if (_event_queue.size() > 0)
+            if (_event_queue.Size() > 0)
             {
-                e = _event_queue.front();
-                _event_queue.pop();
+                e = _event_queue.Front();
+                _event_queue.Pop();
                 return true;
             }
             return false;
