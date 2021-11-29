@@ -2,9 +2,9 @@ namespace PleaseUndo
 {
     public abstract class IPollSink
     {
-        public virtual bool OnMsgPoll(ref object cookie) => true;
-        public virtual bool OnLoopPoll(ref object cookie) => true;
-        public virtual bool OnPeriodicPoll(ref object cookie, int last_fired) => true;
+        public virtual bool OnMsgPoll() => true;
+        public virtual bool OnLoopPoll() => true;
+        public virtual bool OnPeriodicPoll(int last_fired) => true;
     }
 
     public class Poll
@@ -25,25 +25,25 @@ namespace PleaseUndo
             _periodic_sinks = new StaticBuffer<PollPeriodicSinkCb>(SINK_SIZE);
         }
 
-        public void RegisterMsgLoop(ref IPollSink sink, ref object cookie)
+        public void RegisterMsgLoop(ref IPollSink sink)
         {
-            _msg_sinks.PushBack(new PollSinkCb(ref sink, ref cookie));
+            _msg_sinks.PushBack(new PollSinkCb(ref sink));
         }
 
-        public void RegisterPeriodic(ref IPollSink sink, int interval, ref object cookie)
+        public void RegisterPeriodic(ref IPollSink sink, int interval)
         {
-            _periodic_sinks.PushBack(new PollPeriodicSinkCb(ref sink, ref cookie, interval));
+            _periodic_sinks.PushBack(new PollPeriodicSinkCb(ref sink, interval));
         }
 
-        public void RegisterLoop(ref IPollSink sink, object cookie = null)
+        public void RegisterLoop(ref IPollSink sink)
         {
-            _loop_sinks.PushBack(new PollSinkCb(ref sink, ref cookie));
+            _loop_sinks.PushBack(new PollSinkCb(ref sink));
         }
 
-        public void Run()
-        {
-            // this function does not get used in ggpo source. might remove later.
-        }
+        // public void Run()
+        // {
+        //     // this function does not get used in ggpo source. might remove later.
+        // }
 
         public bool Pump(int timeout)
         {
@@ -66,7 +66,7 @@ namespace PleaseUndo
             for (idx = 0; idx < _msg_sinks.Size(); idx++)
             {
                 PollSinkCb cb = _msg_sinks[idx];
-                finished = !cb.sink.OnMsgPoll(ref cb.cookie) || finished;
+                finished = !cb.sink.OnMsgPoll() || finished;
 
             }
             for (idx = 0; idx < _periodic_sinks.Size(); idx++)
@@ -75,13 +75,13 @@ namespace PleaseUndo
                 if (cb.interval + cb.last_fired <= elapsed)
                 {
                     cb.last_fired = (elapsed / cb.interval) * cb.interval;
-                    finished = !cb.sink.OnPeriodicPoll(ref cb.cookie, cb.last_fired) || finished;
+                    finished = !cb.sink.OnPeriodicPoll(cb.last_fired) || finished;
                 }
             }
             for (idx = 0; idx < _loop_sinks.Size(); idx++)
             {
                 PollSinkCb cb = _loop_sinks[idx];
-                finished = !cb.sink.OnLoopPoll(ref cb.cookie) || finished;
+                finished = !cb.sink.OnLoopPoll() || finished;
             }
 
             return finished;
@@ -105,12 +105,10 @@ namespace PleaseUndo
         protected class PollSinkCb
         {
             public IPollSink sink;
-            public object cookie;
 
-            public PollSinkCb(ref IPollSink sink, ref object cookie)
+            public PollSinkCb(ref IPollSink sink)
             {
                 this.sink = sink;
-                this.cookie = cookie;
             }
         }
 
@@ -119,8 +117,8 @@ namespace PleaseUndo
             public int interval;
             public int last_fired;
 
-            public PollPeriodicSinkCb(ref IPollSink sink, ref object cookie, int interval = 0)
-                : base(ref sink, ref cookie)
+            public PollPeriodicSinkCb(ref IPollSink sink, int interval = 0)
+                : base(ref sink)
             {
                 this.interval = interval;
                 this.last_fired = 0;
