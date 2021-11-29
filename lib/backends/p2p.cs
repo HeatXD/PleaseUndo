@@ -24,7 +24,7 @@ namespace PleaseUndo
         protected int _disconnect_timeout;
         protected int _disconnect_notify_start;
 
-        ConnectStatus[] _local_connect_status = new ConnectStatus[UDP_MSG_MAX_PLAYERS];
+        NetMsg.ConnectStatus[] _local_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
 
         public Peer2PeerBackend(GGPOSessionCallbacks cb, int num_players)
         {

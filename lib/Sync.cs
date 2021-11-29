@@ -37,11 +37,11 @@ namespace PleaseUndo
         protected int _last_confirmed_frame = -1;
         protected int _max_prediction_frames = 0;
 
-        protected ConnectStatus[] _local_connect_status;
+        protected NetMsg.ConnectStatus[] _local_connect_status;
         protected RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
         protected InputQueue<InputType>[] _input_queues = null;
 
-        public Sync(ref ConnectStatus[] connect_status)
+        public Sync(ref NetMsg.ConnectStatus[] connect_status)
         {
             _local_connect_status = connect_status;
         }
