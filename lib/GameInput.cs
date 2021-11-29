@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 
 namespace PleaseUndo
@@ -6,7 +7,7 @@ namespace PleaseUndo
     {
         const int GAMEINPUT_MAX_PLAYERS = 2;
 
-        T[] inputs;
+        public T[] inputs;
         public int frame;
 
         public enum Constants
@@ -16,14 +17,22 @@ namespace PleaseUndo
 
         public void Init(int frame, T[] game_inputs, int offset)
         {
+            Logger.Assert(offset + game_inputs.Length <= GAMEINPUT_MAX_PLAYERS,
+             "Supplied inputs is larger than the maximum players specified #2");
+
             this.inputs = new T[GAMEINPUT_MAX_PLAYERS];
             this.frame = frame;
+            Array.Copy(game_inputs, 0, this.inputs, offset, game_inputs.Length);
         }
 
         public void Init(int frame, T[] game_inputs)
         {
-            this.inputs = game_inputs;
+            Logger.Assert(game_inputs.Length <= GAMEINPUT_MAX_PLAYERS,
+             "Supplied inputs is larger than the maximum players specified #1");
+
+            this.inputs = new T[GAMEINPUT_MAX_PLAYERS];
             this.frame = frame;
+            Array.Copy(game_inputs, this.inputs, game_inputs.Length);
         }
 
         public bool Equal(GameInput<T> game_input, bool inputs_only)

@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-
 namespace PleaseUndo
 {
-    class StaticBuffer<T>
+    public class StaticBuffer<T>
     {
         protected int _size = 0;
         protected int _capacity; /* was template N */
@@ -23,13 +21,13 @@ namespace PleaseUndo
             }
         }
 
-        public void push_back(T t)
+        public void PushBack(T t)
         {
             Logger.Assert(_size != (_capacity - 1));
             _elements[_size++] = t;
         }
 
-        public int size()
+        public int Size()
         {
             return _size;
         }

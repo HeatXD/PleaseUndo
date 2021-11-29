@@ -20,7 +20,7 @@ namespace PleaseUndo
 
                 if (logUseTimestamp != null)
                 {
-                    message = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss ") + message;
+                    message = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff ") + message;
                 }
 
                 if (logToFile != null && logPath != null)
