@@ -4,8 +4,8 @@ namespace PleaseUndo
 {
     public interface IPeerNetAdapter
     {
-        void SendTo(NetMsg msg, string socket_addr);
-        List<(string socket_addr, NetMsg msg)> RecieveAllMessages();
+        void SendTo(NetMsg msg);
+        List<NetMsg> ReceiveAllMessages();
     }
 
     public class NetProto : IPollSink
