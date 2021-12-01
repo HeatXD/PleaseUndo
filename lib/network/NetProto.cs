@@ -13,16 +13,16 @@ namespace PleaseUndo
         public class Event { }
         public class InputEvent : Event
         {
-            GameInput<object> input;
+            public GameInput<object> input;
         }
         public class SynchronizingEvent : Event
         {
-            int total;
-            int count;
+            public int total;
+            public int count;
         }
         public class NetworkInterruptedEvent : Event
         {
-            int disconnect_timeout;
+            public int disconnect_timeout;
         }
 
         public enum State
