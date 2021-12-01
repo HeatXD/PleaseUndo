@@ -1,5 +1,13 @@
+using System.Collections.Generic;
+
 namespace PleaseUndo
 {
+    public interface IPeerNetAdapter
+    {
+        void SendTo(NetMsg msg, string socket_addr);
+        List<(string socket_addr, NetMsg msg)> RecieveAllMessages();
+    }
+
     public class NetProto : IPollSink
     {
         public class Event { }
