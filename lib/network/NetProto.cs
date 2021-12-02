@@ -4,8 +4,8 @@ namespace PleaseUndo
 {
     public interface IPeerNetAdapter
     {
-        void SendTo(NetMsg msg, string socket_addr);
-        List<(string socket_addr, NetMsg msg)> RecieveAllMessages();
+        void SendTo(NetMsg msg);
+        List<NetMsg> ReceiveAllMessages();
     }
 
     public class NetProto : IPollSink
@@ -13,16 +13,16 @@ namespace PleaseUndo
         public class Event { }
         public class InputEvent : Event
         {
-            GameInput<object> input;
+            public GameInput<object> input;
         }
         public class SynchronizingEvent : Event
         {
-            int total;
-            int count;
+            public int total;
+            public int count;
         }
         public class NetworkInterruptedEvent : Event
         {
-            int disconnect_timeout;
+            public int disconnect_timeout;
         }
 
         public enum State
