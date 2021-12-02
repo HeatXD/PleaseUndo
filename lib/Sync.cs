@@ -89,7 +89,7 @@ namespace PleaseUndo
                 SaveCurrentFrame();
             }
 
-            Logger.Log("Sending undelayed local frame %d to queue %d.\n", _framecount, queue);
+            Logger.Log("Sending undelayed local frame {0} to queue {1}.\n", _framecount, queue);
             input.frame = _framecount;
             _input_queues[queue].AddInput(ref input);
 
@@ -298,7 +298,7 @@ namespace PleaseUndo
             for (int i = 0; i < _config.num_players; i++)
             {
                 int incorrect = _input_queues[i].GetFirstIncorrectFrame();
-                Logger.Log("considering incorrect frame %d reported by queue %d.\n", incorrect, i);
+                Logger.Log("considering incorrect frame {0} reported by queue {1}.\n", incorrect, i);
 
                 if (incorrect != (int)GameInput<InputType>.Constants.NullFrame && (first_incorrect == (int)GameInput<InputType>.Constants.NullFrame || incorrect < first_incorrect))
                 {
