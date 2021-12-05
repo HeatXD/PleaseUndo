@@ -2,18 +2,18 @@ using System.Collections.Generic;
 
 namespace PleaseUndo
 {
-    public interface IPeerNetAdapter
+    public interface IPeerNetAdapter<InputType>
     {
-        void SendTo(NetMsg msg);
+        void Send(NetMsg msg);
         List<NetMsg> ReceiveAllMessages();
     }
 
-    public class NetProto : IPollSink
+    public class NetProto<InputType> : IPollSink
     {
         public class Event { }
         public class InputEvent : Event
         {
-            public GameInput<object> input;
+            public GameInput<InputType> input;
         }
         public class SynchronizingEvent : Event
         {

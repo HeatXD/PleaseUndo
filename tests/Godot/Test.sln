@@ -2,7 +2,7 @@
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test.csproj", "{DBFE0EEC-1B46-413E-AB5E-615313D9A1F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PleaseUndo", "..\lib\PleaseUndo.csproj", "{85443D2A-A5A4-4CD7-8674-9B5DFE1E55A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PleaseUndo", "..\..\src\PleaseUndo.csproj", "{85443D2A-A5A4-4CD7-8674-9B5DFE1E55A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

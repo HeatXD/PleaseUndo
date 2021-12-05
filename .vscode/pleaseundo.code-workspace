@@ -7,8 +7,9 @@
   "settings": {
     "files.exclude": {
       ".git": true,
-      "lib/bin": true,
-      "lib/obj": true
+      "**/bin/": true,
+      "**/obj/": true,
+      "**/TestResults/": true
     },
     // CSharp
     "csharp.referencesCodeLens.enabled": false,

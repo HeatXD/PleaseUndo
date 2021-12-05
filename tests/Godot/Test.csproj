@@ -1,0 +1,8 @@
+<Project Sdk="Godot.NET.Sdk/3.3.0">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include = "../../src/PleaseUndo.csproj" />
+  </ItemGroup>
+</Project>
