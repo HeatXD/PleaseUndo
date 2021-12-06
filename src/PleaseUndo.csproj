@@ -3,6 +3,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="../lib/MessagePack-2-3-85/MessagePack.dll" />
+    <PackageReference Include="MessagePack" Version="2.3.85" />
   </ItemGroup>
 </Project>
