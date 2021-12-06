@@ -20,5 +20,9 @@ jobs:
           dotnet-version: 5.0.x
       - name: Restore dependencies
         run: dotnet restore src/PleaseUndo.csproj
+      - name: Restore dependencies (testing)
+        run: dotnet restore tests/PleaseUndoTest/PleaseUndoTest.csproj
       - name: Build
         run: dotnet build src/PleaseUndo.csproj --no-restore
+      - name: Testing
+        run: dotnet test tests/PleaseUndoTest/PleaseUndoTest.csproj --no-restore
