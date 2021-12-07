@@ -8,7 +8,7 @@ namespace PleaseUndo
         List<NetMsg> ReceiveAllMessages();
     }
 
-    public class NetProto<InputType> : IPollSink
+    public class NetProto<InputType>
     {
         public class Event { }
         public class InputEvent : Event

@@ -1,6 +1,6 @@
 namespace PleaseUndo
 {
-    public class Peer2PeerBackend<InputType> : GGPOSession<InputType>
+    public class Peer2PeerBackend<InputType> : GGPOSession<InputType>, IPollSink
     {
         const int UDP_MSG_MAX_PLAYERS = 4;
         const int RECOMMENDATION_INTERVAL = 240;
@@ -26,7 +26,7 @@ namespace PleaseUndo
         protected int _disconnect_notify_start;
 
         NetMsg.ConnectStatus[] _local_connect_status;
-
+        //! backend needs an localport to work off of. ?
         public Peer2PeerBackend(GGPOSessionCallbacks cb, int num_players)
         {
             _num_players = num_players;
@@ -104,5 +104,11 @@ namespace PleaseUndo
         {
             return new GGPOPlayerHandle { handle = queue + 1 };
         }
+
+        public bool OnMsgPoll() => true; // true is default
+
+        public bool OnLoopPoll() => true; // true is default
+
+        public bool OnPeriodicPoll(int last_fired) => true; // true is default
     }
 }

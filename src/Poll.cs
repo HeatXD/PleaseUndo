@@ -1,10 +1,10 @@
 namespace PleaseUndo
 {
-    public abstract class IPollSink
+    public interface IPollSink
     {
-        public virtual bool OnMsgPoll() => true;
-        public virtual bool OnLoopPoll() => true;
-        public virtual bool OnPeriodicPoll(int last_fired) => true;
+        bool OnMsgPoll();
+        bool OnLoopPoll();
+        bool OnPeriodicPoll(int last_fired);
     }
 
     public class Poll
