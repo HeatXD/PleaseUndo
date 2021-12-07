@@ -69,12 +69,12 @@ namespace PleaseUndo
             cb.OnBeginGame();
         }
 
-        public override GGPOErrorCode AddPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle)
+        public override GGPOErrorCode AddLocalPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle)
         {
-            if (player.type == GGPOPlayerType.SPECTATOR)
-            {
-                // return AddSpectator(player->u.remote.ip_address, player->u.remote.port);
-            }
+            // if (player.type == GGPOPlayerType.SPECTATOR) // Should be AddSpectatorPlayer
+            // {
+            //     return AddSpectator(player->u.remote.ip_address, player->u.remote.port);
+            // }
 
             int queue = player.player_num - 1;
             if (player.player_num < 1 || player.player_num > _num_players)
@@ -83,10 +83,24 @@ namespace PleaseUndo
             }
             handle = QueueToPlayerHandle(queue);
 
-            if (player.type == GGPOPlayerType.REMOTE)
-            {
-                // AddRemotePlayer(player->u.remote.ip_address, player->u.remote.port, queue);
-            }
+            // if (player.type == GGPOPlayerType.REMOTE) // Is now AddRemotePlayer
+            // {
+            //     AddRemotePlayer(player->u.remote.ip_address, player->u.remote.port, queue);
+            // }
+            return GGPOErrorCode.GGPO_OK;
+        }
+
+        public override GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, IPeerNetAdapter<InputType> peerNetAdapter)
+        {
+            _synchronizing = true;
+
+            var queue = player.player_num - 1;
+            handle = QueueToPlayerHandle(queue);
+            _endpoints[queue] = new NetProto<InputType>(queue, peerNetAdapter);
+            // _endpoints[queue].SetDisconnectTimeout(_disconnect_timeout);
+            // _endpoints[queue].SetDisconnectNotifyStart(_disconnect_notify_start);
+            // _endpoints[queue].Synchronize();
+
             return GGPOErrorCode.GGPO_OK;
         }
 

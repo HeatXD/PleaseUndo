@@ -22,7 +22,8 @@ namespace PleaseUndo
         public const uint GGPO_MAX_PREDICTION_FRAMES = 8;
         public const uint GGPO_SPECTATOR_INPUT_INTERVAL = 4;
 
-        public abstract GGPOErrorCode AddPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle);
+        public abstract GGPOErrorCode AddLocalPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle);
+        public abstract GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, IPeerNetAdapter<InputType> peerNetAdapter);
         public abstract GGPOErrorCode SyncInput(InputType values, int size, ref int disconnect_flags);
         public abstract GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType values, int size);
         public GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }
@@ -45,51 +46,51 @@ namespace PleaseUndo
 
         #region TODO: Remove these public APIs for a proper C# API as they were only passthroughs to check if session (this) was null.
 
-        public GGPOErrorCode ggpo_add_player(/* GGPOSession session, */ GGPOPlayer player, ref GGPOPlayerHandle handle)
-        {
-            return AddPlayer(player, ref handle);
-        }
-        public GGPOErrorCode ggpo_close_session()
-        {
-            // not needed in C#, destroys the session by calling delete
-            return GGPOErrorCode.GGPO_OK;
-        }
-        public GGPOErrorCode ggpo_set_frame_delay(/* GGPOSession session, */ GGPOPlayerHandle player, int frame_delay)
-        {
-            return SetFrameDelay(player, frame_delay);
-        }
-        public GGPOErrorCode ggpo_idle(/* GGPOSession session, */ GGPOPlayerHandle player, int timeout)
-        {
-            return DoPoll(timeout);
-        }
-        public GGPOErrorCode ggpo_add_local_input(/* GGPOSession session, */ GGPOPlayerHandle player, InputType values, int size)
-        {
-            return AddLocalInput(player, values, size);
-        }
-        public GGPOErrorCode ggpo_synchronize_input(/* GGPOSession session, */ InputType values, int size, ref int disconnect_flags)
-        {
-            return SyncInput(values, size, ref disconnect_flags);
-        }
-        public GGPOErrorCode ggpo_disconnect_player(/* GGPOSession session, */ GGPOPlayerHandle handle)
-        {
-            return DisconnectPlayer(handle);
-        }
-        public GGPOErrorCode ggpo_advance_frame(/* GGPOSession session, */)
-        {
-            return IncrementFrame();
-        }
-        public GGPOErrorCode ggpo_get_network_stats(/* GGPOSession session, */ GGPOPlayerHandle player, GGPONetworkStats stats)
-        {
-            return GetNetworkStats(stats, player);
-        }
-        public GGPOErrorCode ggpo_set_disconnect_timeout(/* GGPOSession session, */ int timeout)
-        {
-            return SetDisconnectTimeout(timeout);
-        }
-        public GGPOErrorCode ggpo_set_disconnect_notify_start(/* GGPOSession session, */ int timeout)
-        {
-            return SetDisconnectNotifyStart(timeout);
-        }
+        // public GGPOErrorCode ggpo_add_player(/* GGPOSession session, */ GGPOPlayer player, ref GGPOPlayerHandle handle)
+        // {
+        //     return AddPlayer(player, ref handle);
+        // }
+        // public GGPOErrorCode ggpo_close_session()
+        // {
+        //     // not needed in C#, destroys the session by calling delete
+        //     return GGPOErrorCode.GGPO_OK;
+        // }
+        // public GGPOErrorCode ggpo_set_frame_delay(/* GGPOSession session, */ GGPOPlayerHandle player, int frame_delay)
+        // {
+        //     return SetFrameDelay(player, frame_delay);
+        // }
+        // public GGPOErrorCode ggpo_idle(/* GGPOSession session, */ GGPOPlayerHandle player, int timeout)
+        // {
+        //     return DoPoll(timeout);
+        // }
+        // public GGPOErrorCode ggpo_add_local_input(/* GGPOSession session, */ GGPOPlayerHandle player, InputType values, int size)
+        // {
+        //     return AddLocalInput(player, values, size);
+        // }
+        // public GGPOErrorCode ggpo_synchronize_input(/* GGPOSession session, */ InputType values, int size, ref int disconnect_flags)
+        // {
+        //     return SyncInput(values, size, ref disconnect_flags);
+        // }
+        // public GGPOErrorCode ggpo_disconnect_player(/* GGPOSession session, */ GGPOPlayerHandle handle)
+        // {
+        //     return DisconnectPlayer(handle);
+        // }
+        // public GGPOErrorCode ggpo_advance_frame(/* GGPOSession session, */)
+        // {
+        //     return IncrementFrame();
+        // }
+        // public GGPOErrorCode ggpo_get_network_stats(/* GGPOSession session, */ GGPOPlayerHandle player, GGPONetworkStats stats)
+        // {
+        //     return GetNetworkStats(stats, player);
+        // }
+        // public GGPOErrorCode ggpo_set_disconnect_timeout(/* GGPOSession session, */ int timeout)
+        // {
+        //     return SetDisconnectTimeout(timeout);
+        // }
+        // public GGPOErrorCode ggpo_set_disconnect_notify_start(/* GGPOSession session, */ int timeout)
+        // {
+        //     return SetDisconnectNotifyStart(timeout);
+        // }
 
         #endregion
     }

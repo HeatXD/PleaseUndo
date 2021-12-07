@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace PleaseUndo
 {
-    public interface IPeerNetAdapter<InputType>
+    public interface IPeerNetAdapter<InputType> : IPollSink
     {
         void Send(NetMsg msg);
         List<NetMsg> ReceiveAllMessages();
@@ -73,5 +73,10 @@ namespace PleaseUndo
             // sockaddr_in dest_addr;
             public NetMsg msg;
         };
+
+        public NetProto(int queue, IPeerNetAdapter<InputType> peerNetAdapter)
+        {
+
+        }
     }
 }
