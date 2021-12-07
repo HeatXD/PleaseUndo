@@ -6,13 +6,14 @@ namespace PleaseUndo
         const int RECOMMENDATION_INTERVAL = 240;
         const int DEFAULT_DISCONNECT_TIMEOUT = 5000;
         const int DEFAULT_DISCONNECT_NOTIFY_START = 750;
+        const int MAX_SPECTATORS = 16;
 
         protected GGPOSessionCallbacks _callbacks;
-        //   protected  Poll                  _poll;
-        protected Sync<InputType> _sync = null;
-        //   protected  Udp                   _udp;
-        //   protected  UdpProtocol           *_endpoints;
-        //   protected  UdpProtocol           _spectators[GGPO_MAX_SPECTATORS];
+        protected Poll _poll;
+        protected Sync<InputType> _sync;
+        //   protected  Udp                   _udp; //Still dont know what to do with this... :HEAT /TODO
+        protected NetProto<InputType>[] _endpoints;
+        protected NetProto<InputType>[] _spectators;
         protected int _num_spectators;
         protected int _input_size;
 
@@ -24,7 +25,7 @@ namespace PleaseUndo
         protected int _disconnect_timeout;
         protected int _disconnect_notify_start;
 
-        NetMsg.ConnectStatus[] _local_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
+        NetMsg.ConnectStatus[] _local_connect_status;
 
         public Peer2PeerBackend(GGPOSessionCallbacks cb, int num_players)
         {
@@ -34,7 +35,7 @@ namespace PleaseUndo
             _disconnect_notify_start = DEFAULT_DISCONNECT_NOTIFY_START;
             _num_spectators = 0;
             _next_spectator_frame = 0;
-
+            _poll = new Poll();
             _callbacks = cb;
             _synchronizing = true;
             _next_recommended_sleep = 0;
@@ -44,7 +45,7 @@ namespace PleaseUndo
              */
             _sync.Init(new Sync<InputType>.Config
             {
-                num_players = num_players,
+                num_players = _num_players,
                 callbacks = _callbacks,
                 num_prediction_frames = Sync<InputType>.MAX_PREDICTION_FRAMES,
             });
@@ -53,8 +54,9 @@ namespace PleaseUndo
              * Initialize the UDP port
              */
             //    _udp.Init(localport, &_poll, this);
-
-            //    _endpoints = new UdpProtocol[_num_players];
+            _endpoints = new NetProto<InputType>[_num_players];
+            _spectators = new NetProto<InputType>[MAX_SPECTATORS];
+            _local_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
             //    memset(_local_connect_status, 0, sizeof(_local_connect_status));
             for (int i = 0; i < _local_connect_status.Length; i++)
             {
