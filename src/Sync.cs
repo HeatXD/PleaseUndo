@@ -103,54 +103,52 @@ namespace PleaseUndo
 
         public int GetConfirmedInputs(InputType[] values, int size, int frame)
         {
-            // int disconnect_flags = 0;
-            // char* output = (char*)values;
+            int disconnect_flags = 0;
+            // char* output = (char*)values; // not needed in C#
 
-            // Logger.Assert(size >= _config.num_players * _config.input_size);
+            // Logger.Assert(size >= _config.num_players * _config.input_size); // not needed in C#
 
-            // memset(output, 0, size);
-            // for (int i = 0; i < _config.num_players; i++)
-            // {
-            //     GameInput input;
-            //     if (_local_connect_status[i].disconnected && frame > _local_connect_status[i].last_frame)
-            //     {
-            //         disconnect_flags |= (1 << i);
-            //         input.erase();
-            //     }
-            //     else
-            //     {
-            //         _input_queues[i].GetConfirmedInput(frame, &input);
-            //     }
-            //     memcpy(output + (i * _config.input_size), input.bits, _config.input_size);
-            // }
-            // return disconnect_flags;
-            return 0;
+            // memset(output, 0, size); // not needed in C#
+            for (int i = 0; i < _config.num_players; i++)
+            {
+                var input = new GameInput<InputType>();
+                if ((_local_connect_status[i].disconnected != 0) && frame > _local_connect_status[i].last_frame)
+                {
+                    disconnect_flags |= (1 << i);
+                    input.Erase();
+                }
+                else
+                {
+                    _input_queues[i].GetConfirmedInput(frame, ref input);
+                }
+                values[i] = input.inputs[i]; // CHECKME: Might be DEAD WRONG: was memcpy(output + (i * _config.input_size), input.bits, _config.input_size);
+            }
+            return disconnect_flags;
         }
 
         public int SynchronizeInputs(InputType[] values, int size)
         {
-            // int disconnect_flags = 0;
-            // char* output = (char*)values;
+            int disconnect_flags = 0;
+            // char* output = (char*)values; // Not needed in C#
 
-            // Logger.Assert(size >= _config.num_players * _config.input_size);
+            // Logger.Assert(size >= _config.num_players * _config.input_size); // Not needed in C#
 
-            // memset(output, 0, size);
-            // for (int i = 0; i < _config.num_players; i++)
-            // {
-            //     GameInput input;
-            //     if (_local_connect_status[i].disconnected && _framecount > _local_connect_status[i].last_frame)
-            //     {
-            //         disconnect_flags |= (1 << i);
-            //         input.erase();
-            //     }
-            //     else
-            //     {
-            //         _input_queues[i].GetInput(_framecount, &input);
-            //     }
-            //     memcpy(output + (i * _config.input_size), input.bits, _config.input_size);
-            // }
-            // return disconnect_flags;
-            return 0;
+            // memset(output, 0, size); // Not needed in C#
+            for (int i = 0; i < _config.num_players; i++)
+            {
+                var input = new GameInput<InputType>();
+                if ((_local_connect_status[i].disconnected != 0) && _framecount > _local_connect_status[i].last_frame)
+                {
+                    disconnect_flags |= (1 << i);
+                    input.Erase();
+                }
+                else
+                {
+                    _input_queues[i].GetInput(_framecount, ref input);
+                }
+                values[i] = input.inputs[i]; // CHECKME: Might be DEAD WRONG: was memcpy(output + (i * _config.input_size), input.bits, _config.input_size);
+            }
+            return disconnect_flags;
         }
 
         public void CheckSimulation(int timeout)
