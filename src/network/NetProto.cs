@@ -73,10 +73,62 @@ namespace PleaseUndo
             // sockaddr_in dest_addr;
             public NetMsg msg;
         };
+        /*
+         * Network transmission information
+         */
+        protected IPeerNetAdapter<InputType> net_adapter;
+        protected string peer_addr; //? idk if needed
+        protected int queue;
+        protected bool connected;
+        protected int send_latency;
+        protected int oop_percent;
+        protected RingBuffer<QueueEntry> send_queue;
+        /*
+         * Stats
+         */
+        protected int round_trip_time;
+        protected int packets_sent;
+        protected int bytes_sent;
+        protected int kbps_sent;
+        protected int stats_start_time;
+        /*
+         * Fairness.
+         */
+        protected int local_frame_advantage;
+        protected int remote_frame_advantage;
+        /*
+         * Packet loss...
+         */
+        protected RingBuffer<GameInput<InputType>> pending_output;
+        protected GameInput<InputType> last_received_input;
+        protected GameInput<InputType> last_sent_input;
+        protected GameInput<InputType> last_acked_input;
+        protected uint last_send_time;
+        protected uint last_recv_time;
+        protected uint shutdown_timeout;
+        protected uint disconnect_event_sent;
+        protected uint disconnect_timeout;
+        protected uint disconnect_notify_start;
+        protected bool disconnect_notify_sent;
+        protected uint _next_send_seq;
+        protected uint _next_recv_seq;
+        /*
+ *       Rift synchronization.
+        */
+        protected TimeSync<InputType> timesync;
+
+        /*
+         * Event queue
+         */
+        protected RingBuffer<Event> event_queue;
 
         public NetProto(int queue, IPeerNetAdapter<InputType> peerNetAdapter)
         {
 
         }
+
+        public void Synchronize() { }
+        public bool GetPeerConnectionStatus(int id, ref int frame) { return false; }
+        public bool IsInitialized() => net_adapter != null;
     }
 }
