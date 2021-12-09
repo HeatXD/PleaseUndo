@@ -93,13 +93,13 @@ namespace PleaseUndo
             return GGPOErrorCode.GGPO_OK;
         }
 
-        public override GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, IPeerNetAdapter<InputType> peerNetAdapter)
+        public override GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, ref IPeerNetAdapter<InputType> peerNetAdapter)
         {
             _synchronizing = true;
 
             var queue = player.player_num - 1;
             handle = QueueToPlayerHandle(queue);
-            _endpoints[queue] = new NetProto<InputType>(queue, peerNetAdapter);
+            _endpoints[queue] = new NetProto<InputType>(queue, ref peerNetAdapter, ref _poll);
             _endpoints[queue].SetDisconnectTimeout(_disconnect_timeout);
             _endpoints[queue].SetDisconnectNotifyStart(_disconnect_notify_start);
             _endpoints[queue].Synchronize();

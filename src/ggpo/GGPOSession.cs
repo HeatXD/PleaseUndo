@@ -23,7 +23,7 @@ namespace PleaseUndo
         public const uint GGPO_SPECTATOR_INPUT_INTERVAL = 4;
 
         public abstract GGPOErrorCode AddLocalPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle);
-        public abstract GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, IPeerNetAdapter<InputType> peerNetAdapter);
+        public abstract GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, ref IPeerNetAdapter<InputType> peerNetAdapter);
         public abstract GGPOErrorCode SyncInput(InputType[] values, int size, ref int disconnect_flags);
         public abstract GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType[] values, int size);
         public virtual GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }

@@ -109,6 +109,13 @@ namespace PleaseUndo
         protected int kbps_sent;
         protected int stats_start_time;
         /*
+        * The state machine
+        */
+        protected NetMsg.ConnectStatus local_connect_status;
+        protected NetMsg.ConnectStatus[] peer_connect_status;
+        protected State current_state;
+        protected InnerState inner_state; // _state
+        /*
          * Fairness.
          */
         protected int local_frame_advantage;
@@ -139,66 +146,63 @@ namespace PleaseUndo
          */
         protected RingBuffer<Event> event_queue;
 
-        public NetProto(int queue, IPeerNetAdapter<InputType> peerNetAdapter)
+        public NetProto(int queue, ref IPeerNetAdapter<InputType> peerNetAdapter, ref Poll poll)
+        {
+            this.queue = queue;
+            this.net_adapter = peerNetAdapter;
+            poll.RegisterLoop((IPollSink)this); // had to remove ref
+        }
+
+        public void Synchronize()
         {
 
         }
 
-        public void Synchronize() { }
-        public bool GetPeerConnectionStatus(int id, ref int frame) { return false; }
         public bool IsInitialized() => net_adapter != null;
+        public bool IsRunning() => current_state == State.Running;
+        public bool IsSynchronized() => current_state == State.Running;
 
-        internal void SendInput(GameInput<InputType> input)
+        public void SendInput(GameInput<InputType> input)
         {
             throw new NotImplementedException();
         }
 
-        internal void SetDisconnectTimeout(int disconnect_timeout)
+        public void SetDisconnectTimeout(int disconnect_timeout)
         {
             throw new NotImplementedException();
         }
 
-        internal void SetDisconnectNotifyStart(int disconnect_notify_start)
+        public void SetDisconnectNotifyStart(int disconnect_notify_start)
         {
             throw new NotImplementedException();
         }
 
-        internal void SetLocalFrameNumber(int current_frame)
+        public void SetLocalFrameNumber(int current_frame)
         {
             throw new NotImplementedException();
         }
 
-        internal byte RecommendFrameDelay()
+        public byte RecommendFrameDelay()
         {
             throw new NotImplementedException();
         }
 
-        internal bool IsRunning()
+        public bool GetPeerConnectStatus(int i, ref int v)
         {
             throw new NotImplementedException();
         }
 
-        internal bool GetPeerConnectStatus(int i, ref int v)
+        public void Disconnect()
         {
             throw new NotImplementedException();
         }
 
-        internal void Disconnect()
+        public bool GetEvent(ref NetProto<InputType>.Event evt)
         {
             throw new NotImplementedException();
         }
 
-        internal bool IsSynchronized()
-        {
-            throw new NotImplementedException();
-        }
-
-        internal bool GetEvent(ref NetProto<InputType>.Event evt)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal void GetNetworkStats(ref GGPONetworkStats stats)
+        public void GetNetworkStats(ref GGPONetworkStats stats)
         {
             throw new NotImplementedException();
         }

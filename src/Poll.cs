@@ -25,17 +25,17 @@ namespace PleaseUndo
             _periodic_sinks = new StaticBuffer<PollPeriodicSinkCb>(SINK_SIZE);
         }
 
-        public void RegisterMsgLoop(ref IPollSink sink)
+        public void RegisterMsgLoop(IPollSink sink)
         {
             _msg_sinks.PushBack(new PollSinkCb(ref sink));
         }
 
-        public void RegisterPeriodic(ref IPollSink sink, int interval)
+        public void RegisterPeriodic(IPollSink sink, int interval)
         {
             _periodic_sinks.PushBack(new PollPeriodicSinkCb(ref sink, interval));
         }
 
-        public void RegisterLoop(ref IPollSink sink)
+        public void RegisterLoop(IPollSink sink)
         {
             _loop_sinks.PushBack(new PollSinkCb(ref sink));
         }
