@@ -153,7 +153,7 @@ namespace PleaseUndo
                                 _sync.GetConfirmedInputs(input.inputs, _input_size * _num_players, _next_spectator_frame);
                                 for (int i = 0; i < _num_spectators; i++)
                                 {
-                                    _spectators[i].SendInput(input);
+                                    _spectators[i].SendInput(ref input);
                                 }
                                 _next_spectator_frame++;
                             }
@@ -249,7 +249,7 @@ namespace PleaseUndo
                 {
                     if (_endpoints[i].IsInitialized())
                     {
-                        _endpoints[i].SendInput(input);
+                        _endpoints[i].SendInput(ref input);
                     }
                 }
             }

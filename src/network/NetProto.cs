@@ -90,6 +90,9 @@ namespace PleaseUndo
             // sockaddr_in dest_addr;
             public NetMsg msg;
         };
+
+        const int UDP_SHUTDOWN_TIMER = 5000;
+
         /*
          * Network transmission information
          */
@@ -137,8 +140,8 @@ namespace PleaseUndo
         protected uint next_send_seq;
         protected uint next_recv_seq;
         /*
- *       Rift synchronization.
-        */
+         * Rift synchronization.
+         */
         protected TimeSync<InputType> timesync;
 
         /*
@@ -162,29 +165,67 @@ namespace PleaseUndo
         public bool IsRunning() => current_state == State.Running;
         public bool IsSynchronized() => current_state == State.Running;
 
-        public void SendInput(GameInput<InputType> input)
+        public void SendInput(ref GameInput<InputType> input)
+        {
+            //    if (_udp) {
+            if (current_state == State.Running)
+            {
+                /*
+                 * Check to see if this is a good time to adjust for the rift...
+                 */
+                timesync.advance_frame(input, local_frame_advantage, remote_frame_advantage);
+
+                /*
+                 * Save this input packet
+                 *
+                 * XXX: This queue may fill up for spectators who do not ack input packets in a timely
+                 * manner.  When this happens, we can either resize the queue (ug) or disconnect them
+                 * (better, but still ug).  For the meantime, make this queue really big to decrease
+                 * the odds of this happening...
+                 */
+                pending_output.Push(input);
+                //   }
+                SendPendingOutput();
+            }
+        }
+
+        private void SendPendingOutput()
         {
             throw new NotImplementedException();
         }
 
-        public void SetDisconnectTimeout(int disconnect_timeout)
+        public void SetDisconnectTimeout(int timeout)
         {
-            throw new NotImplementedException();
+            disconnect_timeout = (uint)timeout;
         }
 
-        public void SetDisconnectNotifyStart(int disconnect_notify_start)
+        public void SetDisconnectNotifyStart(int timeout)
         {
-            throw new NotImplementedException();
+            disconnect_notify_start = (uint)timeout;
         }
 
-        public void SetLocalFrameNumber(int current_frame)
+        public void SetLocalFrameNumber(int localFrame)
         {
-            throw new NotImplementedException();
+            /*
+             * Estimate which frame the other guy is one by looking at the
+             * last frame they gave us plus some delta for the one-way packet
+             * trip time.
+             */
+            int remoteFrame = last_received_input.frame + (round_trip_time * 60 / 1000);
+
+            /*
+             * Our frame advantage is how many frames *behind* the other guy
+             * we are.  Counter-intuative, I know.  It's an advantage because
+             * it means they'll have to predict more often and our moves will
+             * pop more frequenetly.
+             */
+            local_frame_advantage = remoteFrame - localFrame;
         }
 
-        public byte RecommendFrameDelay()
+        public int RecommendFrameDelay()
         {
-            throw new NotImplementedException();
+            // XXX: require idle input should be a configuration parameter
+            return timesync.recommend_frame_wait_duration(false);
         }
 
         public bool GetPeerConnectStatus(int i, ref int v)
@@ -194,17 +235,28 @@ namespace PleaseUndo
 
         public void Disconnect()
         {
-            throw new NotImplementedException();
+            current_state = State.Disconnected;
+            shutdown_timeout = (uint)(Platform.GetCurrentTimeMS() + UDP_SHUTDOWN_TIMER);
         }
 
-        public bool GetEvent(ref NetProto<InputType>.Event evt)
+        public bool GetEvent(ref NetProto<InputType>.Event e)
         {
-            throw new NotImplementedException();
+            if (event_queue.Size() == 0)
+            {
+                return false;
+            }
+            e = event_queue.Front();
+            event_queue.Pop();
+            return true;
         }
 
         public void GetNetworkStats(ref GGPONetworkStats stats)
         {
-            throw new NotImplementedException();
+            stats.Network.ping = round_trip_time;
+            stats.Network.send_queue_len = pending_output.Size();
+            stats.Network.kbps_sent = kbps_sent;
+            stats.Timesync.remote_frames_behind = remote_frame_advantage;
+            stats.Timesync.local_frames_behind = local_frame_advantage;
         }
     }
 }
