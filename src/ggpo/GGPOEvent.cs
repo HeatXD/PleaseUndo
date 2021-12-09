@@ -17,24 +17,29 @@ namespace PleaseUndo
         public GGPOEventCode code;
     }
 
-    public class GGPOConnectedEvent : GGPOEvent
+    public class GGPOConnectedToPeerEvent : GGPOEvent
     {
         public GGPOPlayerHandle player;
     }
 
-    public class GGPOSynchronizingEvent : GGPOEvent
+    public class GGPOSynchronizingWithPeerEvent : GGPOEvent
     {
         public GGPOPlayerHandle player;
         public int count;
         public int total;
     }
 
-    public class GGPOSynchronizedEvent : GGPOEvent
+    public class GGPOSynchronizedWithPeerEvent : GGPOEvent
     {
         public GGPOPlayerHandle player;
     }
 
-    public class GGPODisconnectedEvent : GGPOEvent
+    public class GGPORunningEvent : GGPOEvent
+    {
+
+    }
+
+    public class GGPODisconnectedFromPeerEvent : GGPOEvent
     {
         public GGPOPlayerHandle player;
     }

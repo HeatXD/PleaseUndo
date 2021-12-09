@@ -101,7 +101,7 @@ namespace PleaseUndo
             _input_queues[queue].AddInput(ref input);
         }
 
-        public int GetConfirmedInputs(InputType values, int size, int frame)
+        public int GetConfirmedInputs(InputType[] values, int size, int frame)
         {
             // int disconnect_flags = 0;
             // char* output = (char*)values;
@@ -127,7 +127,7 @@ namespace PleaseUndo
             return 0;
         }
 
-        public int SynchronizeInputs(InputType values, int size)
+        public int SynchronizeInputs(InputType[] values, int size)
         {
             // int disconnect_flags = 0;
             // char* output = (char*)values;

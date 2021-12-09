@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace PleaseUndo
@@ -10,7 +11,23 @@ namespace PleaseUndo
 
     public class NetProto<InputType>
     {
-        public class Event { }
+        public class Event
+        {
+            public enum Type
+            {
+                Unknown = -1,
+                Connected,
+                Synchronizing,
+                Synchronzied,
+                Input,
+                Disconnected,
+                NetworkInterrupted,
+                NetworkResumed,
+            };
+
+            public Type type;
+        }
+
         public class InputEvent : Event
         {
             public GameInput<InputType> input;
@@ -130,5 +147,55 @@ namespace PleaseUndo
         public void Synchronize() { }
         public bool GetPeerConnectionStatus(int id, ref int frame) { return false; }
         public bool IsInitialized() => net_adapter != null;
+
+        internal void SendInput(GameInput<InputType> input)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SetDisconnectTimeout(int disconnect_timeout)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SetDisconnectNotifyStart(int disconnect_notify_start)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void SetLocalFrameNumber(int current_frame)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal byte RecommendFrameDelay()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool IsRunning()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool GetPeerConnectStatus(int i, ref int v)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void Disconnect()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool IsSynchronized()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool GetEvent(ref NetProto<InputType>.Event evt)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
