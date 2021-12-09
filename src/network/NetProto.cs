@@ -110,8 +110,8 @@ namespace PleaseUndo
         protected uint disconnect_timeout;
         protected uint disconnect_notify_start;
         protected bool disconnect_notify_sent;
-        protected uint _next_send_seq;
-        protected uint _next_recv_seq;
+        protected uint next_send_seq;
+        protected uint next_recv_seq;
         /*
  *       Rift synchronization.
         */
