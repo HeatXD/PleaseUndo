@@ -29,7 +29,7 @@ namespace PleaseUndo
         public virtual GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }
         public virtual GGPOErrorCode DoPoll(int timeout) { return GGPOErrorCode.GGPO_OK; }
         public virtual GGPOErrorCode IncrementFrame() { return GGPOErrorCode.GGPO_OK; }
-        public virtual GGPOErrorCode GetNetworkStats(GGPONetworkStats stats, GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
+        public virtual GGPOErrorCode GetNetworkStats(ref GGPONetworkStats stats, GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
         public virtual GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
 
         public virtual GGPOErrorCode SetFrameDelay(GGPOPlayerHandle player, int delay) { return GGPOErrorCode.GGPO_ERRORCODE_UNSUPPORTED; }

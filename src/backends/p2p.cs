@@ -1,3 +1,5 @@
+using System;
+
 namespace PleaseUndo
 {
     public class Peer2PeerBackend<InputType> : GGPOSession<InputType>, IPollSink
@@ -255,6 +257,121 @@ namespace PleaseUndo
             return GGPOErrorCode.GGPO_OK;
         }
 
+        public override GGPOErrorCode SetFrameDelay(GGPOPlayerHandle player, int delay)
+        {
+            int queue = 0;
+            GGPOErrorCode result;
+
+            result = PlayerHandleToQueue(player, ref queue);
+            if (!GGPO_SUCCEEDED(result))
+            {
+                return result;
+            }
+            _sync.SetFrameDelay(queue, delay);
+            return GGPOErrorCode.GGPO_OK;
+        }
+
+        public override GGPOErrorCode SetDisconnectTimeout(int timeout)
+        {
+            _disconnect_timeout = timeout;
+            for (int i = 0; i < _num_players; i++)
+            {
+                if (_endpoints[i].IsInitialized())
+                {
+                    _endpoints[i].SetDisconnectTimeout(_disconnect_timeout);
+                }
+            }
+            return GGPOErrorCode.GGPO_OK;
+        }
+
+        public override GGPOErrorCode SetDisconnectNotifyStart(int timeout)
+        {
+            _disconnect_notify_start = timeout;
+            for (int i = 0; i < _num_players; i++)
+            {
+                if (_endpoints[i].IsInitialized())
+                {
+                    _endpoints[i].SetDisconnectNotifyStart(_disconnect_notify_start);
+                }
+            }
+            return GGPOErrorCode.GGPO_OK;
+        }
+
+        public override GGPOErrorCode Chat(string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override GGPOErrorCode IncrementFrame()
+        {
+            Logger.Log("End of frame ({0})...\n", _sync.GetFrameCount());
+            _sync.IncrementFrame();
+            DoPoll(0);
+            PollSyncEvents();
+
+            return GGPOErrorCode.GGPO_OK;
+        }
+
+        public override GGPOErrorCode GetNetworkStats(ref GGPONetworkStats stats, GGPOPlayerHandle player)
+        {
+            int queue = 0;
+            GGPOErrorCode result;
+
+            result = PlayerHandleToQueue(player, ref queue);
+            if (!GGPO_SUCCEEDED(result))
+            {
+                return result;
+            }
+
+            // memset(stats, 0, sizeof *stats); // not needed in C#
+            _endpoints[queue].GetNetworkStats(ref stats);
+
+            return GGPOErrorCode.GGPO_OK;
+        }
+
+        /*
+         * Called only as the result of a local decision to disconnect.  The remote
+         * decisions to disconnect are a result of us parsing the peer_connect_settings
+         * blob in every endpoint periodically.
+         */
+        public override GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle player)
+        {
+            int queue = 0;
+            GGPOErrorCode result;
+
+            result = PlayerHandleToQueue(player, ref queue);
+            if (!GGPO_SUCCEEDED(result))
+            {
+                return result;
+            }
+
+            if (_local_connect_status[queue].disconnected != 0)
+            {
+                return GGPOErrorCode.GGPO_ERRORCODE_PLAYER_DISCONNECTED;
+            }
+
+            if (!_endpoints[queue].IsInitialized())
+            {
+                int current_frame = _sync.GetFrameCount();
+                // xxx: we should be tracking who the local player is, but for now assume
+                // that if the endpoint is not initalized, this must be the local player.
+                Logger.Log("Disconnecting local player {0} at frame {1} by user request.\n", queue, _local_connect_status[queue].last_frame);
+                for (int i = 0; i < _num_players; i++)
+                {
+                    if (_endpoints[i].IsInitialized())
+                    {
+                        DisconnectPlayerQueue(i, current_frame);
+                    }
+                }
+            }
+            else
+            {
+                Logger.Log("Disconnecting queue {0} at frame {1} by user request.\n", queue, _local_connect_status[queue].last_frame);
+                DisconnectPlayerQueue(queue, _local_connect_status[queue].last_frame);
+            }
+            return GGPOErrorCode.GGPO_OK;
+        }
+
         public bool OnMsgPoll() => true; // true is default
 
         public bool OnLoopPoll() => true; // true is default
@@ -488,6 +605,15 @@ namespace PleaseUndo
         private bool GGPO_SUCCEEDED(GGPOErrorCode result)
         {
             return result == GGPOErrorCode.GGPO_ERRORCODE_SUCCESS;
+        }
+
+        private void PollSyncEvents()
+        {
+            Sync<InputType>.Event e = new Sync<InputType>.Event();
+            while (_sync.GetEvent(ref e))
+            {
+                // OnSyncEvent(e); // OnSyncEvent is never implemented
+            }
         }
     }
 }

@@ -197,5 +197,10 @@ namespace PleaseUndo
         {
             throw new NotImplementedException();
         }
+
+        internal void GetNetworkStats(ref GGPONetworkStats stats)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
