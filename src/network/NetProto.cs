@@ -92,6 +92,7 @@ namespace PleaseUndo
         };
 
         const int UDP_SHUTDOWN_TIMER = 5000;
+        const int NUM_SYNC_PACKETS = 5;
 
         /*
          * Network transmission information
@@ -158,7 +159,25 @@ namespace PleaseUndo
 
         public void Synchronize()
         {
+            if (IsInitialized())
+            {
+                current_state = State.Syncing;
+                inner_state.Sync.roundtrips_remaining = NUM_SYNC_PACKETS;
+                SendSyncRequest();
+            }
+        }
 
+        protected void SendSyncRequest()
+        {
+            inner_state.Sync.random = Platform.RandUint();
+            NetSyncRequestMsg msg = new NetSyncRequestMsg();
+            msg.random_request = inner_state.Sync.random;
+            SendMsg(msg);
+        }
+
+        protected void SendMsg(NetMsg msg)
+        {
+            throw new NotImplementedException();
         }
 
         public bool IsInitialized() => net_adapter != null;
