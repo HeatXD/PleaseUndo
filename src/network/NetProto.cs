@@ -99,6 +99,7 @@ namespace PleaseUndo
         const int QUALITY_REPORT_INTERVAL = 1000;
         const int NETWORK_STATS_INTERVAL = 1000;
         const int KEEP_ALIVE_INTERVAL = 200;
+        const int UDP_MSG_MAX_PLAYERS = 4;
 
         /*
          * Network transmission information
@@ -121,7 +122,7 @@ namespace PleaseUndo
         * The state machine
         */
         protected NetMsg.ConnectStatus local_connect_status;
-        protected NetMsg.ConnectStatus peer_connect_status;
+        protected NetMsg.ConnectStatus[] peer_connect_status;
         protected State current_state;
         protected InnerState inner_state; // _state
         /*
@@ -160,7 +161,8 @@ namespace PleaseUndo
             this.queue = queue;
             this.net_adapter = peerNetAdapter;
             poll.RegisterLoop(this);
-            // init buffers
+            // init buffers and arrays
+            this.peer_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
             this.send_queue = new RingBuffer<QueueEntry>(64);
             this.pending_output = new RingBuffer<GameInput<InputType>>(64);
             this.event_queue = new RingBuffer<Event>(64);
@@ -256,9 +258,10 @@ namespace PleaseUndo
             return timesync.recommend_frame_wait_duration(false);
         }
 
-        public bool GetPeerConnectStatus(int i, ref int v)
+        public bool GetPeerConnectStatus(int id, ref int frame)
         {
-            throw new NotImplementedException();
+            frame = peer_connect_status[id].last_frame;
+            return peer_connect_status[id].disconnected == 0;
         }
 
         public void Disconnect()
