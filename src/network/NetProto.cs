@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace PleaseUndo
 {
-    public interface IPeerNetAdapter<InputType> : IPollSink
+    public interface IPeerNetAdapter<InputType>
     {
         void Send(NetMsg msg);
         List<NetMsg> ReceiveAllMessages();
     }
 
-    public class NetProto<InputType>
+    public class NetProto<InputType> : IPollSink
     {
         public class Event
         {
@@ -93,12 +93,17 @@ namespace PleaseUndo
 
         const int UDP_SHUTDOWN_TIMER = 5000;
         const int NUM_SYNC_PACKETS = 5;
+        const int SYNC_FIRST_RETRY_INTERVAL = 500;
+        const int SYNC_RETRY_INTERVAL = 2000;
+        const int RUNNING_RETRY_INTERVAL = 200;
+        const int QUALITY_REPORT_INTERVAL = 1000;
+        const int NETWORK_STATS_INTERVAL = 1000;
+        const int KEEP_ALIVE_INTERVAL = 200;
 
         /*
          * Network transmission information
          */
         protected IPeerNetAdapter<InputType> net_adapter;
-        protected string peer_addr; //? idk if needed
         protected int queue;
         protected bool connected;
         protected int send_latency;
@@ -134,7 +139,7 @@ namespace PleaseUndo
         protected uint last_send_time;
         protected uint last_recv_time;
         protected uint shutdown_timeout;
-        protected uint disconnect_event_sent;
+        protected bool disconnect_event_sent;
         protected uint disconnect_timeout;
         protected uint disconnect_notify_start;
         protected bool disconnect_notify_sent;
@@ -154,7 +159,7 @@ namespace PleaseUndo
         {
             this.queue = queue;
             this.net_adapter = peerNetAdapter;
-            poll.RegisterLoop((IPollSink)this); // had to remove ref
+            poll.RegisterLoop(this);
         }
 
         public void Synchronize()
@@ -276,6 +281,108 @@ namespace PleaseUndo
             stats.Network.kbps_sent = kbps_sent;
             stats.Timesync.remote_frames_behind = remote_frame_advantage;
             stats.Timesync.local_frames_behind = local_frame_advantage;
+        }
+
+        bool IPollSink.OnLoopPoll()
+        {
+            if (!IsInitialized())
+            {
+                return true;
+            }
+
+            uint now = (uint)Platform.GetCurrentTimeMS();
+            uint next_interval;
+
+            PumpSendQueue();
+
+            switch (current_state)
+            {
+                case State.Syncing:
+                    next_interval = (inner_state.Sync.roundtrips_remaining == NUM_SYNC_PACKETS) ? (uint)SYNC_FIRST_RETRY_INTERVAL : (uint)SYNC_RETRY_INTERVAL;
+                    if (last_send_time != 0 && last_send_time + next_interval < now)
+                    {
+                        Logger.Log("No luck syncing after {0} ms... Re-queueing sync packet.\n", next_interval);
+                        SendSyncRequest();
+                    }
+                    break;
+                case State.Running:
+                    // xxx: rig all this up with a timer wrapper
+                    if (inner_state.Running.last_input_packet_recv_time == 0 || inner_state.Running.last_input_packet_recv_time + RUNNING_RETRY_INTERVAL < now)
+                    {
+                        Logger.Log("Haven't exchanged packets in a while (last received:{0}  last sent:{1}).  Resending.\n", last_received_input.frame, last_sent_input.frame);
+                        SendPendingOutput();
+                        inner_state.Running.last_input_packet_recv_time = now;
+                    }
+
+                    if (inner_state.Running.last_quality_report_time == 0 || inner_state.Running.last_quality_report_time + QUALITY_REPORT_INTERVAL < now)
+                    {
+                        NetQualityReportMsg msg = new NetQualityReportMsg();
+                        msg.ping = (uint)Platform.GetCurrentTimeMS();
+                        msg.frame_advantage = (byte)local_frame_advantage;
+                        SendMsg(msg);
+                        inner_state.Running.last_quality_report_time = now;
+                    }
+
+                    if (inner_state.Running.last_network_stats_interval == 0 || inner_state.Running.last_network_stats_interval + NETWORK_STATS_INTERVAL < now)
+                    {
+                        UpdateNetworkStats();
+                        inner_state.Running.last_network_stats_interval = now;
+                    }
+
+                    if (last_send_time != 0 && last_send_time + KEEP_ALIVE_INTERVAL < now)
+                    {
+                        Logger.Log("Sending keep alive packet\n");
+                        SendMsg(new NetKeepAlive());
+                    }
+
+                    if (disconnect_timeout != 0 && disconnect_notify_start != 0 &&
+                        !disconnect_notify_sent && (last_recv_time + disconnect_notify_start < now))
+                    {
+                        Logger.Log("Endpoint has stopped receiving packets for {0} ms.  Sending notification.\n", disconnect_notify_start);
+                        NetworkInterruptedEvent e = new NetworkInterruptedEvent();
+                        e.disconnect_timeout = (int)(disconnect_timeout - disconnect_notify_start);
+                        QueueEvent(e);
+                        disconnect_notify_sent = true;
+                    }
+
+                    if (disconnect_timeout != 0 && (last_recv_time + disconnect_timeout < now))
+                    {
+                        if (!disconnect_event_sent)
+                        {
+                            Logger.Log("Endpoint has stopped receiving packets for {0} ms.  Disconnecting.\n", disconnect_timeout);
+                            Event evt = new Event();
+                            evt.type = Event.Type.Disconnected;
+                            QueueEvent(evt);
+                            disconnect_event_sent = true;
+                        }
+                    }
+
+                    break;
+                case State.Disconnected:
+                    if (shutdown_timeout < now)
+                    {
+                        Logger.Log("Shutting down NetProto connection.\n");
+                        net_adapter = null;
+                        shutdown_timeout = 0;
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        private void QueueEvent(Event e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void UpdateNetworkStats()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void PumpSendQueue()
+        {
+            throw new NotImplementedException();
         }
     }
 }

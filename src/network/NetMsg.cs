@@ -8,6 +8,7 @@ namespace PleaseUndo
     [Union(3, typeof(NetQualityReportMsg))]
     [Union(4, typeof(NetSyncReplyMsg))]
     [Union(5, typeof(NetSyncRequestMsg))]
+    [Union(6, typeof(NetKeepAlive))]
     [MessagePackObject]
     public abstract class NetMsg
     {
@@ -88,5 +89,11 @@ namespace PleaseUndo
         public ushort remote_magic;
         [Key(3)]
         public byte remote_endpoint;
+    }
+
+    [MessagePackObject]
+    public class NetKeepAlive : NetMsg
+    {
+
     }
 }
