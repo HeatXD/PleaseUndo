@@ -121,7 +121,7 @@ namespace PleaseUndo
         * The state machine
         */
         protected NetMsg.ConnectStatus local_connect_status;
-        protected NetMsg.ConnectStatus[] peer_connect_status;
+        protected NetMsg.ConnectStatus peer_connect_status;
         protected State current_state;
         protected InnerState inner_state; // _state
         /*
@@ -160,6 +160,10 @@ namespace PleaseUndo
             this.queue = queue;
             this.net_adapter = peerNetAdapter;
             poll.RegisterLoop(this);
+            // init buffers
+            this.send_queue = new RingBuffer<QueueEntry>(64);
+            this.pending_output = new RingBuffer<GameInput<InputType>>(64);
+            this.event_queue = new RingBuffer<Event>(64);
         }
 
         public void Synchronize()
@@ -339,9 +343,9 @@ namespace PleaseUndo
                         !disconnect_notify_sent && (last_recv_time + disconnect_notify_start < now))
                     {
                         Logger.Log("Endpoint has stopped receiving packets for {0} ms.  Sending notification.\n", disconnect_notify_start);
-                        NetworkInterruptedEvent e = new NetworkInterruptedEvent();
-                        e.disconnect_timeout = (int)(disconnect_timeout - disconnect_notify_start);
-                        QueueEvent(e);
+                        NetworkInterruptedEvent evt = new NetworkInterruptedEvent();
+                        evt.disconnect_timeout = (int)(disconnect_timeout - disconnect_notify_start);
+                        QueueEvent(evt);
                         disconnect_notify_sent = true;
                     }
 
@@ -356,7 +360,6 @@ namespace PleaseUndo
                             disconnect_event_sent = true;
                         }
                     }
-
                     break;
                 case State.Disconnected:
                     if (shutdown_timeout < now)
@@ -370,9 +373,18 @@ namespace PleaseUndo
             return true;
         }
 
-        private void QueueEvent(Event e)
+        protected void QueueEvent(Event e)
         {
-            throw new NotImplementedException();
+            LogEvent("Queuing event", e);
+            event_queue.Push(e);
+        }
+
+        protected void LogEvent(string prefix, Event e)
+        {
+            if (e.type == Event.Type.Synchronzied)
+            {
+                Logger.Log("{0} (event: Synchronzied).\n", prefix);
+            }
         }
 
         private void UpdateNetworkStats()
