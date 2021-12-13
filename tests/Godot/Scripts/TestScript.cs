@@ -11,8 +11,12 @@ public class TestScript : Node
 		System.Environment.SetEnvironmentVariable("PU_LOG_CREATE_FILE", "x");
 
 		GameInput<int> input = new GameInput<int>();
-		input.Init(10, new int[] { 3, 7 });
+		input.Init(10, new int[] { 7, 9 });
 		input.Log("GameInput", true);
 		input.Log("GameInput", true);
+
+		GD.Print(Platform.RandUint());
+		GD.Print(Platform.RandUint());
+		GD.Print(Platform.RandUint());
 	}
 }

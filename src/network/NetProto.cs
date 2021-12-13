@@ -188,7 +188,59 @@ namespace PleaseUndo
 
         protected void SendMsg(NetMsg msg)
         {
-            throw new NotImplementedException();
+            LogMsg("send", msg);
+
+            packets_sent++;
+            last_send_time = (uint)Platform.GetCurrentTimeMS();
+            bytes_sent += msg.PacketSize();
+
+            msg.sequence_number = (ushort)next_send_seq++;
+
+            var entry = new QueueEntry();
+            entry.queue_time = Platform.GetCurrentTimeMS();
+            entry.msg = msg;
+
+            send_queue.Push(entry);
+            PumpSendQueue();
+        }
+
+        protected void LogMsg(string prefix, NetMsg msg)
+        {
+            if (msg is NetSyncRequestMsg)
+            {
+                NetSyncRequestMsg tmp_msg = (NetSyncRequestMsg)msg;
+                Logger.Log("{0} sync-request ({1}).\n", prefix, tmp_msg.random_request);
+            }
+            else if (msg is NetSyncReplyMsg)
+            {
+                NetSyncReplyMsg tmp_msg = (NetSyncReplyMsg)msg;
+                Logger.Log("{0} sync-reply ({1}).\n", prefix, tmp_msg.random_reply);
+            }
+            else if (msg is NetQualityReportMsg)
+            {
+                Logger.Log("{0} quality report.\n", prefix);
+            }
+            else if (msg is NetQualityReply)
+            {
+                Logger.Log("{0} quality reply.\n", prefix);
+            }
+            else if (msg is NetKeepAlive)
+            {
+                Logger.Log("{0} keep alive.\n", prefix);
+            }
+            else if (msg is NetInputMsg)
+            {
+                NetInputMsg tmp_msg = (NetInputMsg)msg;
+                Logger.Log("{0} game input {1} ({2} bits).\n", prefix, tmp_msg.start_frame, tmp_msg.num_bits);
+            }
+            else if (msg is NetInputAckMsg)
+            {
+                Logger.Log("{0} input ack.\n", prefix);
+            }
+            else
+            {
+                Logger.Assert(false, "Unknown NetMsg type.");
+            }
         }
 
         public bool IsInitialized() => net_adapter != null;
@@ -219,7 +271,7 @@ namespace PleaseUndo
             }
         }
 
-        private void SendPendingOutput()
+        protected void SendPendingOutput()
         {
             throw new NotImplementedException();
         }
@@ -390,14 +442,18 @@ namespace PleaseUndo
             }
         }
 
-        private void UpdateNetworkStats()
+        protected void UpdateNetworkStats()
         {
             throw new NotImplementedException();
         }
 
-        private void PumpSendQueue()
+        protected void PumpSendQueue()
         {
-            throw new NotImplementedException();
+            while (!send_queue.Empty())
+            {
+                QueueEntry qe = send_queue.Front();
+                // TODO
+            }
         }
     }
 }

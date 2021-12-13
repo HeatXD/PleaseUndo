@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using MessagePack;
 
 namespace PleaseUndo
@@ -26,6 +27,11 @@ namespace PleaseUndo
 
         public static byte[] Serialize<T>(T message) where T : NetMsg { return MessagePackSerializer.Serialize<T>(message); }
         public static T Deserialize<T>(byte[] data) where T : NetMsg { return MessagePackSerializer.Deserialize<T>(data); }
+
+        public int PacketSize()
+        {
+            return Marshal.SizeOf(this);
+        }
     }
 
     [MessagePackObject]
