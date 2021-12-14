@@ -2,7 +2,7 @@ using System;
 
 namespace PleaseUndo
 {
-    public class Peer2PeerBackend<InputType> : GGPOSession<InputType>, IPollSink
+    public class Peer2PeerBackend<InputType> : GGPOSession<InputType>
     {
         const int UDP_MSG_MAX_PLAYERS = 4;
         const int RECOMMENDATION_INTERVAL = 240;
@@ -29,8 +29,7 @@ namespace PleaseUndo
 
         NetMsg.ConnectStatus[] _local_connect_status;
 
-        //! backend needs an localport to work off of. ?
-        public Peer2PeerBackend(GGPOSessionCallbacks cb, int num_players)
+        public Peer2PeerBackend(ref GGPOSessionCallbacks cb, int num_players)
         {
             _num_players = num_players;
             _sync = new Sync<InputType>(ref _local_connect_status);
@@ -69,7 +68,7 @@ namespace PleaseUndo
             /*
              * Preload the ROM
              */
-            cb.OnBeginGame();
+            _callbacks.OnBeginGame();
         }
 
         public override GGPOErrorCode AddLocalPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle)
@@ -371,12 +370,6 @@ namespace PleaseUndo
             }
             return GGPOErrorCode.GGPO_OK;
         }
-
-        public bool OnMsgPoll() => true; // true is default
-
-        public bool OnLoopPoll() => true; // true is default
-
-        public bool OnPeriodicPoll(int last_fired) => true; // true is default
 
         private int Poll2Players(int current_frame)
         {
