@@ -12,7 +12,7 @@ namespace PleaseUndo
         GGPO_EVENTCODE_CONNECTION_RESUMED = 1007,
     }
 
-    public abstract class GGPOEvent
+    public class GGPOEvent
     {
         public GGPOEventCode code;
     }

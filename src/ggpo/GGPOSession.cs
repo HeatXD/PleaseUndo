@@ -22,10 +22,10 @@ namespace PleaseUndo
         public const uint GGPO_MAX_PREDICTION_FRAMES = 8;
         public const uint GGPO_SPECTATOR_INPUT_INTERVAL = 4;
 
-        public abstract GGPOErrorCode AddLocalPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle);
-        public abstract GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, ref IPeerNetAdapter<InputType> peerNetAdapter);
-        public abstract GGPOErrorCode SyncInput(InputType[] values, int size, ref int disconnect_flags);
-        public abstract GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType[] values, int size);
+        public virtual GGPOErrorCode AddLocalPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
+        public virtual GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, ref IPeerNetAdapter<InputType> peerNetAdapter) { return GGPOErrorCode.GGPO_OK; }
+        public virtual GGPOErrorCode SyncInput(ref InputType[] values, int size, ref int disconnect_flags) { return GGPOErrorCode.GGPO_OK; }
+        public virtual GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType[] values, int size) { return GGPOErrorCode.GGPO_OK; }
         public virtual GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }
         public virtual GGPOErrorCode DoPoll(int timeout) { return GGPOErrorCode.GGPO_OK; }
         public virtual GGPOErrorCode IncrementFrame() { return GGPOErrorCode.GGPO_OK; }

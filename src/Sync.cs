@@ -126,7 +126,7 @@ namespace PleaseUndo
             return disconnect_flags;
         }
 
-        public int SynchronizeInputs(InputType[] values, int size)
+        public int SynchronizeInputs(ref InputType[] values, int size)
         {
             int disconnect_flags = 0;
             // char* output = (char*)values; // Not needed in C#

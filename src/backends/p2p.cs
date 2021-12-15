@@ -188,7 +188,7 @@ namespace PleaseUndo
             return GGPOErrorCode.GGPO_OK;
         }
 
-        public override GGPOErrorCode SyncInput(InputType[] values, int size, ref int disconnect_flags)
+        public override GGPOErrorCode SyncInput(ref InputType[] values, int size, ref int disconnect_flags)
         {
             int flags;
 
@@ -197,7 +197,7 @@ namespace PleaseUndo
             {
                 return GGPOErrorCode.GGPO_ERRORCODE_NOT_SYNCHRONIZED;
             }
-            flags = _sync.SynchronizeInputs(values, size);
+            flags = _sync.SynchronizeInputs(ref values, size);
             if (disconnect_flags != 0)
             {
                 disconnect_flags = flags;
