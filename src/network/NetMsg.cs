@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using MessagePack;
 
 namespace PleaseUndo
@@ -30,7 +29,8 @@ namespace PleaseUndo
 
         public int PacketSize()
         {
-            return Marshal.SizeOf(this);
+            //return Marshal.SizeOf(this);
+            return Serialize(this).Length;
         }
     }
 

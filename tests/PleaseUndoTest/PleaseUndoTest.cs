@@ -1,8 +1,54 @@
 using PleaseUndo;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+public class DummyAdapter : PleaseUndo.IPeerNetAdapter<int>
+{
+    public override void Send(NetMsg msg) { }
+    public override List<NetMsg> ReceiveAllMessages() { return null; }
+}
 
 namespace PleaseUndoTest
 {
+    [TestClass]
+    public class P2PTest
+    {
+        [TestMethod]
+        public void TestP2P()
+        {
+            var cbs1 = new GGPOSessionCallbacks
+            {
+                OnEvent = (GGPOEvent ev) => { return false; },
+                OnBeginGame = () => { return false; },
+                OnAdvanceFrame = () => { return false; },
+                OnLoadGameState = (byte[] buffer, int len) => { return false; },
+                OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
+            };
+            var session1 = new Peer2PeerBackend<int>(ref cbs1, 2);
+            var session1_adapter = new DummyAdapter();
+            var session1_handle1 = new GGPOPlayerHandle { };
+            var session1_handle2 = new GGPOPlayerHandle { };
+
+            session1.AddLocalPlayer(new GGPOPlayer { player_num = 1 }, ref session1_handle1);
+            session1.AddRemotePlayer(new GGPOPlayer { player_num = 2 }, ref session1_handle2, session1_adapter);
+
+            var cbs2 = new GGPOSessionCallbacks
+            {
+                OnEvent = (ev) => { return false; },
+                OnBeginGame = () => { return false; },
+                OnAdvanceFrame = () => { return false; },
+                OnLoadGameState = (byte[] buffer, int len) => { return false; },
+                OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
+            };
+            var session2 = new Peer2PeerBackend<int>(ref cbs2, 2);
+            var session2_adapter = new DummyAdapter();
+            var session2_handle1 = new GGPOPlayerHandle { };
+            var session2_handle2 = new GGPOPlayerHandle { };
+
+            session1.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session1_handle1, session2_adapter);
+            session1.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session1_handle2);
+        }
+    }
     [TestClass]
     public class NetMsgSerializationTest
     {

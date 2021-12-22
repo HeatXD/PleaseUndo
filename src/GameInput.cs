@@ -17,22 +17,34 @@ namespace PleaseUndo
 
         public void Init(int frame, T[] game_inputs, int offset)
         {
-            Logger.Assert(offset + game_inputs.Length <= GAMEINPUT_MAX_PLAYERS,
-             "Supplied inputs is larger than the maximum players specified #2");
+            if (game_inputs != null)
+            {
+                Logger.Assert(offset + game_inputs.Length <= GAMEINPUT_MAX_PLAYERS,
+                 "Supplied inputs is larger than the maximum players specified #2");
+            }
 
             this.inputs = new T[GAMEINPUT_MAX_PLAYERS];
             this.frame = frame;
-            Array.Copy(game_inputs, 0, this.inputs, offset, game_inputs.Length);
+            if (game_inputs != null)
+            {
+                Array.Copy(game_inputs, 0, this.inputs, offset, game_inputs.Length);
+            }
         }
 
         public void Init(int frame, T[] game_inputs)
         {
-            Logger.Assert(game_inputs.Length <= GAMEINPUT_MAX_PLAYERS,
-             "Supplied inputs is larger than the maximum players specified #1");
+            if (game_inputs != null)
+            {
+                Logger.Assert(game_inputs.Length <= GAMEINPUT_MAX_PLAYERS,
+                 "Supplied inputs is larger than the maximum players specified #1");
+            }
 
             this.inputs = new T[GAMEINPUT_MAX_PLAYERS];
             this.frame = frame;
-            Array.Copy(game_inputs, this.inputs, game_inputs.Length);
+            if (game_inputs != null)
+            {
+                Array.Copy(game_inputs, this.inputs, game_inputs.Length);
+            }
         }
 
         public bool Equal(GameInput<T> game_input, bool inputs_only)

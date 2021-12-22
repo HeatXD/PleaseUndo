@@ -5,7 +5,7 @@ namespace PleaseUndo
         public delegate bool OnEventDelegate(GGPOEvent ev);
         public delegate bool BeginGameDelegate();
         public delegate bool AdvanceFrameDelegate();
-        public delegate bool LoadGameStateDelegate(byte[] buffer, int lent);
+        public delegate bool LoadGameStateDelegate(byte[] buffer, int len);
         public delegate bool SaveGameStateDelegate(ref byte[] buffer, ref int len, ref int checksum, int frame);
 
         public OnEventDelegate OnEvent;
@@ -23,7 +23,7 @@ namespace PleaseUndo
         public const uint GGPO_SPECTATOR_INPUT_INTERVAL = 4;
 
         public virtual GGPOErrorCode AddLocalPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle) { return GGPOErrorCode.GGPO_OK; }
-        public virtual GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, ref IPeerNetAdapter<InputType> peerNetAdapter) { return GGPOErrorCode.GGPO_OK; }
+        public virtual GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, /* ref */ IPeerNetAdapter<InputType> peerNetAdapter) { return GGPOErrorCode.GGPO_OK; }
         public virtual GGPOErrorCode SyncInput(ref InputType[] values, int size, ref int disconnect_flags) { return GGPOErrorCode.GGPO_OK; }
         public virtual GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType[] values, int size) { return GGPOErrorCode.GGPO_OK; }
         public virtual GGPOErrorCode Chat(string text) { return GGPOErrorCode.GGPO_OK; }
