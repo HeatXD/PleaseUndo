@@ -110,6 +110,7 @@ namespace PleaseUndo
         protected int send_latency;
         protected int oop_percent;
         protected RingBuffer<QueueEntry> send_queue;
+        protected OO_Packet oo_packet;
         /*
          * Stats
          */
@@ -449,11 +450,45 @@ namespace PleaseUndo
 
         protected void PumpSendQueue()
         {
+            var rand = new Random();
+
             while (!send_queue.Empty())
             {
-                QueueEntry qe = send_queue.Front();
-                // TODO
+                QueueEntry entry = send_queue.Front();
+
+                if (send_latency != 0)
+                {
+                    int jitter = (send_latency * 2 / 3) + ((rand.Next() % send_latency) / 3);
+                    if (Platform.GetCurrentTimeMS() < send_queue.Front().queue_time + jitter)
+                    {
+                        break;
+                    }
+                }
+
+                if (oop_percent != 0 && oo_packet.msg != null && ((rand.Next() % 100) < oop_percent))
+                {
+                    int delay = rand.Next() % (send_latency * 10 + 1000);
+                    Logger.Log("creating rogue oop (seq: {0}  delay: {1})\n", entry.msg.sequence_number, delay);
+                    oo_packet.send_time = Platform.GetCurrentTimeMS() + delay;
+                    oo_packet.msg = entry.msg;
+                }
+                else
+                {
+                    net_adapter.Send(entry.msg);
+                    entry.msg = null;
+                }
+
+                send_queue.Pop();
             }
+
+            if (oo_packet.msg != null && oo_packet.send_time < Platform.GetCurrentTimeMS())
+            {
+                Logger.Log("sending rogue oop!");
+                net_adapter.Send(oo_packet.msg);
+
+                oo_packet.msg = null;
+            }
+
         }
     }
 }
