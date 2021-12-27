@@ -100,6 +100,7 @@ namespace PleaseUndo
         const int NETWORK_STATS_INTERVAL = 1000;
         const int KEEP_ALIVE_INTERVAL = 200;
         const int UDP_MSG_MAX_PLAYERS = 4;
+        const int MAX_SEQ_DISTANCE = (1 << 15);
 
         /*
          * Network transmission information
@@ -343,11 +344,58 @@ namespace PleaseUndo
             stats.Timesync.local_frames_behind = local_frame_advantage;
         }
 
+        void OnMsg(NetMsg msg)
+        {
+            // var handled = false;
+            var seq = msg.sequence_number;
+
+            if (msg.type != NetMsg.MsgType.SyncRequest &&
+                   msg.type != NetMsg.MsgType.SyncReply)
+            {
+                // if (msg.magic != _remote_magic_number)
+                // {
+                //     LogMsg("recv rejecting", msg);
+                //     return;
+                // }
+
+                // filter out out-of-order packets
+                var skipped = (System.UInt16)((int)seq - (int)next_recv_seq);
+                // Log("checking sequence number -> next - seq : %d - %d = %d\n", seq, _next_recv_seq, skipped);
+                if (skipped > MAX_SEQ_DISTANCE)
+                {
+                    Logger.Log("dropping out of order packet (seq: {0}, last seq:{1})\n", seq, next_recv_seq);
+                    return;
+                }
+            }
+
+            //    _next_recv_seq = seq;
+            //    LogMsg("recv", msg);
+            //    if (msg->hdr.type >= ARRAY_SIZE(table)) {
+            //       OnInvalid(msg, len);
+            //    } else {
+            //       handled = (this->*(table[msg->hdr.type]))(msg, len);
+            //    }
+            //    if (handled) {
+            //       _last_recv_time = Platform::GetCurrentTimeMS();
+            //       if (_disconnect_notify_sent && _current_state == Running) {
+            //          QueueEvent(Event(Event::NetworkResumed));   
+            //          _disconnect_notify_sent = false;
+            //       }
+            //    }
+        }
+
         bool IPollSink.OnLoopPoll()
         {
             if (!IsInitialized())
             {
                 return true;
+            }
+
+            var messages = net_adapter.ReceiveAllMessages();
+            foreach (var message in messages)
+            {
+                Logger.Log("received message {0}", message.GetType().Name);
+                OnMsg(message);
             }
 
             uint now = (uint)Platform.GetCurrentTimeMS();

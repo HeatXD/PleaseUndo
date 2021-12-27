@@ -9,8 +9,8 @@ namespace PleaseUndoTest
     [TestClass]
     public class P2PTest
     {
-        const int LOCAL_PORT_1 = 7003;
-        const int LOCAL_PORT_2 = 7004;
+        const int LOCAL_PORT_1 = 7005;
+        const int LOCAL_PORT_2 = 7006;
         const string LOCAL_ADDRESS = "127.0.0.1";
 
         [TestMethod]
@@ -49,11 +49,19 @@ namespace PleaseUndoTest
             session2.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session2_handle1, session2_adapter);
             session2.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session2_handle2);
 
-            session1.DoPoll(100);
-            session2.DoPoll(100);
+            for (var i = 0; i < 2; i++)
+            {
+                session1.DoPoll(100);
+                session2.DoPoll(100);
 
-            session1_adapter.Poll();
-            session2_adapter.Poll();
+                session1_adapter.Poll();
+                session2_adapter.Poll();
+            }
+
+            session1_adapter.Close();
+            session2_adapter.Close();
+
+            // throw new System.Exception();
         }
 
         [TestMethod]
