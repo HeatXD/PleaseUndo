@@ -92,7 +92,7 @@ namespace PleaseUndo
             return GGPOErrorCode.GGPO_OK;
         }
 
-        public override GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, /* ref */ IPeerNetAdapter<InputType> peerNetAdapter)
+        public override GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, IPeerNetAdapter peerNetAdapter)
         {
             _synchronizing = true;
 

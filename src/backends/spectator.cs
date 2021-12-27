@@ -14,7 +14,7 @@ namespace PleaseUndo
         protected int _next_input_to_send;
         protected GameInput<InputType>[] _inputs;
 
-        public SpectatorBackend(ref GGPOSessionCallbacks cb, int num_players, ref IPeerNetAdapter<InputType> net_adapter)
+        public SpectatorBackend(ref GGPOSessionCallbacks cb, int num_players, ref IPeerNetAdapter net_adapter)
         {
             _callbacks = cb;
             _synchronizing = true;

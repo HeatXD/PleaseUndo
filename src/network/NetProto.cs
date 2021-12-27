@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PleaseUndo
 {
-    public abstract class IPeerNetAdapter<InputType>
+    public abstract class IPeerNetAdapter
     {
         public abstract void Send(NetMsg msg);
         public abstract List<NetMsg> ReceiveAllMessages();
@@ -104,7 +104,7 @@ namespace PleaseUndo
         /*
          * Network transmission information
          */
-        protected IPeerNetAdapter<InputType> net_adapter;
+        protected IPeerNetAdapter net_adapter;
         protected int queue;
         protected bool connected;
         protected int send_latency;
@@ -157,7 +157,7 @@ namespace PleaseUndo
          */
         protected RingBuffer<Event> event_queue;
 
-        public NetProto(int queue, ref IPeerNetAdapter<InputType> peerNetAdapter, ref Poll poll)
+        public NetProto(int queue, ref IPeerNetAdapter peerNetAdapter, ref Poll poll)
         {
             this.queue = queue;
             this.net_adapter = peerNetAdapter;

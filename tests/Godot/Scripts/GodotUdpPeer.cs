@@ -3,7 +3,7 @@ using PleaseUndo;
 using System;
 using System.Collections.Generic;
 
-public class UdpPeer<InputType> : IPeerNetAdapter<InputType>
+public class GodotUdpPeer : IPeerNetAdapter
 {
     private PacketPeerUDP _peer;
 
