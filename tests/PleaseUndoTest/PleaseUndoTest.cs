@@ -19,49 +19,52 @@ namespace PleaseUndoTest
             var session1_adapter = new UdpPeer(LOCAL_PORT_1, LOCAL_ADDRESS, LOCAL_PORT_2);
             var session2_adapter = new UdpPeer(LOCAL_PORT_2, LOCAL_ADDRESS, LOCAL_PORT_1);
 
-            var cbs1 = new GGPOSessionCallbacks
+            try
             {
-                OnEvent = (GGPOEvent ev) => { return false; },
-                OnBeginGame = () => { return false; },
-                OnAdvanceFrame = () => { return false; },
-                OnLoadGameState = (byte[] buffer, int len) => { return false; },
-                OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
-            };
-            var session1 = new Peer2PeerBackend<int>(ref cbs1, 2);
-            var session1_handle1 = new GGPOPlayerHandle { };
-            var session1_handle2 = new GGPOPlayerHandle { };
+                var cbs1 = new GGPOSessionCallbacks
+                {
+                    OnEvent = (GGPOEvent ev) => { return false; },
+                    OnBeginGame = () => { return false; },
+                    OnAdvanceFrame = () => { return false; },
+                    OnLoadGameState = (byte[] buffer, int len) => { return false; },
+                    OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
+                };
+                var session1 = new Peer2PeerBackend<int>(ref cbs1, 2);
+                var session1_handle1 = new GGPOPlayerHandle { };
+                var session1_handle2 = new GGPOPlayerHandle { };
 
-            session1.AddLocalPlayer(new GGPOPlayer { player_num = 1 }, ref session1_handle1);
-            session1.AddRemotePlayer(new GGPOPlayer { player_num = 2 }, ref session1_handle2, session1_adapter);
+                session1.AddLocalPlayer(new GGPOPlayer { player_num = 1 }, ref session1_handle1);
+                session1.AddRemotePlayer(new GGPOPlayer { player_num = 2 }, ref session1_handle2, session1_adapter);
 
-            var cbs2 = new GGPOSessionCallbacks
-            {
-                OnEvent = (ev) => { return false; },
-                OnBeginGame = () => { return false; },
-                OnAdvanceFrame = () => { return false; },
-                OnLoadGameState = (byte[] buffer, int len) => { return false; },
-                OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
-            };
-            var session2 = new Peer2PeerBackend<int>(ref cbs2, 2);
-            var session2_handle1 = new GGPOPlayerHandle { };
-            var session2_handle2 = new GGPOPlayerHandle { };
+                var cbs2 = new GGPOSessionCallbacks
+                {
+                    OnEvent = (ev) => { return false; },
+                    OnBeginGame = () => { return false; },
+                    OnAdvanceFrame = () => { return false; },
+                    OnLoadGameState = (byte[] buffer, int len) => { return false; },
+                    OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
+                };
+                var session2 = new Peer2PeerBackend<int>(ref cbs2, 2);
+                var session2_handle1 = new GGPOPlayerHandle { };
+                var session2_handle2 = new GGPOPlayerHandle { };
 
-            session2.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session2_handle1, session2_adapter);
-            session2.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session2_handle2);
+                session2.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session2_handle1, session2_adapter);
+                session2.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session2_handle2);
 
-            for (var i = 0; i < 2; i++)
-            {
-                session1.DoPoll(100);
-                session2.DoPoll(100);
+                for (var i = 0; i < 2; i++)
+                {
+                    session1.DoPoll(100);
+                    session2.DoPoll(100);
 
-                session1_adapter.Poll();
-                session2_adapter.Poll();
+                    session1_adapter.Poll();
+                    session2_adapter.Poll();
+                }
             }
-
-            session1_adapter.Close();
-            session2_adapter.Close();
-
-            // throw new System.Exception();
+            finally
+            {
+                session1_adapter.Close();
+                session2_adapter.Close();
+            }
         }
 
         [TestMethod]

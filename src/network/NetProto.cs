@@ -27,10 +27,14 @@ namespace PleaseUndo
 
             public Type type;
         }
-
+        public class ConnectedEvent : Event { }
         public class InputEvent : Event
         {
             public GameInput<InputType> input;
+        }
+        public class SynchronizedEvent : Event
+        {
+
         }
         public class SynchronizingEvent : Event
         {
@@ -40,6 +44,10 @@ namespace PleaseUndo
         public class NetworkInterruptedEvent : Event
         {
             public int disconnect_timeout;
+        }
+        public class NetworkResumedEvent : Event
+        {
+
         }
 
         public enum State
@@ -346,7 +354,7 @@ namespace PleaseUndo
 
         void OnMsg(NetMsg msg)
         {
-            // var handled = false;
+            var handled = false;
             var seq = msg.sequence_number;
 
             if (msg.type != NetMsg.MsgType.SyncRequest &&
@@ -368,20 +376,103 @@ namespace PleaseUndo
                 }
             }
 
-            //    _next_recv_seq = seq;
-            //    LogMsg("recv", msg);
-            //    if (msg->hdr.type >= ARRAY_SIZE(table)) {
-            //       OnInvalid(msg, len);
-            //    } else {
-            //       handled = (this->*(table[msg->hdr.type]))(msg, len);
-            //    }
-            //    if (handled) {
-            //       _last_recv_time = Platform::GetCurrentTimeMS();
-            //       if (_disconnect_notify_sent && _current_state == Running) {
-            //          QueueEvent(Event(Event::NetworkResumed));   
-            //          _disconnect_notify_sent = false;
-            //       }
-            //    }
+            next_recv_seq = seq;
+            LogMsg("recv", msg);
+
+            switch (msg.type)
+            {
+                case NetMsg.MsgType.Invalid:
+                    handled = OnInvalid();
+                    break;
+                case NetMsg.MsgType.SyncRequest:
+                    handled = OnSyncRequest(msg);
+                    break;
+                case NetMsg.MsgType.SyncReply:
+                    handled = OnSyncReply(msg);
+                    break;
+                case NetMsg.MsgType.Input:
+                    break;
+                case NetMsg.MsgType.QualityReport:
+                    break;
+                case NetMsg.MsgType.QualityReply:
+                    break;
+                case NetMsg.MsgType.KeepAlive:
+                    break;
+                case NetMsg.MsgType.InputAck:
+                    break;
+                default:
+                    handled = OnInvalid();
+                    break;
+            }
+            if (handled)
+            {
+                last_recv_time = (uint)Platform.GetCurrentTimeMS();
+                if (disconnect_notify_sent && current_state == State.Running)
+                {
+                    QueueEvent(new NetworkResumedEvent { type = Event.Type.NetworkResumed });
+                    disconnect_notify_sent = false;
+                }
+            }
+        }
+
+        bool OnInvalid()
+        {
+            Logger.Assert(false, "Invalid msg in NetProto");
+            return false;
+        }
+
+        bool OnSyncRequest(NetMsg msg)
+        {
+            // if (_remote_magic_number != 0 && msg->hdr.magic != _remote_magic_number)
+            // {
+            //     Log("Ignoring sync request from unknown endpoint (%d != %d).\n",
+            //          msg->hdr.magic, _remote_magic_number);
+            //     return false;
+            // }
+            var reply = new NetSyncReplyMsg { type = NetMsg.MsgType.SyncReply };
+            // reply.random_reply = msg.sync_request.random_request;
+            SendMsg(reply);
+            return true;
+        }
+
+        bool OnSyncReply(NetMsg msg)
+        {
+            if (current_state != State.Syncing)
+            {
+                Logger.Log("Ignoring SyncReply while not synching.\n");
+                //   return msg->hdr.magic == _remote_magic_number;
+                return false;
+            }
+
+            // if (msg->u.sync_reply.random_reply != _state.sync.random)
+            // {
+            //     Log("sync reply %d != %d.  Keep looking...\n",
+            //         msg->u.sync_reply.random_reply, _state.sync.random);
+            //     return false;
+            // }
+
+            if (!connected)
+            {
+                QueueEvent(new ConnectedEvent { type = Event.Type.Connected });
+                connected = true;
+            }
+
+            Logger.Log("Checking sync state (%d round trips remaining).\n", inner_state.Sync.roundtrips_remaining);
+            if (--inner_state.Sync.roundtrips_remaining == 0)
+            {
+                Logger.Log("Synchronized!\n");
+                QueueEvent(new SynchronizedEvent { type = Event.Type.Synchronzied });
+                current_state = State.Running;
+                last_received_input.frame = -1;
+                //     _remote_magic_number = msg->hdr.magic;
+            }
+            else
+            {
+                var evt = new SynchronizingEvent { total = NUM_SYNC_PACKETS, count = (int)(NUM_SYNC_PACKETS - inner_state.Sync.roundtrips_remaining) };
+                QueueEvent(evt);
+                SendSyncRequest();
+            }
+            return true;
         }
 
         bool IPollSink.OnLoopPoll()
@@ -394,7 +485,6 @@ namespace PleaseUndo
             var messages = net_adapter.ReceiveAllMessages();
             foreach (var message in messages)
             {
-                Logger.Log("received message {0}", message.GetType().Name);
                 OnMsg(message);
             }
 
