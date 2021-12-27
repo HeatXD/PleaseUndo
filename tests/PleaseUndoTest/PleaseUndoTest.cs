@@ -2,12 +2,6 @@ using PleaseUndo;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-public class DummyAdapter : IPeerNetAdapter
-{
-    public override void Send(NetMsg msg) { }
-    public override List<NetMsg> ReceiveAllMessages() { return null; }
-}
-
 namespace PleaseUndoTest
 {
     [TestClass]
@@ -25,7 +19,7 @@ namespace PleaseUndoTest
                 OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
             };
             var session1 = new Peer2PeerBackend<int>(ref cbs1, 2);
-            var session1_adapter = new DummyAdapter();
+            var session1_adapter = new UdpPeer(7000, "127.0.0.1", 7001);
             var session1_handle1 = new GGPOPlayerHandle { };
             var session1_handle2 = new GGPOPlayerHandle { };
 
@@ -41,12 +35,15 @@ namespace PleaseUndoTest
                 OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
             };
             var session2 = new Peer2PeerBackend<int>(ref cbs2, 2);
-            var session2_adapter = new DummyAdapter();
+            var session2_adapter = new UdpPeer(7001, "127.0.0.1", 7000);
             var session2_handle1 = new GGPOPlayerHandle { };
             var session2_handle2 = new GGPOPlayerHandle { };
 
             session1.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session1_handle1, session2_adapter);
             session1.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session1_handle2);
+
+            session1_adapter.Poll();
+            session2_adapter.Poll();
         }
     }
     [TestClass]
