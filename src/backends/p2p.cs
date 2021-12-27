@@ -410,7 +410,7 @@ namespace PleaseUndo
             NetProto<InputType>.Event evt = new NetProto<InputType>.Event();
             for (int i = 0; i < _num_players; i++)
             {
-                while (_endpoints[i].GetEvent(ref evt))
+                while (_endpoints[i] != null && _endpoints[i].GetEvent(ref evt))
                 {
                     OnUdpProtocolPeerEvent(ref evt, i);
                 }

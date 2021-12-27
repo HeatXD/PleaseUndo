@@ -1,4 +1,6 @@
 using PleaseUndo;
+using System.Net;
+using System.Net.Sockets;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,9 +9,16 @@ namespace PleaseUndoTest
     [TestClass]
     public class P2PTest
     {
+        const int LOCAL_PORT_1 = 7003;
+        const int LOCAL_PORT_2 = 7004;
+        const string LOCAL_ADDRESS = "127.0.0.1";
+
         [TestMethod]
-        public void TestP2P()
+        public void Test_P2P()
         {
+            var session1_adapter = new UdpPeer(LOCAL_PORT_1, LOCAL_ADDRESS, LOCAL_PORT_2);
+            var session2_adapter = new UdpPeer(LOCAL_PORT_2, LOCAL_ADDRESS, LOCAL_PORT_1);
+
             var cbs1 = new GGPOSessionCallbacks
             {
                 OnEvent = (GGPOEvent ev) => { return false; },
@@ -19,7 +28,6 @@ namespace PleaseUndoTest
                 OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
             };
             var session1 = new Peer2PeerBackend<int>(ref cbs1, 2);
-            var session1_adapter = new UdpPeer(7000, "127.0.0.1", 7001);
             var session1_handle1 = new GGPOPlayerHandle { };
             var session1_handle2 = new GGPOPlayerHandle { };
 
@@ -35,22 +43,62 @@ namespace PleaseUndoTest
                 OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
             };
             var session2 = new Peer2PeerBackend<int>(ref cbs2, 2);
-            var session2_adapter = new UdpPeer(7001, "127.0.0.1", 7000);
             var session2_handle1 = new GGPOPlayerHandle { };
             var session2_handle2 = new GGPOPlayerHandle { };
 
-            session1.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session1_handle1, session2_adapter);
-            session1.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session1_handle2);
+            session2.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session2_handle1, session2_adapter);
+            session2.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session2_handle2);
+
+            session1.DoPoll(100);
+            session2.DoPoll(100);
 
             session1_adapter.Poll();
             session2_adapter.Poll();
+        }
+
+        [TestMethod]
+        public void Test_UDP()
+        {
+            var ep = new IPEndPoint(IPAddress.Any, 0);
+            var client1 = new UdpClient(LOCAL_PORT_1);
+            var client2 = new UdpClient(LOCAL_PORT_2);
+
+            client1.Connect(LOCAL_ADDRESS, LOCAL_PORT_2);
+            client2.Connect(LOCAL_ADDRESS, LOCAL_PORT_1);
+
+            client1.Send(new byte[] { 1, 2, 3 }, 3);
+            client2.Send(new byte[] { 4, 5, 6, 7, 8 }, 5);
+
+            Assert.AreEqual(5, client1.Available);
+            Assert.AreEqual(3, client2.Available);
+            Assert.AreEqual(5, client1.Receive(ref ep).Length);
+            Assert.AreEqual(3, client2.Receive(ref ep).Length);
+
+            client1.Send(new byte[] { 7 }, 1);
+            client2.Send(new byte[] { 0, 0 }, 2);
+
+            Assert.AreEqual(2, client1.Available);
+            Assert.AreEqual(1, client2.Available, 1);
+            Assert.AreEqual(2, client1.Receive(ref ep).Length);
+            Assert.AreEqual(1, client2.Receive(ref ep).Length);
+
+            var packet1 = NetMsg.Serialize(new NetSyncRequestMsg { random_request = 32 });
+            client1.Send(packet1, packet1.Length);
+            Assert.AreEqual((uint)32, NetMsg.Deserialize<NetSyncRequestMsg>(client2.Receive(ref ep)).random_request);
+
+            var packet2 = NetMsg.Serialize(new NetSyncRequestMsg { random_request = 44 });
+            client2.Send(packet2, packet2.Length);
+            Assert.AreEqual((uint)44, NetMsg.Deserialize<NetSyncRequestMsg>(client1.Receive(ref ep)).random_request);
+
+            client1.Close();
+            client2.Close();
         }
     }
     [TestClass]
     public class NetMsgSerializationTest
     {
         [TestMethod]
-        public void NetMsgSerialization()
+        public void Test_NetMsgSerialization()
         {
             var inputMessage = new NetInputMsg { };
             var inputAckMessage = new NetInputAckMsg { };
@@ -62,7 +110,7 @@ namespace PleaseUndoTest
         }
 
         [TestMethod]
-        public void NetInputMsgSerialization()
+        public void Test_NetInputMsgSerialization()
         {
             var inputMessage = new NetInputMsg
             {
