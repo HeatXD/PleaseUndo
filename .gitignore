@@ -9,3 +9,4 @@ obj/
 .mono/
 data_*/
 TestResults/
+.vscode/launch.json

@@ -2,7 +2,7 @@ using PleaseUndo;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-public class DummyAdapter : PleaseUndo.IPeerNetAdapter<int>
+public class DummyAdapter : IPeerNetAdapter
 {
     public override void Send(NetMsg msg) { }
     public override List<NetMsg> ReceiveAllMessages() { return null; }

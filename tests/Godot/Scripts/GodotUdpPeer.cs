@@ -42,6 +42,11 @@ public class GodotUdpPeer : IPeerNetAdapter
         return messages;
     }
 
+    public void Close()
+    {
+        _peer.Close();
+    }
+
     public override void Send(NetMsg msg)
     {
         SendMsg(NetMsg.Serialize(msg));
