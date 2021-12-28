@@ -55,9 +55,6 @@ namespace PleaseUndoTest
                 {
                     session1.DoPoll(100);
                     session2.DoPoll(100);
-
-                    session1_adapter.Poll();
-                    session2_adapter.Poll();
                 }
             }
             finally

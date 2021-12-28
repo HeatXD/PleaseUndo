@@ -7,7 +7,6 @@ class UdpPeer : IPeerNetAdapter
 {
     private UdpClient _peer;
     private IPEndPoint _remoteEndPoint;
-    private List<NetMsg> _receivedMessages = new List<NetMsg>();
 
     public UdpPeer(int localPort, string remoteAddress, int remotePort)
     {
@@ -17,13 +16,15 @@ class UdpPeer : IPeerNetAdapter
         _remoteEndPoint = new IPEndPoint(IPAddress.Parse(remoteAddress), remotePort);
     }
 
-    public void Poll()
+    public List<NetMsg> Poll()
     {
+        var messages = new List<NetMsg>();
         while (_peer.Available > 0)
         {
             var msg = _peer.Receive(ref _remoteEndPoint);
-            _receivedMessages.Add(NetMsg.Deserialize<NetMsg>(msg));
+            messages.Add(NetMsg.Deserialize<NetMsg>(msg));
         }
+        return messages;
     }
 
     public void Close()
@@ -38,9 +39,7 @@ class UdpPeer : IPeerNetAdapter
 
     public override List<NetMsg> ReceiveAllMessages()
     {
-        var messagesCopy = new List<NetMsg>(_receivedMessages);
-        _receivedMessages.Clear();
-        return messagesCopy;
+        return Poll();
     }
 
     private void SendMsg(byte[] msg)

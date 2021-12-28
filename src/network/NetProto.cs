@@ -100,6 +100,7 @@ namespace PleaseUndo
             public NetMsg msg;
         };
 
+        const int UDP_HEADER_SIZE = 28;
         const int UDP_SHUTDOWN_TIMER = 5000;
         const int NUM_SYNC_PACKETS = 5;
         const int SYNC_FIRST_RETRY_INTERVAL = 500;
@@ -768,7 +769,26 @@ namespace PleaseUndo
 
         protected void UpdateNetworkStats()
         {
-            throw new NotImplementedException();
+            int now = Platform.GetCurrentTimeMS();
+
+            if (stats_start_time == 0)
+            {
+                stats_start_time = now;
+            }
+
+            int total_bytes_send = bytes_sent + (UDP_HEADER_SIZE * packets_sent);
+            float seconds = (now - stats_start_time) / 1000;
+            float Bps = total_bytes_send / seconds;
+            float udp_overhead = (float)(100.0 * (UDP_HEADER_SIZE * packets_sent) / bytes_sent);
+
+            kbps_sent = (int)(Bps / 1024);
+
+            Logger.Log("(Just copied probably not correct) Network Stats --\n Bandwidth: {0} KBps Packets Sent: {1} ({2} pps)\n KB Sent: {3} UDP Overhead: {4} %%.\n",
+                kbps_sent,
+                packets_sent,
+                (float)packets_sent * 1000 / (now - stats_start_time),
+                total_bytes_send / 1024.0,
+                udp_overhead);
         }
 
         protected void PumpSendQueue()
