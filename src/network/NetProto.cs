@@ -281,7 +281,62 @@ namespace PleaseUndo
 
         protected void SendPendingOutput()
         {
-            throw new NotImplementedException();
+            var msg = new NetInputMsg { type = NetMsg.MsgType.Input };
+            int i, j, offset = 0;
+            byte[] bits;
+            GameInput<InputType> last;
+
+            if (pending_output.Size() > 0)
+            {
+                last = last_acked_input;
+                bits = msg.bits;
+                msg.start_frame = (uint)pending_output.Front().frame;
+                // msg.input_size = (uint)pending_output.Front().size;
+
+                Logger.Assert(last.frame == -1 || last.frame + 1 == msg.start_frame);
+                for (j = 0; j < pending_output.Size(); j++)
+                {
+                    var current = pending_output.Item(j);
+                    // if (memcmp(current.bits, last.bits, current.size) != 0)
+                    // {
+                    //     ASSERT((GAMEINPUT_MAX_BYTES * GAMEINPUT_MAX_PLAYERS * 8) < (1 << BITVECTOR_NIBBLE_SIZE));
+                    //     for (i = 0; i < current.size * 8; i++)
+                    //     {
+                    //         ASSERT(i < (1 << BITVECTOR_NIBBLE_SIZE));
+                    //         if (current.value(i) != last.value(i))
+                    //         {
+                    //             BitVector_SetBit(msg->u.input.bits, &offset);
+                    //             (current.value(i) ? BitVector_SetBit : BitVector_ClearBit)(bits, &offset);
+                    //             BitVector_WriteNibblet(bits, i, &offset);
+                    //         }
+                    //     }
+                    // }
+                    // BitVector_ClearBit(msg->u.input.bits, &offset);
+                    // last = _last_sent_input = current;
+                }
+            }
+            else
+            {
+                msg.start_frame = 0;
+                // msg.input_size = 0;
+            }
+            msg.ack_frame = last_received_input.frame;
+            msg.num_bits = (System.UInt16)offset;
+
+            msg.disconnect_requested = current_state == State.Disconnected ? 1 : 0;
+            // TODO: find what's going on here
+            if (true /* local_connect_status != null */)
+            {
+                // memcpy(msg->u.input.peer_connect_status, _local_connect_status, sizeof(UdpMsg::connect_status) * UDP_MSG_MAX_PLAYERS);
+            }
+            else
+            {
+                // memset(msg->u.input.peer_connect_status, 0, sizeof(UdpMsg::connect_status) * UDP_MSG_MAX_PLAYERS);
+            }
+
+            // Logger.Assert(offset < MAX_COMPRESSED_BITS);
+
+            SendMsg(msg);
         }
 
         public void SetDisconnectTimeout(int timeout)
