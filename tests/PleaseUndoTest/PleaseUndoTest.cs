@@ -51,7 +51,7 @@ namespace PleaseUndoTest
                 session2.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session2_handle1, session2_adapter);
                 session2.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session2_handle2);
 
-                for (var i = 0; i < 2; i++)
+                for (var i = 0; i < 100; i++)
                 {
                     session1.DoPoll(100);
                     session2.DoPoll(100);
@@ -65,6 +65,8 @@ namespace PleaseUndoTest
                 session1_adapter.Close();
                 session2_adapter.Close();
             }
+
+            // throw new System.Exception(); // uncomment if you want logs...
         }
 
         [TestMethod]

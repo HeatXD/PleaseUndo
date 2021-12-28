@@ -191,7 +191,7 @@ namespace PleaseUndo
         protected void SendSyncRequest()
         {
             inner_state.Sync.random = Platform.RandUint();
-            NetSyncRequestMsg msg = new NetSyncRequestMsg();
+            NetSyncRequestMsg msg = new NetSyncRequestMsg { type = NetMsg.MsgType.SyncRequest };
             msg.random_request = inner_state.Sync.random;
             SendMsg(msg);
         }
@@ -216,15 +216,13 @@ namespace PleaseUndo
 
         protected void LogMsg(string prefix, NetMsg msg)
         {
-            if (msg is NetSyncRequestMsg)
+            if (msg is NetSyncRequestMsg syncRequestMsg)
             {
-                NetSyncRequestMsg tmp_msg = (NetSyncRequestMsg)msg;
-                Logger.Log("{0} sync-request ({1}).\n", prefix, tmp_msg.random_request);
+                Logger.Log("{0} sync-request ({1}).\n", prefix, syncRequestMsg.random_request);
             }
-            else if (msg is NetSyncReplyMsg)
+            else if (msg is NetSyncReplyMsg syncReplyMsg)
             {
-                NetSyncReplyMsg tmp_msg = (NetSyncReplyMsg)msg;
-                Logger.Log("{0} sync-reply ({1}).\n", prefix, tmp_msg.random_reply);
+                Logger.Log("{0} sync-reply ({1}).\n", prefix, syncReplyMsg.random_reply);
             }
             else if (msg is NetQualityReportMsg)
             {
@@ -238,10 +236,9 @@ namespace PleaseUndo
             {
                 Logger.Log("{0} keep alive.\n", prefix);
             }
-            else if (msg is NetInputMsg)
+            else if (msg is NetInputMsg inputMsg)
             {
-                NetInputMsg tmp_msg = (NetInputMsg)msg;
-                Logger.Log("{0} game input {1} ({2} bits).\n", prefix, tmp_msg.start_frame, tmp_msg.num_bits);
+                Logger.Log("{0} game input {1} ({2} bits).\n", prefix, inputMsg.start_frame, inputMsg.num_bits);
             }
             else if (msg is NetInputAckMsg)
             {
@@ -382,7 +379,7 @@ namespace PleaseUndo
             switch (msg.type)
             {
                 case NetMsg.MsgType.Invalid:
-                    handled = OnInvalid();
+                    handled = OnInvalid(msg);
                     break;
                 case NetMsg.MsgType.SyncRequest:
                     handled = OnSyncRequest(msg);
@@ -401,7 +398,7 @@ namespace PleaseUndo
                 case NetMsg.MsgType.InputAck:
                     break;
                 default:
-                    handled = OnInvalid();
+                    handled = OnInvalid(msg);
                     break;
             }
             if (handled)
@@ -415,9 +412,9 @@ namespace PleaseUndo
             }
         }
 
-        bool OnInvalid()
+        bool OnInvalid(NetMsg msg)
         {
-            Logger.Assert(false, "Invalid msg in NetProto");
+            Logger.Assert(false, string.Format("Invalid msg in NetProto: {0}", new { msg, type = msg.type }));
             return false;
         }
 
@@ -457,7 +454,7 @@ namespace PleaseUndo
                 connected = true;
             }
 
-            Logger.Log("Checking sync state (%d round trips remaining).\n", inner_state.Sync.roundtrips_remaining);
+            Logger.Log("Checking sync state ({0} round trips remaining).\n", inner_state.Sync.roundtrips_remaining);
             if (--inner_state.Sync.roundtrips_remaining == 0)
             {
                 Logger.Log("Synchronized!\n");
