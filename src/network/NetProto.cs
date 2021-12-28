@@ -28,6 +28,7 @@ namespace PleaseUndo
             public Type type;
         }
         public class ConnectedEvent : Event { }
+        public class DisconnectedEvent : Event { }
         public class InputEvent : Event
         {
             public GameInput<InputType> input;
@@ -388,6 +389,7 @@ namespace PleaseUndo
                     handled = OnSyncReply(msg);
                     break;
                 case NetMsg.MsgType.Input:
+                    handled = OnInput(msg);
                     break;
                 case NetMsg.MsgType.QualityReport:
                     break;
@@ -396,6 +398,7 @@ namespace PleaseUndo
                 case NetMsg.MsgType.KeepAlive:
                     break;
                 case NetMsg.MsgType.InputAck:
+                    handled = OnInputAck(msg);
                     break;
                 default:
                     handled = OnInvalid(msg);
@@ -410,6 +413,136 @@ namespace PleaseUndo
                     disconnect_notify_sent = false;
                 }
             }
+        }
+
+        bool OnInput(NetMsg msg)
+        {
+            var inputMsg = msg as NetInputMsg;
+            if (inputMsg.disconnect_requested != 0)
+            {
+                if (current_state != State.Disconnected && !disconnect_event_sent)
+                {
+                    QueueEvent(new DisconnectedEvent { type = Event.Type.Disconnected });
+                    disconnect_event_sent = true;
+                }
+            }
+            else
+            {
+                /*
+                * Update the peer connection status if this peer is still considered to be part
+                * of the network.
+                */
+                var remote_status = inputMsg.peer_connect_status;
+                for (var i = 0; i < peer_connect_status.Length; i++)
+                {
+                    Logger.Assert(remote_status[i].last_frame >= peer_connect_status[i].last_frame);
+                    peer_connect_status[i].disconnected = (peer_connect_status[i].disconnected != 0 || remote_status[i].disconnected != 0) ? (uint)1 : (uint)0;
+                    peer_connect_status[i].last_frame = System.Math.Max(peer_connect_status[i].last_frame, remote_status[i].last_frame);
+                }
+            }
+
+            /*
+            * Decompress the input.
+            */
+            var last_received_frame_number = last_received_input.frame;
+            // if (inputMsg.num_bits != 0)
+            {
+                var offset = 0;
+                var bits = inputMsg.bits;
+                var numBits = inputMsg.num_bits;
+                var currentFrame = inputMsg.start_frame;
+
+                // _last_received_input.size = msg->u.input.input_size;
+                if (last_received_input.frame < 0)
+                {
+                    last_received_input.frame = (int)(inputMsg.start_frame - 1);
+                }
+                while (offset < numBits)
+                {
+                    /*
+                    * Keep walking through the frames (parsing bits) until we reach
+                    * the inputs for the frame right after the one we're on.
+                    */
+                    Logger.Assert(currentFrame <= (last_received_input.frame + 1));
+                    bool useInputs = currentFrame == last_received_input.frame + 1;
+
+                    // while (BitVector_ReadBit(bits, &offset))
+                    // {
+                    //     int on = BitVector_ReadBit(bits, &offset);
+                    //     int button = BitVector_ReadNibblet(bits, &offset);
+                    //     if (useInputs)
+                    //     {
+                    //         if (on)
+                    //         {
+                    //             _last_received_input.set(button);
+                    //         }
+                    //         else
+                    //         {
+                    //             _last_received_input.clear(button);
+                    //         }
+                    //     }
+                    // }
+                    // ASSERT(offset <= numBits);
+
+                    /*
+                    * Now if we want to use these inputs, go ahead and send them to
+                    * the emulator.
+                    */
+                    if (useInputs)
+                    {
+                        /*
+                        * Move forward 1 frame in the stream.
+                        */
+                        char[] desc = new char[1024];
+                        Logger.Assert(currentFrame == last_received_input.frame + 1);
+                        last_received_input.frame = (int)currentFrame;
+
+                        /*
+                        * Send the event to the emualtor
+                        */
+                        var evt = new InputEvent { type = Event.Type.Input, input = last_received_input };
+
+                        inner_state.Running.last_input_packet_recv_time = (uint)Platform.GetCurrentTimeMS();
+
+                        QueueEvent(evt);
+                    }
+                    else
+                    {
+                        Logger.Log("Skipping past frame:({0}) current is {1}.\n", currentFrame, last_received_input.frame);
+                    }
+
+                    /*
+                    * Move forward 1 frame in the input stream.
+                    */
+                    currentFrame++;
+                }
+            }
+            Logger.Assert(last_received_input.frame >= last_received_frame_number);
+
+            /*
+            * Get rid of our buffered input
+            */
+            while (pending_output.Size() > 0 && pending_output.Front().frame < inputMsg.ack_frame)
+            {
+                Logger.Log("Throwing away pending output frame {0}\n", pending_output.Front().frame);
+                last_acked_input = pending_output.Front();
+                pending_output.Pop();
+            }
+            return true;
+        }
+
+        bool OnInputAck(NetMsg msg)
+        {
+            /*
+             * Get rid of our buffered input
+             */
+            while (pending_output.Size() > 0 && pending_output.Front().frame < (msg as NetInputMsg).ack_frame)
+            {
+                Logger.Log("Throwing away pending output frame {0}\n", pending_output.Front().frame);
+                last_acked_input = pending_output.Front();
+                pending_output.Pop();
+            }
+            return true;
         }
 
         bool OnInvalid(NetMsg msg)
