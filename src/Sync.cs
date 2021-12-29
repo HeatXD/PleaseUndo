@@ -1,6 +1,6 @@
 namespace PleaseUndo
 {
-    public class Sync<InputType>
+    public class Sync
     {
         public const int MAX_PREDICTION_FRAMES = 8;
 

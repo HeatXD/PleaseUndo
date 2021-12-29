@@ -1,14 +1,13 @@
-using System;
 
 namespace PleaseUndo
 {
-    public class SpectatorBackend<InputType> : GGPOSession<InputType>
+    public class SpectatorBackend : GGPOSession
     {
         const int SPECTATOR_FRAME_BUFFER_SIZE = 64;
 
         protected GGPOSessionCallbacks _callbacks;
         protected Poll _poll;
-        protected NetProto<InputType> _host;
+        protected NetProto _host;
         protected bool _synchronizing;
         protected int _num_players;
         protected int _next_input_to_send;
@@ -29,7 +28,7 @@ namespace PleaseUndo
             /*
              * Init the host endpoint
              */
-            _host = new NetProto<InputType>(0, ref net_adapter, ref _poll);
+            _host = new NetProto(0, ref net_adapter, ref _poll);
             _host.Synchronize();
             /*
              * Preload the ROM
@@ -89,14 +88,14 @@ namespace PleaseUndo
 
         protected void PollNetProtocolEvents()
         {
-            var evt = new NetProto<InputType>.Event();
+            var evt = new NetProto.Event();
             while (_host.GetEvent(ref evt))
             {
                 OnNetProtocolEvent(evt);
             }
         }
 
-        protected void OnNetProtocolEvent(NetProto<InputType>.Event evt)
+        protected void OnNetProtocolEvent(NetProto.Event evt)
         {
             GGPOEvent info = new GGPOEvent();
         }

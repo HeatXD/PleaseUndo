@@ -2,7 +2,7 @@ using System;
 
 namespace PleaseUndo
 {
-    public class Peer2PeerBackend<InputType> : GGPOSession<InputType>
+    public class Peer2PeerBackend : GGPOSession
     {
         const int UDP_MSG_MAX_PLAYERS = 4;
         const int RECOMMENDATION_INTERVAL = 240;
@@ -12,10 +12,10 @@ namespace PleaseUndo
 
         protected GGPOSessionCallbacks _callbacks;
         protected Poll _poll;
-        protected Sync<InputType> _sync;
+        protected Sync _sync;
         //   protected  Udp                   _udp; //Still dont know what to do with this... :HEAT /TODO
-        protected NetProto<InputType>[] _endpoints;
-        protected NetProto<InputType>[] _spectators;
+        protected NetProto[] _endpoints;
+        protected NetProto[] _spectators;
         protected int _num_spectators;
         protected int _input_size;
 
@@ -32,7 +32,7 @@ namespace PleaseUndo
         public Peer2PeerBackend(ref GGPOSessionCallbacks cb, int num_players)
         {
             _num_players = num_players;
-            _sync = new Sync<InputType>(ref _local_connect_status);
+            _sync = new Sync(ref _local_connect_status);
             _disconnect_timeout = DEFAULT_DISCONNECT_TIMEOUT;
             _disconnect_notify_start = DEFAULT_DISCONNECT_NOTIFY_START;
             _num_spectators = 0;
@@ -45,19 +45,19 @@ namespace PleaseUndo
             /*
              * Initialize the synchronziation layer
              */
-            _sync.Init(new Sync<InputType>.Config
+            _sync.Init(new Sync.Config
             {
                 num_players = _num_players,
                 callbacks = _callbacks,
-                num_prediction_frames = Sync<InputType>.MAX_PREDICTION_FRAMES,
+                num_prediction_frames = Sync.MAX_PREDICTION_FRAMES,
             });
 
             /*
              * Initialize the UDP port
              */
             //    _udp.Init(localport, &_poll, this);
-            _endpoints = new NetProto<InputType>[_num_players];
-            _spectators = new NetProto<InputType>[MAX_SPECTATORS];
+            _endpoints = new NetProto[_num_players];
+            _spectators = new NetProto[MAX_SPECTATORS];
             _local_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
             //    memset(_local_connect_status, 0, sizeof(_local_connect_status));
             for (int i = 0; i < _local_connect_status.Length; i++)
@@ -98,7 +98,7 @@ namespace PleaseUndo
 
             var queue = player.player_num - 1;
             handle = QueueToPlayerHandle(queue);
-            _endpoints[queue] = new NetProto<InputType>(queue, ref peerNetAdapter, ref _poll);
+            _endpoints[queue] = new NetProto(queue, ref peerNetAdapter, ref _poll);
             _endpoints[queue].SetDisconnectTimeout(_disconnect_timeout);
             _endpoints[queue].SetDisconnectNotifyStart(_disconnect_notify_start);
             _endpoints[queue].Synchronize();
@@ -149,10 +149,10 @@ namespace PleaseUndo
                             {
                                 Logger.Log("pushing frame %d to spectators.", _next_spectator_frame);
 
-                                var input = new GameInput<InputType>();
+                                var input = new GameInput();
                                 input.frame = _next_spectator_frame;
                                 // input.size = _input_size * _num_players; // Not needed in C#
-                                _sync.GetConfirmedInputs(input.inputs, _input_size * _num_players, _next_spectator_frame);
+                                _sync.GetConfirmedInputs(input.bits, _input_size * _num_players, _next_spectator_frame);
                                 for (int i = 0; i < _num_spectators; i++)
                                 {
                                     _spectators[i].SendInput(ref input);
@@ -191,7 +191,7 @@ namespace PleaseUndo
             return GGPOErrorCode.GGPO_OK;
         }
 
-        public override GGPOErrorCode SyncInput(ref InputType[] values, int size, ref int disconnect_flags)
+        public override GGPOErrorCode SyncInput(ref byte[] values, int size, ref int disconnect_flags)
         {
             int flags;
 
@@ -208,11 +208,11 @@ namespace PleaseUndo
             return GGPOErrorCode.GGPO_OK;
         }
 
-        public override GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, InputType[] values, int size)
+        public override GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, byte[] values, int size)
         {
             int queue = 0;
             GGPOErrorCode result;
-            GameInput<InputType> input = new GameInput<InputType>();
+            GameInput input;
 
             if (_sync.InRollback())
             {
@@ -229,7 +229,7 @@ namespace PleaseUndo
                 return result;
             }
 
-            input.Init(-1, values, size);
+            input = new GameInput(-1, values, (uint)size);
 
             // Feed the input for the current frame into the synchronzation layer.
             if (!_sync.AddLocalInput(queue, ref input))
@@ -237,7 +237,7 @@ namespace PleaseUndo
                 return GGPOErrorCode.GGPO_ERRORCODE_PREDICTION_THRESHOLD;
             }
 
-            if (input.frame != (int)GameInput<InputType>.Constants.NullFrame)
+            if (input.frame != (int)GameInput.Constants.NullFrame)
             { // xxx: <- comment why this is the case
               // Update the local connect status state to indicate that we've got a
               // confirmed local frame for this player.  this must come first so it
@@ -410,7 +410,7 @@ namespace PleaseUndo
 
         private void PollUdpProtocolEvents()
         {
-            NetProto<InputType>.Event evt = new NetProto<InputType>.Event();
+            NetProto.Event evt = new NetProto.Event();
             for (int i = 0; i < _num_players; i++)
             {
                 while (_endpoints[i] != null && _endpoints[i].GetEvent(ref evt))
@@ -427,14 +427,14 @@ namespace PleaseUndo
             }
         }
 
-        private void OnUdpProtocolSpectatorEvent(ref NetProto<InputType>.Event evt, int queue)
+        private void OnUdpProtocolSpectatorEvent(ref NetProto.Event evt, int queue)
         {
             GGPOPlayerHandle handle = QueueToSpectatorHandle(queue);
             OnUdpProtocolEvent(ref evt, handle);
 
             switch (evt.type)
             {
-                case NetProto<InputType>.Event.Type.Disconnected:
+                case NetProto.Event.Type.Disconnected:
                     _spectators[queue].Disconnect();
                     _callbacks.OnEvent(new GGPODisconnectedFromPeerEvent
                     {
@@ -445,15 +445,15 @@ namespace PleaseUndo
             }
         }
 
-        private void OnUdpProtocolPeerEvent(ref NetProto<InputType>.Event evt, int queue)
+        private void OnUdpProtocolPeerEvent(ref NetProto.Event evt, int queue)
         {
             OnUdpProtocolEvent(ref evt, QueueToPlayerHandle(queue));
             switch (evt.type)
             {
-                case NetProto<InputType>.Event.Type.Input:
+                case NetProto.Event.Type.Input:
                     if (!(_local_connect_status[queue].disconnected != 0))
                     {
-                        var inputEvent = (evt as NetProto<InputType>.InputEvent);
+                        var inputEvent = (evt as NetProto.InputEvent);
 
                         int current_remote_frame = _local_connect_status[queue].last_frame;
                         int new_remote_frame = inputEvent.input.frame;
@@ -465,25 +465,25 @@ namespace PleaseUndo
                         _local_connect_status[queue].last_frame = inputEvent.input.frame;
                     }
                     break;
-                case NetProto<InputType>.Event.Type.Disconnected:
+                case NetProto.Event.Type.Disconnected:
                     DisconnectPlayer(QueueToPlayerHandle(queue));
                     break;
             }
         }
 
-        private void OnUdpProtocolEvent(ref NetProto<InputType>.Event evt, GGPOPlayerHandle handle)
+        private void OnUdpProtocolEvent(ref NetProto.Event evt, GGPOPlayerHandle handle)
         {
             switch (evt.type)
             {
-                case NetProto<InputType>.Event.Type.Connected:
+                case NetProto.Event.Type.Connected:
                     _callbacks.OnEvent(new GGPOConnectedToPeerEvent
                     {
                         code = GGPOEventCode.GGPO_EVENTCODE_CONNECTED_TO_PEER,
                         player = handle
                     });
                     break;
-                case NetProto<InputType>.Event.Type.Synchronizing:
-                    var connectedEvent = evt as NetProto<InputType>.SynchronizingEvent;
+                case NetProto.Event.Type.Synchronizing:
+                    var connectedEvent = evt as NetProto.SynchronizingEvent;
                     _callbacks.OnEvent(new GGPOSynchronizingWithPeerEvent
                     {
                         code = GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZING_WITH_PEER,
@@ -492,7 +492,7 @@ namespace PleaseUndo
                         total = connectedEvent.total,
                     });
                     break;
-                case NetProto<InputType>.Event.Type.Synchronzied:
+                case NetProto.Event.Type.Synchronzied:
                     _callbacks.OnEvent(new GGPOSynchronizedWithPeerEvent
                     {
                         code = GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZED_WITH_PEER,
@@ -501,8 +501,8 @@ namespace PleaseUndo
                     CheckInitialSync();
                     break;
 
-                case NetProto<InputType>.Event.Type.NetworkInterrupted:
-                    var netInterruptedEvent = evt as NetProto<InputType>.NetworkInterruptedEvent;
+                case NetProto.Event.Type.NetworkInterrupted:
+                    var netInterruptedEvent = evt as NetProto.NetworkInterruptedEvent;
                     _callbacks.OnEvent(new GGPOConnectionInterruptedEvent
                     {
                         code = GGPOEventCode.GGPO_EVENTCODE_CONNECTION_INTERRUPTED,
@@ -510,7 +510,7 @@ namespace PleaseUndo
                         disconnect_timeout = netInterruptedEvent.disconnect_timeout
                     });
                     break;
-                case NetProto<InputType>.Event.Type.NetworkResumed:
+                case NetProto.Event.Type.NetworkResumed:
                     _callbacks.OnEvent(new GGPOConnectionResumedEvent
                     {
                         code = GGPOEventCode.GGPO_EVENTCODE_CONNECTION_INTERRUPTED,
@@ -605,7 +605,7 @@ namespace PleaseUndo
 
         private void PollSyncEvents()
         {
-            Sync<InputType>.Event e = new Sync<InputType>.Event();
+            Sync.Event e = new Sync.Event();
             while (_sync.GetEvent(ref e))
             {
                 // OnSyncEvent(e); // OnSyncEvent is never implemented

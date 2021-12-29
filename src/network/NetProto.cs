@@ -9,7 +9,7 @@ namespace PleaseUndo
         public abstract List<NetMsg> ReceiveAllMessages();
     }
 
-    public class NetProto<InputType> : IPollSink
+    public class NetProto : IPollSink
     {
         public class Event
         {
@@ -263,7 +263,7 @@ namespace PleaseUndo
             SendMsg(new NetInputAckMsg { type = NetMsg.MsgType.InputAck, ack_frame = last_received_input.frame });
         }
 
-        public bool GetEvent(ref NetProto<InputType>.Event e)
+        public bool GetEvent(ref NetProto.Event e)
         {
             if (event_queue.Size() == 0)
             {
