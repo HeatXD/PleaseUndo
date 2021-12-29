@@ -230,11 +230,11 @@ namespace PleaseUndo
             {
                 Logger.Log("{0} quality report.\n", prefix);
             }
-            else if (msg is NetQualityReply)
+            else if (msg is NetQualityReplyMsg)
             {
                 Logger.Log("{0} quality reply.\n", prefix);
             }
-            else if (msg is NetKeepAlive)
+            else if (msg is NetKeepAliveMsg)
             {
                 Logger.Log("{0} keep alive.\n", prefix);
             }
@@ -448,10 +448,13 @@ namespace PleaseUndo
                     handled = OnInput(msg);
                     break;
                 case NetMsg.MsgType.QualityReport:
+                    handled = OnQualityReport(msg);
                     break;
                 case NetMsg.MsgType.QualityReply:
+                    handled = OnQualityReply(msg);
                     break;
                 case NetMsg.MsgType.KeepAlive:
+                    handled = OnKeepAlive(msg);
                     break;
                 case NetMsg.MsgType.InputAck:
                     handled = OnInputAck(msg);
@@ -469,6 +472,27 @@ namespace PleaseUndo
                     disconnect_notify_sent = false;
                 }
             }
+        }
+
+        bool OnKeepAlive(NetMsg msg)
+        {
+            return true;
+        }
+
+        bool OnQualityReply(NetMsg msg)
+        {
+            round_trip_time = (int)(Platform.GetCurrentTimeMS() - (msg as NetQualityReplyMsg).pong);
+            return true;
+        }
+
+        bool OnQualityReport(NetMsg msg)
+        {
+            var report = (msg as NetQualityReportMsg);
+            var reply = new NetQualityReplyMsg { type = NetMsg.MsgType.QualityReply, pong = report.ping };
+            SendMsg(reply);
+
+            remote_frame_advantage = report.frame_advantage;
+            return true;
         }
 
         bool OnInput(NetMsg msg)
@@ -719,7 +743,7 @@ namespace PleaseUndo
                     if (last_send_time != 0 && last_send_time + KEEP_ALIVE_INTERVAL < now)
                     {
                         Logger.Log("Sending keep alive packet\n");
-                        SendMsg(new NetKeepAlive());
+                        SendMsg(new NetKeepAliveMsg { type = NetMsg.MsgType.KeepAlive });
                     }
 
                     if (disconnect_timeout != 0 && disconnect_notify_start != 0 &&

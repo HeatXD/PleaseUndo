@@ -4,11 +4,11 @@ namespace PleaseUndo
 {
     [Union(0, typeof(NetInputMsg))]
     [Union(1, typeof(NetInputAckMsg))]
-    [Union(2, typeof(NetQualityReply))]
+    [Union(2, typeof(NetQualityReplyMsg))]
     [Union(3, typeof(NetQualityReportMsg))]
     [Union(4, typeof(NetSyncReplyMsg))]
     [Union(5, typeof(NetSyncRequestMsg))]
-    [Union(6, typeof(NetKeepAlive))]
+    [Union(6, typeof(NetKeepAliveMsg))]
     [MessagePackObject]
     public abstract class NetMsg
     {
@@ -78,7 +78,7 @@ namespace PleaseUndo
     }
 
     [MessagePackObject]
-    public class NetQualityReply : NetMsg
+    public class NetQualityReplyMsg : NetMsg
     {
         [Key(2)]
         public uint pong;
@@ -112,7 +112,7 @@ namespace PleaseUndo
     }
 
     [MessagePackObject]
-    public class NetKeepAlive : NetMsg
+    public class NetKeepAliveMsg : NetMsg
     {
 
     }
