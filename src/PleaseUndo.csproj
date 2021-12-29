@@ -1,6 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Authors>HeatXD, JonathanPicques</Authors>
+    <PackageProjectUrl>https://github.com/HeatXD/PleaseUndo</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/HeatXD/PleaseUndo</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>PleaseUndo is a C# port of GGPO with the option of using built-in godot networking options.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="2.3.85" />
