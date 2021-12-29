@@ -317,6 +317,6 @@ namespace PleaseUndo
             Logger.Assert(_length <= INPUT_QUEUE_LENGTH);
         }
 
-        int PREVIOUS_FRAME(int offset) => (((offset) == 0) ? (INPUT_QUEUE_LENGTH - 1) : ((offset) - 1));
+        protected int PREVIOUS_FRAME(int offset) => (((offset) == 0) ? (INPUT_QUEUE_LENGTH - 1) : ((offset) - 1));
     }
 }

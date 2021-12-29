@@ -105,7 +105,7 @@ namespace PleaseUndo
         const int KEEP_ALIVE_INTERVAL = 200;
         const int UDP_MSG_MAX_PLAYERS = 4;
         const int MAX_SEQ_DISTANCE = (1 << 15);
-        const int MAX_COMPRESSED_BITS = 4096;
+        public const int MAX_COMPRESSED_BITS = 4096;
 
         /*
          * Network transmission information
@@ -156,7 +156,7 @@ namespace PleaseUndo
         /*
          * Rift synchronization.
          */
-        protected TimeSync timesync;
+        protected TimeSync timesync = new TimeSync();
 
         /*
          * Event queue
@@ -174,6 +174,10 @@ namespace PleaseUndo
             this.send_queue = new RingBuffer<QueueEntry>(64);
             this.pending_output = new RingBuffer<GameInput>(64);
             this.event_queue = new RingBuffer<Event>(64);
+
+            last_sent_input = new GameInput(-1, null, 1);
+            last_received_input = new GameInput(-1, null, 1);
+            last_acked_input = new GameInput(-1, null, 1);
 
             for (var i = 0; i < _peer_connect_status.Length; i++)
             {

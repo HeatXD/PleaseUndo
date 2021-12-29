@@ -56,6 +56,12 @@ namespace PleaseUndoTest
                 {
                     session1.DoPoll(100);
                     session2.DoPoll(100);
+
+                    session1.AddLocalInput(session1_handle1, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, sizeof(int));
+                    session2.AddLocalInput(session2_handle2, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, sizeof(int));
+
+                    session1.IncrementFrame();
+                    session2.IncrementFrame();
                 }
             }
             finally

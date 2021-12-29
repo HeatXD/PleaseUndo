@@ -170,7 +170,10 @@ namespace PleaseUndo
                         int interval = 0;
                         for (int i = 0; i < _num_players; i++)
                         {
-                            interval = System.Math.Max(interval, _endpoints[i].RecommendFrameDelay());
+                            if (_endpoints[i] != null) // CHECK ADDED, NOT IN GGPO
+                            {
+                                interval = System.Math.Max(interval, _endpoints[i].RecommendFrameDelay());
+                            }
                         }
 
                         if (interval > 0)
@@ -249,7 +252,7 @@ namespace PleaseUndo
                 // Send the input to all the remote players.
                 for (int i = 0; i < _num_players; i++)
                 {
-                    if (_endpoints[i].IsInitialized())
+                    if (_endpoints[i] != null && _endpoints[i].IsInitialized())
                     {
                         _endpoints[i].SendInput(ref input);
                     }
@@ -513,7 +516,7 @@ namespace PleaseUndo
 
                         _sync.AddRemoteInput(queue, ref inputEvent.input);
                         // Notify the other endpoints which frame we received from a peer
-                        Logger.Log("setting remote connect status for queue %d to %d\n", queue, inputEvent.input.frame);
+                        Logger.Log("setting remote connect status for queue {0} to {1}\n", queue, inputEvent.input.frame);
                         _local_connect_status[queue].last_frame = inputEvent.input.frame;
                     }
                     break;

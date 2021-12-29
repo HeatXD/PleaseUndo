@@ -68,6 +68,11 @@ namespace PleaseUndo
         public byte input_size; // XXX: shouldn't be in every single packet!
         [Key(8)]
         public byte[] bits; /* must be last */ // fixed size of MAX_COMPRESSED_BITS
+
+        public NetInputMsg()
+        {
+            bits = new byte[NetProto.MAX_COMPRESSED_BITS];
+        }
     }
 
     [MessagePackObject]

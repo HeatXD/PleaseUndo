@@ -29,6 +29,14 @@ namespace PleaseUndo
         {
             public SavedFrame[] frames = new SavedFrame[MAX_PREDICTION_FRAMES + 2];
             public int head = 0;
+
+            public SavedState()
+            {
+                for (var i = 0; i < frames.Length; i++)
+                {
+                    frames[i] = new SavedFrame();
+                }
+            }
         }
 
         protected Config _config;
