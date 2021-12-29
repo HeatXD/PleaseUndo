@@ -216,39 +216,40 @@ namespace PleaseUndo
             PumpSendQueue();
         }
 
-        protected void LogMsg(string prefix, NetMsg msg)
+        protected void LogMsg(string prefix, NetMsg message)
         {
-            if (msg is NetSyncRequestMsg syncRequestMsg)
+            switch (message.type)
             {
-                Logger.Log("{0} sync-request ({1}).\n", prefix, syncRequestMsg.random_request);
-            }
-            else if (msg is NetSyncReplyMsg syncReplyMsg)
-            {
-                Logger.Log("{0} sync-reply ({1}).\n", prefix, syncReplyMsg.random_reply);
-            }
-            else if (msg is NetQualityReportMsg)
-            {
-                Logger.Log("{0} quality report.\n", prefix);
-            }
-            else if (msg is NetQualityReplyMsg)
-            {
-                Logger.Log("{0} quality reply.\n", prefix);
-            }
-            else if (msg is NetKeepAliveMsg)
-            {
-                Logger.Log("{0} keep alive.\n", prefix);
-            }
-            else if (msg is NetInputMsg inputMsg)
-            {
-                Logger.Log("{0} game input {1} ({2} bits).\n", prefix, inputMsg.start_frame, inputMsg.num_bits);
-            }
-            else if (msg is NetInputAckMsg)
-            {
-                Logger.Log("{0} input ack.\n", prefix);
-            }
-            else
-            {
-                Logger.Assert(false, "Unknown NetMsg type.");
+                case NetMsg.MsgType.Invalid:
+                    Logger.Assert(false, prefix + " - Invalid NetMsg type.");
+                    break;
+                case NetMsg.MsgType.SyncRequest:
+                    var net_sync_msg_req = (NetSyncRequestMsg)message;
+                    Logger.Log("{0} sync-request ({1}).\n", prefix, net_sync_msg_req.random_request);
+                    break;
+                case NetMsg.MsgType.SyncReply:
+                    var net_sync_msg_rep = (NetSyncReplyMsg)message;
+                    Logger.Log("{0} sync-reply ({1}).\n", prefix, net_sync_msg_rep.random_reply);
+                    break;
+                case NetMsg.MsgType.Input:
+                    var input_msg = (NetInputMsg)message;
+                    Logger.Log("{0} game input {1} ({2} bits).\n", prefix, input_msg.start_frame, input_msg.num_bits);
+                    break;
+                case NetMsg.MsgType.InputAck:
+                    Logger.Log("{0} input ack.\n", prefix);
+                    break;
+                case NetMsg.MsgType.QualityReport:
+                    Logger.Log("{0} quality report.\n", prefix);
+                    break;
+                case NetMsg.MsgType.QualityReply:
+                    Logger.Log("{0} quality reply.\n", prefix);
+                    break;
+                case NetMsg.MsgType.KeepAlive:
+                    Logger.Log("{0} keep alive.\n", prefix);
+                    break;
+                default:
+                    Logger.Assert(false, "Unknown NetMsg type.");
+                    break;
             }
         }
 
