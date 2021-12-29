@@ -112,8 +112,5 @@ namespace PleaseUndo
     }
 
     [MessagePackObject]
-    public class NetKeepAliveMsg : NetMsg
-    {
-
-    }
+    public class NetKeepAliveMsg : NetMsg { }
 }

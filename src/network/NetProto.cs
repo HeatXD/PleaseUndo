@@ -33,10 +33,7 @@ namespace PleaseUndo
         {
             public GameInput<InputType> input;
         }
-        public class SynchronizedEvent : Event
-        {
-
-        }
+        public class SynchronizedEvent : Event { }
         public class SynchronizingEvent : Event
         {
             public int total;
@@ -46,10 +43,7 @@ namespace PleaseUndo
         {
             public int disconnect_timeout;
         }
-        public class NetworkResumedEvent : Event
-        {
-
-        }
+        public class NetworkResumedEvent : Event { }
 
         public enum State
         {
@@ -180,83 +174,6 @@ namespace PleaseUndo
             this.event_queue = new RingBuffer<Event>(64);
         }
 
-        public void Synchronize()
-        {
-            if (IsInitialized())
-            {
-                current_state = State.Syncing;
-                inner_state.Sync.roundtrips_remaining = NUM_SYNC_PACKETS;
-                SendSyncRequest();
-            }
-        }
-
-        protected void SendSyncRequest()
-        {
-            inner_state.Sync.random = Platform.RandUint();
-            NetSyncRequestMsg msg = new NetSyncRequestMsg { type = NetMsg.MsgType.SyncRequest };
-            msg.random_request = inner_state.Sync.random;
-            SendMsg(msg);
-        }
-
-        protected void SendMsg(NetMsg msg)
-        {
-            LogMsg("send", msg);
-
-            packets_sent++;
-            last_send_time = (uint)Platform.GetCurrentTimeMS();
-            bytes_sent += msg.PacketSize();
-
-            msg.sequence_number = (ushort)next_send_seq++;
-
-            var entry = new QueueEntry();
-            entry.queue_time = Platform.GetCurrentTimeMS();
-            entry.msg = msg;
-
-            send_queue.Push(entry);
-            PumpSendQueue();
-        }
-
-        protected void LogMsg(string prefix, NetMsg message)
-        {
-            switch (message.type)
-            {
-                case NetMsg.MsgType.Invalid:
-                    Logger.Assert(false, prefix + " - Invalid NetMsg type.");
-                    break;
-                case NetMsg.MsgType.SyncRequest:
-                    var net_sync_msg_req = (NetSyncRequestMsg)message;
-                    Logger.Log("{0} sync-request ({1}).\n", prefix, net_sync_msg_req.random_request);
-                    break;
-                case NetMsg.MsgType.SyncReply:
-                    var net_sync_msg_rep = (NetSyncReplyMsg)message;
-                    Logger.Log("{0} sync-reply ({1}).\n", prefix, net_sync_msg_rep.random_reply);
-                    break;
-                case NetMsg.MsgType.Input:
-                    var input_msg = (NetInputMsg)message;
-                    Logger.Log("{0} game input {1} ({2} bits).\n", prefix, input_msg.start_frame, input_msg.num_bits);
-                    break;
-                case NetMsg.MsgType.InputAck:
-                    Logger.Log("{0} input ack.\n", prefix);
-                    break;
-                case NetMsg.MsgType.QualityReport:
-                    Logger.Log("{0} quality report.\n", prefix);
-                    break;
-                case NetMsg.MsgType.QualityReply:
-                    Logger.Log("{0} quality reply.\n", prefix);
-                    break;
-                case NetMsg.MsgType.KeepAlive:
-                    Logger.Log("{0} keep alive.\n", prefix);
-                    break;
-                default:
-                    Logger.Assert(false, "Unknown NetMsg type.");
-                    break;
-            }
-        }
-
-        public bool IsInitialized() => net_adapter != null;
-        public bool IsRunning() => current_state == State.Running;
-        public bool IsSynchronized() => current_state == State.Running;
-
         public void SendInput(ref GameInput<InputType> input)
         {
             //    if (_udp) {
@@ -281,7 +198,7 @@ namespace PleaseUndo
             }
         }
 
-        protected void SendPendingOutput()
+        public void SendPendingOutput()
         {
             var msg = new NetInputMsg { type = NetMsg.MsgType.Input };
             int i, j, offset = 0;
@@ -341,50 +258,9 @@ namespace PleaseUndo
             SendMsg(msg);
         }
 
-        public void SetDisconnectTimeout(int timeout)
+        public void SendInputAck()
         {
-            disconnect_timeout = (uint)timeout;
-        }
-
-        public void SetDisconnectNotifyStart(int timeout)
-        {
-            disconnect_notify_start = (uint)timeout;
-        }
-
-        public void SetLocalFrameNumber(int localFrame)
-        {
-            /*
-             * Estimate which frame the other guy is one by looking at the
-             * last frame they gave us plus some delta for the one-way packet
-             * trip time.
-             */
-            int remoteFrame = last_received_input.frame + (round_trip_time * 60 / 1000);
-
-            /*
-             * Our frame advantage is how many frames *behind* the other guy
-             * we are.  Counter-intuative, I know.  It's an advantage because
-             * it means they'll have to predict more often and our moves will
-             * pop more frequenetly.
-             */
-            local_frame_advantage = remoteFrame - localFrame;
-        }
-
-        public int RecommendFrameDelay()
-        {
-            // XXX: require idle input should be a configuration parameter
-            return timesync.recommend_frame_wait_duration(false);
-        }
-
-        public bool GetPeerConnectStatus(int id, ref int frame)
-        {
-            frame = peer_connect_status[id].last_frame;
-            return peer_connect_status[id].disconnected == 0;
-        }
-
-        public void Disconnect()
-        {
-            current_state = State.Disconnected;
-            shutdown_timeout = (uint)(Platform.GetCurrentTimeMS() + UDP_SHUTDOWN_TIMER);
+            SendMsg(new NetInputAckMsg { type = NetMsg.MsgType.InputAck, ack_frame = last_received_input.frame });
         }
 
         public bool GetEvent(ref NetProto<InputType>.Event e)
@@ -398,16 +274,136 @@ namespace PleaseUndo
             return true;
         }
 
-        public void GetNetworkStats(ref GGPONetworkStats stats)
+        public bool OnLoopPoll()
         {
-            stats.Network.ping = round_trip_time;
-            stats.Network.send_queue_len = pending_output.Size();
-            stats.Network.kbps_sent = kbps_sent;
-            stats.Timesync.remote_frames_behind = remote_frame_advantage;
-            stats.Timesync.local_frames_behind = local_frame_advantage;
+            if (!IsInitialized())
+            {
+                return true;
+            }
+
+            var messages = net_adapter.ReceiveAllMessages();
+            foreach (var message in messages)
+            {
+                OnMsg(message);
+            }
+
+            uint now = (uint)Platform.GetCurrentTimeMS();
+            uint next_interval;
+
+            PumpSendQueue();
+
+            switch (current_state)
+            {
+                case State.Syncing:
+                    next_interval = (inner_state.Sync.roundtrips_remaining == NUM_SYNC_PACKETS) ? (uint)SYNC_FIRST_RETRY_INTERVAL : (uint)SYNC_RETRY_INTERVAL;
+                    if (last_send_time != 0 && last_send_time + next_interval < now)
+                    {
+                        Logger.Log("No luck syncing after {0} ms... Re-queueing sync packet.\n", next_interval);
+                        SendSyncRequest();
+                    }
+                    break;
+                case State.Running:
+                    // xxx: rig all this up with a timer wrapper
+                    if (inner_state.Running.last_input_packet_recv_time == 0 || inner_state.Running.last_input_packet_recv_time + RUNNING_RETRY_INTERVAL < now)
+                    {
+                        Logger.Log("Haven't exchanged packets in a while (last received:{0}  last sent:{1}).  Resending.\n", last_received_input.frame, last_sent_input.frame);
+                        SendPendingOutput();
+                        inner_state.Running.last_input_packet_recv_time = now;
+                    }
+
+                    if (inner_state.Running.last_quality_report_time == 0 || inner_state.Running.last_quality_report_time + QUALITY_REPORT_INTERVAL < now)
+                    {
+                        var msg = new NetQualityReportMsg { type = NetMsg.MsgType.QualityReport };
+                        msg.ping = (uint)Platform.GetCurrentTimeMS();
+                        msg.frame_advantage = (byte)local_frame_advantage;
+                        SendMsg(msg);
+                        inner_state.Running.last_quality_report_time = now;
+                    }
+
+                    if (inner_state.Running.last_network_stats_interval == 0 || inner_state.Running.last_network_stats_interval + NETWORK_STATS_INTERVAL < now)
+                    {
+                        UpdateNetworkStats();
+                        inner_state.Running.last_network_stats_interval = now;
+                    }
+
+                    if (last_send_time != 0 && last_send_time + KEEP_ALIVE_INTERVAL < now)
+                    {
+                        Logger.Log("Sending keep alive packet\n");
+                        SendMsg(new NetKeepAliveMsg { type = NetMsg.MsgType.KeepAlive });
+                    }
+
+                    if (disconnect_timeout != 0 && disconnect_notify_start != 0 &&
+                        !disconnect_notify_sent && (last_recv_time + disconnect_notify_start < now))
+                    {
+                        Logger.Log("Endpoint has stopped receiving packets for {0} ms.  Sending notification.\n", disconnect_notify_start);
+                        NetworkInterruptedEvent evt = new NetworkInterruptedEvent();
+                        evt.disconnect_timeout = (int)(disconnect_timeout - disconnect_notify_start);
+                        QueueEvent(evt);
+                        disconnect_notify_sent = true;
+                    }
+
+                    if (disconnect_timeout != 0 && (last_recv_time + disconnect_timeout < now))
+                    {
+                        if (!disconnect_event_sent)
+                        {
+                            Logger.Log("Endpoint has stopped receiving packets for {0} ms.  Disconnecting.\n", disconnect_timeout);
+                            Event evt = new Event();
+                            evt.type = Event.Type.Disconnected;
+                            QueueEvent(evt);
+                            disconnect_event_sent = true;
+                        }
+                    }
+                    break;
+                case State.Disconnected:
+                    if (shutdown_timeout < now)
+                    {
+                        Logger.Log("Shutting down NetProto connection.\n");
+                        net_adapter = null;
+                        shutdown_timeout = 0;
+                    }
+                    break;
+            }
+            return true;
         }
 
-        void OnMsg(NetMsg msg)
+        public void Disconnect()
+        {
+            current_state = State.Disconnected;
+            shutdown_timeout = (uint)(Platform.GetCurrentTimeMS() + UDP_SHUTDOWN_TIMER);
+        }
+
+        public void SendSyncRequest()
+        {
+            inner_state.Sync.random = Platform.RandUint();
+            NetSyncRequestMsg msg = new NetSyncRequestMsg { type = NetMsg.MsgType.SyncRequest };
+            msg.random_request = inner_state.Sync.random;
+            SendMsg(msg);
+        }
+
+        public void SendMsg(NetMsg msg)
+        {
+            LogMsg("send", msg);
+
+            packets_sent++;
+            last_send_time = (uint)Platform.GetCurrentTimeMS();
+            bytes_sent += msg.PacketSize();
+
+            msg.sequence_number = (ushort)next_send_seq++;
+
+            var entry = new QueueEntry();
+            entry.queue_time = Platform.GetCurrentTimeMS();
+            entry.msg = msg;
+
+            send_queue.Push(entry);
+            PumpSendQueue();
+        }
+
+        public void HandlesMsg()
+        {
+            // Unused
+        }
+
+        public void OnMsg(NetMsg msg)
         {
             var handled = false;
             var seq = msg.sequence_number;
@@ -475,28 +471,150 @@ namespace PleaseUndo
             }
         }
 
-        bool OnKeepAlive(NetMsg msg)
+        public void UpdateNetworkStats()
         {
-            return true;
+            int now = Platform.GetCurrentTimeMS();
+
+            if (stats_start_time == 0)
+            {
+                stats_start_time = now;
+            }
+
+            int total_bytes_send = bytes_sent + (UDP_HEADER_SIZE * packets_sent);
+            float seconds = (now - stats_start_time) / 1000;
+            float Bps = total_bytes_send / seconds;
+            float udp_overhead = (float)(100.0 * (UDP_HEADER_SIZE * packets_sent) / bytes_sent);
+
+            kbps_sent = (int)(Bps / 1024);
+
+            Logger.Log("(Just copied probably not correct) Network Stats --\n Bandwidth: {0} KBps Packets Sent: {1} ({2} pps)\n KB Sent: {3} UDP Overhead: {4} %%.\n",
+                kbps_sent,
+                packets_sent,
+                (float)packets_sent * 1000 / (now - stats_start_time),
+                total_bytes_send / 1024.0,
+                udp_overhead);
         }
 
-        bool OnQualityReply(NetMsg msg)
+        public void QueueEvent(Event e)
         {
-            round_trip_time = (int)(Platform.GetCurrentTimeMS() - (msg as NetQualityReplyMsg).pong);
-            return true;
+            LogEvent("Queuing event", e);
+            event_queue.Push(e);
         }
 
-        bool OnQualityReport(NetMsg msg)
+        public void Synchronize()
         {
-            var report = (msg as NetQualityReportMsg);
-            var reply = new NetQualityReplyMsg { type = NetMsg.MsgType.QualityReply, pong = report.ping };
+            if (IsInitialized())
+            {
+                current_state = State.Syncing;
+                inner_state.Sync.roundtrips_remaining = NUM_SYNC_PACKETS;
+                SendSyncRequest();
+            }
+        }
+
+        public bool GetPeerConnectStatus(int id, ref int frame)
+        {
+            frame = peer_connect_status[id].last_frame;
+            return peer_connect_status[id].disconnected == 0;
+        }
+
+        public void LogMsg(string prefix, NetMsg message)
+        {
+            switch (message.type)
+            {
+                case NetMsg.MsgType.Invalid:
+                    Logger.Assert(false, prefix + " - Invalid NetMsg type.");
+                    break;
+                case NetMsg.MsgType.SyncRequest:
+                    var net_sync_msg_req = (NetSyncRequestMsg)message;
+                    Logger.Log("{0} sync-request ({1}).\n", prefix, net_sync_msg_req.random_request);
+                    break;
+                case NetMsg.MsgType.SyncReply:
+                    var net_sync_msg_rep = (NetSyncReplyMsg)message;
+                    Logger.Log("{0} sync-reply ({1}).\n", prefix, net_sync_msg_rep.random_reply);
+                    break;
+                case NetMsg.MsgType.Input:
+                    var input_msg = (NetInputMsg)message;
+                    Logger.Log("{0} game input {1} ({2} bits).\n", prefix, input_msg.start_frame, input_msg.num_bits);
+                    break;
+                case NetMsg.MsgType.InputAck:
+                    Logger.Log("{0} input ack.\n", prefix);
+                    break;
+                case NetMsg.MsgType.QualityReport:
+                    Logger.Log("{0} quality report.\n", prefix);
+                    break;
+                case NetMsg.MsgType.QualityReply:
+                    Logger.Log("{0} quality reply.\n", prefix);
+                    break;
+                case NetMsg.MsgType.KeepAlive:
+                    Logger.Log("{0} keep alive.\n", prefix);
+                    break;
+                default:
+                    Logger.Assert(false, "Unknown NetMsg type.");
+                    break;
+            }
+        }
+
+        public bool OnInvalid(NetMsg msg)
+        {
+            Logger.Assert(false, string.Format("Invalid msg in NetProto: {0}", new { msg, type = msg.type }));
+            return false;
+        }
+
+        public bool OnSyncRequest(NetMsg msg)
+        {
+            // if (_remote_magic_number != 0 && msg->hdr.magic != _remote_magic_number)
+            // {
+            //     Log("Ignoring sync request from unknown endpoint (%d != %d).\n",
+            //          msg->hdr.magic, _remote_magic_number);
+            //     return false;
+            // }
+            var reply = new NetSyncReplyMsg { type = NetMsg.MsgType.SyncReply };
+            // reply.random_reply = msg.sync_request.random_request;
             SendMsg(reply);
-
-            remote_frame_advantage = report.frame_advantage;
             return true;
         }
 
-        bool OnInput(NetMsg msg)
+        public bool OnSyncReply(NetMsg msg)
+        {
+            if (current_state != State.Syncing)
+            {
+                Logger.Log("Ignoring SyncReply while not synching.\n");
+                //   return msg->hdr.magic == _remote_magic_number;
+                return false;
+            }
+
+            // if (msg->u.sync_reply.random_reply != _state.sync.random)
+            // {
+            //     Log("sync reply %d != %d.  Keep looking...\n",
+            //         msg->u.sync_reply.random_reply, _state.sync.random);
+            //     return false;
+            // }
+
+            if (!connected)
+            {
+                QueueEvent(new ConnectedEvent { type = Event.Type.Connected });
+                connected = true;
+            }
+
+            Logger.Log("Checking sync state ({0} round trips remaining).\n", inner_state.Sync.roundtrips_remaining);
+            if (--inner_state.Sync.roundtrips_remaining == 0)
+            {
+                Logger.Log("Synchronized!\n");
+                QueueEvent(new SynchronizedEvent { type = Event.Type.Synchronzied });
+                current_state = State.Running;
+                last_received_input.frame = -1;
+                //     _remote_magic_number = msg->hdr.magic;
+            }
+            else
+            {
+                var evt = new SynchronizingEvent { total = NUM_SYNC_PACKETS, count = (int)(NUM_SYNC_PACKETS - inner_state.Sync.roundtrips_remaining) };
+                QueueEvent(evt);
+                SendSyncRequest();
+            }
+            return true;
+        }
+
+        public bool OnInput(NetMsg msg)
         {
             var inputMsg = msg as NetInputMsg;
             if (inputMsg.disconnect_requested != 0)
@@ -615,7 +733,7 @@ namespace PleaseUndo
             return true;
         }
 
-        bool OnInputAck(NetMsg msg)
+        public bool OnInputAck(NetMsg msg)
         {
             /*
              * Get rid of our buffered input
@@ -629,165 +747,71 @@ namespace PleaseUndo
             return true;
         }
 
-        bool OnInvalid(NetMsg msg)
+        public bool OnQualityReport(NetMsg msg)
         {
-            Logger.Assert(false, string.Format("Invalid msg in NetProto: {0}", new { msg, type = msg.type }));
-            return false;
-        }
-
-        bool OnSyncRequest(NetMsg msg)
-        {
-            // if (_remote_magic_number != 0 && msg->hdr.magic != _remote_magic_number)
-            // {
-            //     Log("Ignoring sync request from unknown endpoint (%d != %d).\n",
-            //          msg->hdr.magic, _remote_magic_number);
-            //     return false;
-            // }
-            var reply = new NetSyncReplyMsg { type = NetMsg.MsgType.SyncReply };
-            // reply.random_reply = msg.sync_request.random_request;
+            var report = (msg as NetQualityReportMsg);
+            var reply = new NetQualityReplyMsg { type = NetMsg.MsgType.QualityReply, pong = report.ping };
             SendMsg(reply);
+
+            remote_frame_advantage = report.frame_advantage;
             return true;
         }
 
-        bool OnSyncReply(NetMsg msg)
+        public bool OnQualityReply(NetMsg msg)
         {
-            if (current_state != State.Syncing)
-            {
-                Logger.Log("Ignoring SyncReply while not synching.\n");
-                //   return msg->hdr.magic == _remote_magic_number;
-                return false;
-            }
-
-            // if (msg->u.sync_reply.random_reply != _state.sync.random)
-            // {
-            //     Log("sync reply %d != %d.  Keep looking...\n",
-            //         msg->u.sync_reply.random_reply, _state.sync.random);
-            //     return false;
-            // }
-
-            if (!connected)
-            {
-                QueueEvent(new ConnectedEvent { type = Event.Type.Connected });
-                connected = true;
-            }
-
-            Logger.Log("Checking sync state ({0} round trips remaining).\n", inner_state.Sync.roundtrips_remaining);
-            if (--inner_state.Sync.roundtrips_remaining == 0)
-            {
-                Logger.Log("Synchronized!\n");
-                QueueEvent(new SynchronizedEvent { type = Event.Type.Synchronzied });
-                current_state = State.Running;
-                last_received_input.frame = -1;
-                //     _remote_magic_number = msg->hdr.magic;
-            }
-            else
-            {
-                var evt = new SynchronizingEvent { total = NUM_SYNC_PACKETS, count = (int)(NUM_SYNC_PACKETS - inner_state.Sync.roundtrips_remaining) };
-                QueueEvent(evt);
-                SendSyncRequest();
-            }
+            round_trip_time = (int)(Platform.GetCurrentTimeMS() - (msg as NetQualityReplyMsg).pong);
             return true;
         }
 
-        bool IPollSink.OnLoopPoll()
+        public bool OnKeepAlive(NetMsg msg)
         {
-            if (!IsInitialized())
-            {
-                return true;
-            }
-
-            var messages = net_adapter.ReceiveAllMessages();
-            foreach (var message in messages)
-            {
-                OnMsg(message);
-            }
-
-            uint now = (uint)Platform.GetCurrentTimeMS();
-            uint next_interval;
-
-            PumpSendQueue();
-
-            switch (current_state)
-            {
-                case State.Syncing:
-                    next_interval = (inner_state.Sync.roundtrips_remaining == NUM_SYNC_PACKETS) ? (uint)SYNC_FIRST_RETRY_INTERVAL : (uint)SYNC_RETRY_INTERVAL;
-                    if (last_send_time != 0 && last_send_time + next_interval < now)
-                    {
-                        Logger.Log("No luck syncing after {0} ms... Re-queueing sync packet.\n", next_interval);
-                        SendSyncRequest();
-                    }
-                    break;
-                case State.Running:
-                    // xxx: rig all this up with a timer wrapper
-                    if (inner_state.Running.last_input_packet_recv_time == 0 || inner_state.Running.last_input_packet_recv_time + RUNNING_RETRY_INTERVAL < now)
-                    {
-                        Logger.Log("Haven't exchanged packets in a while (last received:{0}  last sent:{1}).  Resending.\n", last_received_input.frame, last_sent_input.frame);
-                        SendPendingOutput();
-                        inner_state.Running.last_input_packet_recv_time = now;
-                    }
-
-                    if (inner_state.Running.last_quality_report_time == 0 || inner_state.Running.last_quality_report_time + QUALITY_REPORT_INTERVAL < now)
-                    {
-                        var msg = new NetQualityReportMsg { type = NetMsg.MsgType.QualityReport };
-                        msg.ping = (uint)Platform.GetCurrentTimeMS();
-                        msg.frame_advantage = (byte)local_frame_advantage;
-                        SendMsg(msg);
-                        inner_state.Running.last_quality_report_time = now;
-                    }
-
-                    if (inner_state.Running.last_network_stats_interval == 0 || inner_state.Running.last_network_stats_interval + NETWORK_STATS_INTERVAL < now)
-                    {
-                        UpdateNetworkStats();
-                        inner_state.Running.last_network_stats_interval = now;
-                    }
-
-                    if (last_send_time != 0 && last_send_time + KEEP_ALIVE_INTERVAL < now)
-                    {
-                        Logger.Log("Sending keep alive packet\n");
-                        SendMsg(new NetKeepAliveMsg { type = NetMsg.MsgType.KeepAlive });
-                    }
-
-                    if (disconnect_timeout != 0 && disconnect_notify_start != 0 &&
-                        !disconnect_notify_sent && (last_recv_time + disconnect_notify_start < now))
-                    {
-                        Logger.Log("Endpoint has stopped receiving packets for {0} ms.  Sending notification.\n", disconnect_notify_start);
-                        NetworkInterruptedEvent evt = new NetworkInterruptedEvent();
-                        evt.disconnect_timeout = (int)(disconnect_timeout - disconnect_notify_start);
-                        QueueEvent(evt);
-                        disconnect_notify_sent = true;
-                    }
-
-                    if (disconnect_timeout != 0 && (last_recv_time + disconnect_timeout < now))
-                    {
-                        if (!disconnect_event_sent)
-                        {
-                            Logger.Log("Endpoint has stopped receiving packets for {0} ms.  Disconnecting.\n", disconnect_timeout);
-                            Event evt = new Event();
-                            evt.type = Event.Type.Disconnected;
-                            QueueEvent(evt);
-                            disconnect_event_sent = true;
-                        }
-                    }
-                    break;
-                case State.Disconnected:
-                    if (shutdown_timeout < now)
-                    {
-                        Logger.Log("Shutting down NetProto connection.\n");
-                        net_adapter = null;
-                        shutdown_timeout = 0;
-                    }
-                    break;
-            }
             return true;
         }
 
-        protected void QueueEvent(Event e)
+        public void GetNetworkStats(ref GGPONetworkStats stats)
         {
-            LogEvent("Queuing event", e);
-            event_queue.Push(e);
+            stats.Network.ping = round_trip_time;
+            stats.Network.send_queue_len = pending_output.Size();
+            stats.Network.kbps_sent = kbps_sent;
+            stats.Timesync.remote_frames_behind = remote_frame_advantage;
+            stats.Timesync.local_frames_behind = local_frame_advantage;
         }
 
-        protected void LogEvent(string prefix, Event e)
+        public void SetLocalFrameNumber(int localFrame)
+        {
+            /*
+             * Estimate which frame the other guy is one by looking at the
+             * last frame they gave us plus some delta for the one-way packet
+             * trip time.
+             */
+            int remoteFrame = last_received_input.frame + (round_trip_time * 60 / 1000);
+
+            /*
+             * Our frame advantage is how many frames *behind* the other guy
+             * we are.  Counter-intuative, I know.  It's an advantage because
+             * it means they'll have to predict more often and our moves will
+             * pop more frequenetly.
+             */
+            local_frame_advantage = remoteFrame - localFrame;
+        }
+
+        public int RecommendFrameDelay()
+        {
+            // XXX: require idle input should be a configuration parameter
+            return timesync.recommend_frame_wait_duration(false);
+        }
+
+        public void SetDisconnectTimeout(int timeout)
+        {
+            disconnect_timeout = (uint)timeout;
+        }
+
+        public void SetDisconnectNotifyStart(int timeout)
+        {
+            disconnect_notify_start = (uint)timeout;
+        }
+
+        public void LogEvent(string prefix, Event e)
         {
             if (e.type == Event.Type.Synchronzied)
             {
@@ -795,31 +819,7 @@ namespace PleaseUndo
             }
         }
 
-        protected void UpdateNetworkStats()
-        {
-            int now = Platform.GetCurrentTimeMS();
-
-            if (stats_start_time == 0)
-            {
-                stats_start_time = now;
-            }
-
-            int total_bytes_send = bytes_sent + (UDP_HEADER_SIZE * packets_sent);
-            float seconds = (now - stats_start_time) / 1000;
-            float Bps = total_bytes_send / seconds;
-            float udp_overhead = (float)(100.0 * (UDP_HEADER_SIZE * packets_sent) / bytes_sent);
-
-            kbps_sent = (int)(Bps / 1024);
-
-            Logger.Log("(Just copied probably not correct) Network Stats --\n Bandwidth: {0} KBps Packets Sent: {1} ({2} pps)\n KB Sent: {3} UDP Overhead: {4} %%.\n",
-                kbps_sent,
-                packets_sent,
-                (float)packets_sent * 1000 / (now - stats_start_time),
-                total_bytes_send / 1024.0,
-                udp_overhead);
-        }
-
-        protected void PumpSendQueue()
+        public void PumpSendQueue()
         {
             var rand = new Random();
 
@@ -861,5 +861,14 @@ namespace PleaseUndo
             }
 
         }
+
+        public void ClearSendQueue()
+        {
+            // Unused
+        }
+
+        public bool IsInitialized() => net_adapter != null;
+        public bool IsRunning() => current_state == State.Running;
+        public bool IsSynchronized() => current_state == State.Running;
     }
 }
