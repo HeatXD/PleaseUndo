@@ -7,7 +7,7 @@ namespace PleaseUndo
         public struct Event
         {
             public int type;
-            public GameInput<InputType> input;
+            public GameInput input;
         }
         public struct Config
         {
@@ -75,7 +75,7 @@ namespace PleaseUndo
             _input_queues[queue].SetFrameDelay(delay);
         }
 
-        public bool AddLocalInput(int queue, ref GameInput<InputType> input)
+        public bool AddLocalInput(int queue, ref GameInput input)
         {
             int frames_behind = _framecount - _last_confirmed_frame;
             if (_framecount >= _max_prediction_frames && frames_behind >= _max_prediction_frames)
@@ -96,12 +96,12 @@ namespace PleaseUndo
             return true;
         }
 
-        public void AddRemoteInput(int queue, ref GameInput<InputType> input)
+        public void AddRemoteInput(int queue, ref GameInput input)
         {
             _input_queues[queue].AddInput(ref input);
         }
 
-        public int GetConfirmedInputs(InputType[] values, int size, int frame)
+        public int GetConfirmedInputs(byte[] values, int size, int frame)
         {
             int disconnect_flags = 0;
             // char* output = (char*)values; // not needed in C#
@@ -111,7 +111,7 @@ namespace PleaseUndo
             // memset(output, 0, size); // not needed in C#
             for (int i = 0; i < _config.num_players; i++)
             {
-                var input = new GameInput<InputType>();
+                var input = new GameInput();
                 if ((_local_connect_status[i].disconnected != 0) && frame > _local_connect_status[i].last_frame)
                 {
                     disconnect_flags |= (1 << i);
@@ -121,12 +121,12 @@ namespace PleaseUndo
                 {
                     _input_queues[i].GetConfirmedInput(frame, ref input);
                 }
-                values[i] = input.inputs[i]; // CHECKME: Might be DEAD WRONG: was memcpy(output + (i * _config.input_size), input.bits, _config.input_size);
+                values[i] = input.bits[i]; // CHECKME: Might be DEAD WRONG: was memcpy(output + (i * _config.input_size), input.bits, _config.input_size);
             }
             return disconnect_flags;
         }
 
-        public int SynchronizeInputs(ref InputType[] values, int size)
+        public int SynchronizeInputs(ref byte[] values, int size)
         {
             int disconnect_flags = 0;
             // char* output = (char*)values; // Not needed in C#
@@ -136,7 +136,7 @@ namespace PleaseUndo
             // memset(output, 0, size); // Not needed in C#
             for (int i = 0; i < _config.num_players; i++)
             {
-                var input = new GameInput<InputType>();
+                var input = new GameInput();
                 if ((_local_connect_status[i].disconnected != 0) && _framecount > _local_connect_status[i].last_frame)
                 {
                     disconnect_flags |= (1 << i);
@@ -146,7 +146,7 @@ namespace PleaseUndo
                 {
                     _input_queues[i].GetInput(_framecount, ref input);
                 }
-                values[i] = input.inputs[i]; // CHECKME: Might be DEAD WRONG: was memcpy(output + (i * _config.input_size), input.bits, _config.input_size);
+                values[i] = input.bits[i]; // CHECKME: Might be DEAD WRONG: was memcpy(output + (i * _config.input_size), input.bits, _config.input_size);
             }
             return disconnect_flags;
         }
@@ -292,19 +292,19 @@ namespace PleaseUndo
 
         protected bool CheckSimulationConsistency(ref int seekTo)
         {
-            int first_incorrect = (int)GameInput<InputType>.Constants.NullFrame;
+            int first_incorrect = (int)GameInput.Constants.NullFrame;
             for (int i = 0; i < _config.num_players; i++)
             {
                 int incorrect = _input_queues[i].GetFirstIncorrectFrame();
                 Logger.Log("considering incorrect frame {0} reported by queue {1}.\n", incorrect, i);
 
-                if (incorrect != (int)GameInput<InputType>.Constants.NullFrame && (first_incorrect == (int)GameInput<InputType>.Constants.NullFrame || incorrect < first_incorrect))
+                if (incorrect != (int)GameInput.Constants.NullFrame && (first_incorrect == (int)GameInput.Constants.NullFrame || incorrect < first_incorrect))
                 {
                     first_incorrect = incorrect;
                 }
             }
 
-            if (first_incorrect == (int)GameInput<InputType>.Constants.NullFrame)
+            if (first_incorrect == (int)GameInput.Constants.NullFrame)
             {
                 Logger.Log("prediction ok.  proceeding.\n");
                 return true;
