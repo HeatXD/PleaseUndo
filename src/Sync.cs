@@ -18,7 +18,7 @@ namespace PleaseUndo
             public int num_players;
             public int input_size;
         }
-        protected class SavedFrame
+        public class SavedFrame
         {
             public byte[] buf;
             public int cbuf = 0;
@@ -199,7 +199,7 @@ namespace PleaseUndo
             Logger.Log("---\n");
         }
 
-        protected void LoadFrame(int frame)
+        public void LoadFrame(int frame)
         {
             if (frame == _framecount)
             {
@@ -222,7 +222,7 @@ namespace PleaseUndo
             _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.Length;
         }
 
-        protected void SaveCurrentFrame()
+        public void SaveCurrentFrame()
         {
             ref SavedFrame state = ref _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
             state.buf = null;
@@ -233,7 +233,7 @@ namespace PleaseUndo
             _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.Length;
         }
 
-        protected ref SavedFrame GetLastSavedFrame()
+        public ref SavedFrame GetLastSavedFrame()
         {
             int i = _savedstate.head - 1;
             if (i < 0)
