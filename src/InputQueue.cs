@@ -16,15 +16,15 @@ namespace PleaseUndo
         protected int _last_user_added_frame;
         protected int _first_incorrect_frame;
 
-        protected GameInput<InputType> _prediction;
-        protected GameInput<InputType>[] _inputs = new GameInput<InputType>[INPUT_QUEUE_LENGTH];
+        protected GameInput _prediction;
+        protected GameInput[] _inputs = new GameInput[INPUT_QUEUE_LENGTH];
 
-        public InputQueue()
+        public InputQueue(uint input_size)
         {
-            Init(-1);
+            Init(-1, input_size);
         }
 
-        public void Init(int id)
+        public void Init(int id, uint input_size)
         {
             _id = id;
             _head = 0;
@@ -32,12 +32,21 @@ namespace PleaseUndo
             _length = 0;
             _frame_delay = 0;
             _first_frame = true;
-            _last_added_frame = (int)GameInput<InputType>.Constants.NullFrame;
-            _last_frame_requested = (int)GameInput<InputType>.Constants.NullFrame;
-            _last_user_added_frame = (int)GameInput<InputType>.Constants.NullFrame;
-            _first_incorrect_frame = (int)GameInput<InputType>.Constants.NullFrame;
+            _last_added_frame = (int)GameInput.Constants.NullFrame;
+            _last_frame_requested = (int)GameInput.Constants.NullFrame;
+            _last_user_added_frame = (int)GameInput.Constants.NullFrame;
+            _first_incorrect_frame = (int)GameInput.Constants.NullFrame;
 
-            _prediction.Init((int)GameInput<InputType>.Constants.NullFrame, null);
+            _prediction = new GameInput((int)GameInput.Constants.NullFrame, null, input_size);
+
+            /*
+            * This is safe because we know the GameInput is a proper structure (as in,
+            * no virtual methods, no contained classes, etc.).
+            */
+            for (int i = 0; i < _inputs.Length; i++)
+            {
+                _inputs[i].size = input_size;
+            }
         }
 
         public int GetLength()
@@ -60,7 +69,7 @@ namespace PleaseUndo
         }
         public void ResetPrediction(int frame)
         {
-            Logger.Assert(_first_incorrect_frame == (int)GameInput<InputType>.Constants.NullFrame || frame <= _first_incorrect_frame);
+            Logger.Assert(_first_incorrect_frame == (int)GameInput.Constants.NullFrame || frame <= _first_incorrect_frame);
 
             Logger.Log("resetting all prediction errors back to frame {0}.\n", frame);
 
@@ -68,15 +77,15 @@ namespace PleaseUndo
              * There's nothing really to do other than reset our prediction
              * state and the incorrect frame counter...
              */
-            _prediction.frame = (int)GameInput<InputType>.Constants.NullFrame;
-            _first_incorrect_frame = (int)GameInput<InputType>.Constants.NullFrame;
-            _last_frame_requested = (int)GameInput<InputType>.Constants.NullFrame;
+            _prediction.frame = (int)GameInput.Constants.NullFrame;
+            _first_incorrect_frame = (int)GameInput.Constants.NullFrame;
+            _last_frame_requested = (int)GameInput.Constants.NullFrame;
         }
         public void DiscardConfirmedFrames(int frame)
         {
             Logger.Assert(frame >= 0);
 
-            if (_last_frame_requested != (int)GameInput<InputType>.Constants.NullFrame)
+            if (_last_frame_requested != (int)GameInput.Constants.NullFrame)
             {
                 frame = System.Math.Min(frame, _last_frame_requested);
             }
@@ -101,7 +110,7 @@ namespace PleaseUndo
             Logger.Assert(_length >= 0);
         }
 
-        public bool GetInput(int requested_frame, ref GameInput<InputType> input)
+        public bool GetInput(int requested_frame, ref GameInput input)
         {
             Logger.Log("requesting input frame {0}.\n", requested_frame);
 
@@ -110,7 +119,7 @@ namespace PleaseUndo
              * error.  Doing so means that we're just going further down the wrong
              * path.  Assert this to verify that it's true.
              */
-            Logger.Assert(_first_incorrect_frame == (int)GameInput<InputType>.Constants.NullFrame);
+            Logger.Assert(_first_incorrect_frame == (int)GameInput.Constants.NullFrame);
 
             /*
              * Remember the last requested frame number for later.  We'll need
@@ -120,7 +129,7 @@ namespace PleaseUndo
 
             Logger.Assert(requested_frame >= _inputs[_tail].frame);
 
-            if (_prediction.frame == (int)GameInput<InputType>.Constants.NullFrame)
+            if (_prediction.frame == (int)GameInput.Constants.NullFrame)
             {
                 /*
                  * If the frame requested is in our range, fetch it out of the queue and
@@ -133,7 +142,7 @@ namespace PleaseUndo
                     offset = (offset + _tail) % INPUT_QUEUE_LENGTH;
                     Logger.Assert(_inputs[offset].frame == requested_frame);
                     input = _inputs[offset];
-                    Logger.Log("returning confirmed frame number {0}.\n", ((GameInput<InputType>)input).frame);
+                    Logger.Log("returning confirmed frame number {0}.\n", ((GameInput)input).frame);
                     return true;
                 }
 
@@ -147,7 +156,7 @@ namespace PleaseUndo
                     Logger.Log("basing new prediction frame from nothing, you're client wants frame 0.\n");
                     _prediction.Erase();
                 }
-                else if (_last_added_frame == (int)GameInput<InputType>.Constants.NullFrame)
+                else if (_last_added_frame == (int)GameInput.Constants.NullFrame)
                 {
                     Logger.Log("basing new prediction frame from nothing, since we have no frames yet.\n");
                     _prediction.Erase();
@@ -169,11 +178,11 @@ namespace PleaseUndo
              */
             input = _prediction;
             _prediction.frame = requested_frame; // was input.frame = requested_frame, but should be equivalent?
-            Logger.Log("returning prediction frame number {0} ({1}).\n", ((GameInput<InputType>)input).frame, _prediction.frame);
+            Logger.Log("returning prediction frame number {0} ({1}).\n", ((GameInput)input).frame, _prediction.frame);
 
             return false;
         }
-        public void AddInput(ref GameInput<InputType> input)
+        public void AddInput(ref GameInput input)
         {
             int new_frame;
 
@@ -183,7 +192,7 @@ namespace PleaseUndo
              * These next two lines simply verify that inputs are passed in 
              * sequentially by the user, regardless of frame delay.
              */
-            Logger.Assert(_last_user_added_frame == (int)GameInput<InputType>.Constants.NullFrame || input.frame == _last_user_added_frame + 1);
+            Logger.Assert(_last_user_added_frame == (int)GameInput.Constants.NullFrame || input.frame == _last_user_added_frame + 1);
             _last_user_added_frame = input.frame;
 
             /*
@@ -191,7 +200,7 @@ namespace PleaseUndo
              * input the frame into the queue.
              */
             new_frame = AdvanceQueueHead(input.frame);
-            if (new_frame != (int)GameInput<InputType>.Constants.NullFrame)
+            if (new_frame != (int)GameInput.Constants.NullFrame)
             {
                 AddDelayedInputToQueue(input, new_frame);
             }
@@ -203,9 +212,9 @@ namespace PleaseUndo
              */
             input.frame = new_frame;
         }
-        public bool GetConfirmedInput(int requested_frame, ref GameInput<InputType> input)
+        public bool GetConfirmedInput(int requested_frame, ref GameInput input)
         {
-            Logger.Assert(_first_incorrect_frame == (int)GameInput<InputType>.Constants.NullFrame || requested_frame < _first_incorrect_frame);
+            Logger.Assert(_first_incorrect_frame == (int)GameInput.Constants.NullFrame || requested_frame < _first_incorrect_frame);
 
             int offset = requested_frame % INPUT_QUEUE_LENGTH;
             if (_inputs[offset].frame != requested_frame)
@@ -232,7 +241,7 @@ namespace PleaseUndo
                  * no room on the queue.  Toss it.
                  */
                 Logger.Log("Dropping input frame {0} (expected next frame to be {1}).\n", frame, expected_frame);
-                return (int)GameInput<InputType>.Constants.NullFrame;
+                return (int)GameInput.Constants.NullFrame;
             }
 
             while (expected_frame < frame)
@@ -252,13 +261,13 @@ namespace PleaseUndo
             Logger.Assert(frame == 0 || frame == _inputs[PREVIOUS_FRAME(_head)].frame + 1);
             return frame;
         }
-        protected void AddDelayedInputToQueue(GameInput<InputType> input, int frame_number)
+        protected void AddDelayedInputToQueue(GameInput input, int frame_number)
         {
             Logger.Log("adding delayed input frame number {0} to queue.\n", frame_number);
 
             // Logger.Assert(input.size == _prediction.size); // Not needed in C#
 
-            Logger.Assert(_last_added_frame == (int)GameInput<InputType>.Constants.NullFrame || frame_number == _last_added_frame + 1);
+            Logger.Assert(_last_added_frame == (int)GameInput.Constants.NullFrame || frame_number == _last_added_frame + 1);
 
             Logger.Assert(frame_number == 0 || _inputs[PREVIOUS_FRAME(_head)].frame == frame_number - 1);
 
@@ -273,7 +282,7 @@ namespace PleaseUndo
 
             _last_added_frame = frame_number;
 
-            if (_prediction.frame != (int)GameInput<InputType>.Constants.NullFrame)
+            if (_prediction.frame != (int)GameInput.Constants.NullFrame)
             {
                 Logger.Assert(frame_number == _prediction.frame);
 
@@ -283,7 +292,7 @@ namespace PleaseUndo
                  * remember the first input which was incorrect so we can report it
                  * in GetFirstIncorrectFrame()
                  */
-                if (_first_incorrect_frame == (int)GameInput<InputType>.Constants.NullFrame && !_prediction.Equal(input, true))
+                if (_first_incorrect_frame == (int)GameInput.Constants.NullFrame && !_prediction.Equal(input, true))
                 {
                     Logger.Log("frame {0} does not match prediction.  marking error.\n", frame_number);
                     _first_incorrect_frame = frame_number;
@@ -295,10 +304,10 @@ namespace PleaseUndo
                  * of predition mode entirely!  Otherwise, advance the prediction frame
                  * count up.
                  */
-                if (_prediction.frame == _last_frame_requested && _first_incorrect_frame == (int)GameInput<InputType>.Constants.NullFrame)
+                if (_prediction.frame == _last_frame_requested && _first_incorrect_frame == (int)GameInput.Constants.NullFrame)
                 {
                     Logger.Log("prediction is correct!  dumping out of prediction mode.\n");
-                    _prediction.frame = (int)GameInput<InputType>.Constants.NullFrame;
+                    _prediction.frame = (int)GameInput.Constants.NullFrame;
                 }
                 else
                 {
