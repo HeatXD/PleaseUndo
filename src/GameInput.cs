@@ -1,13 +1,19 @@
 using System;
 using System.Linq;
+using System.Text;
 
 namespace PleaseUndo
 {
-    public struct GameInput<T>
+    public struct GameInput
     {
-        const int GAMEINPUT_MAX_PLAYERS = 2;
+        // GAMEINPUT_MAX_PLAYERS * GAMEINPUT_MAX_BYTES * 8 must be less than
+        // 2^NibbleSize (see BitVector)
 
-        public T[] inputs;
+        const int GAMEINPUT_MAX_PLAYERS = 2;
+        const int GAMEINPUT_MAX_BYTES = 8;
+
+        public byte[] bits;
+        public uint size;
         public int frame;
 
         public enum Constants
@@ -15,51 +21,55 @@ namespace PleaseUndo
             NullFrame = -1
         }
 
-        public void Init(int frame, T[] game_inputs, int offset)
+        public GameInput(int frame, byte[] bits, uint size, int offset)
         {
-            if (game_inputs != null)
-            {
-                Logger.Assert(offset + game_inputs.Length <= GAMEINPUT_MAX_PLAYERS,
-                 "Supplied inputs is larger than the maximum players specified #2");
-            }
+            Logger.Assert(size > 0);
+            Logger.Assert(size <= GAMEINPUT_MAX_BYTES * GAMEINPUT_MAX_PLAYERS);
 
-            this.inputs = new T[GAMEINPUT_MAX_PLAYERS];
             this.frame = frame;
-            if (game_inputs != null)
+            this.size = size;
+            this.bits = new byte[GAMEINPUT_MAX_BYTES * GAMEINPUT_MAX_PLAYERS];
+
+            if (bits != null)
             {
-                Array.Copy(game_inputs, 0, this.inputs, offset, game_inputs.Length);
+                Array.Copy(bits, 0, this.bits, offset, size);
             }
         }
 
-        public void Init(int frame, T[] game_inputs)
+        public GameInput(int frame, byte[] bits, uint size)
         {
-            if (game_inputs != null)
-            {
-                Logger.Assert(game_inputs.Length <= GAMEINPUT_MAX_PLAYERS,
-                 "Supplied inputs is larger than the maximum players specified #1");
-            }
+            Logger.Assert(size > 0);
+            Logger.Assert(size <= GAMEINPUT_MAX_BYTES * GAMEINPUT_MAX_PLAYERS);
 
-            this.inputs = new T[GAMEINPUT_MAX_PLAYERS];
             this.frame = frame;
-            if (game_inputs != null)
+            this.size = size;
+            this.bits = new byte[GAMEINPUT_MAX_BYTES * GAMEINPUT_MAX_PLAYERS];
+
+            if (bits != null)
             {
-                Array.Copy(game_inputs, this.inputs, game_inputs.Length);
+                Array.Copy(bits, this.bits, size);
             }
         }
 
-        public bool Equal(GameInput<T> game_input, bool inputs_only)
+        public bool Equal(GameInput other, bool bits_only)
         {
-            if (!inputs_only && frame != game_input.frame)
+            if (!bits_only && frame != other.frame)
             {
-                Logger.Log("frames don't match: {0}, {1}\n", frame, game_input.frame);
+                Logger.Log("frames don't match: {0}, {1}", frame, other.frame);
             }
-            if (Enumerable.SequenceEqual(inputs, game_input.inputs))
+            if (size != other.size)
             {
-                Logger.Log("inputs don't match: {0}, {1}\n", inputs, game_input.inputs);
+                Logger.Log("sizes don't match: {0}, {1}", size, other.size);
             }
-            return (inputs_only ||
-             game_input.frame == frame &&
-             Enumerable.SequenceEqual(inputs, game_input.inputs));
+            if (bits.SequenceEqual(other.bits))
+            {
+                Logger.Log("bits don't match");
+            }
+
+            Logger.Assert(size > 0 && other.size > 0);
+            return (bits_only || frame == other.frame) &&
+                   size == other.size &&
+                   bits.SequenceEqual(other.bits);
         }
 
         public void Log(string prefix, bool show_frame)
@@ -69,25 +79,33 @@ namespace PleaseUndo
 
         public string Desc(bool show_frame)
         {
-            string desc = "";
+            Logger.Assert(size > 0);
+
+            string ret;
             if (show_frame)
             {
-                desc += string.Format("frame: {0} ", frame);
+                ret = $"(frame:{frame} size:{size} ";
+            }
+            else
+            {
+                ret = $"(size:{size} ";
             }
 
-            for (int i = 0; i < inputs.Length; i++)
+            var builder = new StringBuilder(ret);
+
+            for (var i = 0; i < size; i++)
             {
-                if (Value(i))
-                {
-                    desc += string.Format("{0} ", inputs[i]);
-                }
+                builder.AppendFormat("{0:x2}", bits[size]);
             }
-            return desc;
+
+            builder.Append(")");
+            return builder.ToString();
         }
-        public void Erase() => inputs = new T[GAMEINPUT_MAX_PLAYERS];
+
+        public void Erase() => Array.Clear(bits, 0, bits.Length);
         public bool IsNull() => frame == (int)Constants.NullFrame;
-        public bool Value(int i) => inputs[i] != null;
-        public void Set(int i, T input) => inputs[i] = input;
-        public void Clear(int i) => inputs[i] = default(T);
+        public bool Value(int i) => (bits[i / 8] & (1 << (i % 8))) != 0;
+        public void Set(int i) => bits[i / 8] |= (byte)(1 << (i % 8));
+        public void Clear(int i) => bits[i / 8] &= (byte)~(1 << (i % 8));
     }
 }
