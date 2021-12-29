@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace PleaseUndo
 {
-    public abstract class IPeerNetAdapter
+    public interface IPeerNetAdapter
     {
-        public abstract void Send(NetMsg msg);
-        public abstract List<NetMsg> ReceiveAllMessages();
+        void Send(NetMsg msg);
+        List<NetMsg> ReceiveAllMessages();
     }
 
     public class NetProto : IPollSink

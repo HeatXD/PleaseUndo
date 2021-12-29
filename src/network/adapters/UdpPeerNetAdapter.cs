@@ -33,19 +33,19 @@ namespace PleaseUndo
             _peer.Close();
         }
 
-        public override void Send(NetMsg msg)
+        private void SendMsg(byte[] msg)
+        {
+            _peer.Send(msg, msg.Length);
+        }
+
+        public void Send(NetMsg msg)
         {
             SendMsg(NetMsg.Serialize(msg));
         }
 
-        public override List<NetMsg> ReceiveAllMessages()
+        public List<NetMsg> ReceiveAllMessages()
         {
             return Poll();
-        }
-
-        private void SendMsg(byte[] msg)
-        {
-            _peer.Send(msg, msg.Length);
         }
     }
 }
