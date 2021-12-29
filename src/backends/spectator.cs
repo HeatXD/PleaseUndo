@@ -12,7 +12,7 @@ namespace PleaseUndo
         protected bool _synchronizing;
         protected int _num_players;
         protected int _next_input_to_send;
-        protected GameInput<InputType>[] _inputs;
+        protected GameInput[] _inputs;
 
         public SpectatorBackend(ref GGPOSessionCallbacks cb, int num_players, ref IPeerNetAdapter net_adapter)
         {
@@ -20,7 +20,7 @@ namespace PleaseUndo
             _synchronizing = true;
             _num_players = num_players;
             _next_input_to_send = 0;
-            _inputs = new GameInput<InputType>[SPECTATOR_FRAME_BUFFER_SIZE];
+            _inputs = new GameInput[SPECTATOR_FRAME_BUFFER_SIZE];
 
             for (int i = 0; i < _inputs.Length; i++)
             {
@@ -44,7 +44,7 @@ namespace PleaseUndo
             return GGPOErrorCode.GGPO_OK;
         }
 
-        public override GGPOErrorCode SyncInput(ref InputType[] values, int size, ref int disconnect_flags)
+        public override GGPOErrorCode SyncInput(ref byte[] values, int size, ref int disconnect_flags)
         {
             // Wait until we've started to return inputs.
             if (_synchronizing)
@@ -52,7 +52,7 @@ namespace PleaseUndo
                 return GGPOErrorCode.GGPO_ERRORCODE_NOT_SYNCHRONIZED;
             }
 
-            GameInput<InputType> input = _inputs[_next_input_to_send % SPECTATOR_FRAME_BUFFER_SIZE];
+            var input = _inputs[_next_input_to_send % SPECTATOR_FRAME_BUFFER_SIZE];
             if (input.frame < _next_input_to_send)
             {
                 // Haven't received the input from the host yet.  Wait
@@ -67,7 +67,7 @@ namespace PleaseUndo
             }
 
             //memcpy stuff
-            Array.Copy(input.inputs, values, input.inputs.Length);
+            input.bits = values;
 
             if (disconnect_flags != 0)
             {
