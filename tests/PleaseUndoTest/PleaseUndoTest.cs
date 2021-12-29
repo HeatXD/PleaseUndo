@@ -43,8 +43,8 @@ namespace PleaseUndoTest
                 var session1_handle1 = new GGPOPlayerHandle { };
                 var session1_handle2 = new GGPOPlayerHandle { };
 
-                session1.AddLocalPlayer(new GGPOPlayer { player_num = 1 }, ref session1_handle1);
-                session1.AddRemotePlayer(new GGPOPlayer { player_num = 2 }, ref session1_handle2, session1_adapter);
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session1.AddLocalPlayer(new GGPOPlayer { player_num = 1 }, ref session1_handle1));
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session1.AddRemotePlayer(new GGPOPlayer { player_num = 2 }, ref session1_handle2, session1_adapter));
 
                 var session2_synchronized = false;
                 var cbs2 = new GGPOSessionCallbacks
@@ -67,8 +67,8 @@ namespace PleaseUndoTest
                 var session2_handle1 = new GGPOPlayerHandle { };
                 var session2_handle2 = new GGPOPlayerHandle { };
 
-                session2.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session2_handle1, session2_adapter);
-                session2.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session2_handle2);
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session2.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session2_handle1, session2_adapter));
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session2.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session2_handle2));
 
                 for (var i = 0; i < 10; i++)
                 {
