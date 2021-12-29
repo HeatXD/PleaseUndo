@@ -29,7 +29,7 @@ namespace PleaseUndo
 
         NetMsg.ConnectStatus[] _local_connect_status;
 
-        public Peer2PeerBackend(ref GGPOSessionCallbacks cb, int num_players)
+        public Peer2PeerBackend(ref GGPOSessionCallbacks cb, int num_players, int input_size)
         {
             _num_players = num_players;
             _sync = new Sync(ref _local_connect_status);
@@ -47,8 +47,9 @@ namespace PleaseUndo
              */
             _sync.Init(new Sync.Config
             {
-                num_players = _num_players,
                 callbacks = _callbacks,
+                input_size = input_size,
+                num_players = _num_players,
                 num_prediction_frames = Sync.MAX_PREDICTION_FRAMES,
             });
 

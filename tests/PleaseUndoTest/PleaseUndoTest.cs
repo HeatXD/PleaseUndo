@@ -30,7 +30,7 @@ namespace PleaseUndoTest
                     OnLoadGameState = (byte[] buffer, int len) => { return false; },
                     OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
                 };
-                var session1 = new Peer2PeerBackend<int>(ref cbs1, 2);
+                var session1 = new Peer2PeerBackend(ref cbs1, 2, sizeof(int));
                 var session1_handle1 = new GGPOPlayerHandle { };
                 var session1_handle2 = new GGPOPlayerHandle { };
 
@@ -45,7 +45,7 @@ namespace PleaseUndoTest
                     OnLoadGameState = (byte[] buffer, int len) => { return false; },
                     OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
                 };
-                var session2 = new Peer2PeerBackend<int>(ref cbs2, 2);
+                var session2 = new Peer2PeerBackend(ref cbs2, 2, sizeof(int));
                 var session2_handle1 = new GGPOPlayerHandle { };
                 var session2_handle2 = new GGPOPlayerHandle { };
 

@@ -17,5 +17,17 @@ namespace PleaseUndo
             rnd.NextBytes(rndBytes);
             return BitConverter.ToUInt32(rndBytes);
         }
+
+        public static int memcmp(byte[] a, byte[] b, uint count)
+        {
+            if (a.Length < b.Length) { return -1; }
+            if (a.Length > b.Length) { return 1; }
+            for (var i = 0; i < System.Math.Min(count, a.Length); i++)
+            {
+                if (a[i] < b[i]) { return -1; }
+                if (a[i] > b[i]) { return 1; }
+            }
+            return 0;
+        }
     }
 }

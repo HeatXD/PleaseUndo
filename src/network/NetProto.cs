@@ -216,20 +216,20 @@ namespace PleaseUndo
                 for (j = 0; j < pending_output.Size(); j++)
                 {
                     var current = pending_output.Item(j);
-                    // if (memcmp(current.bits, last.bits, current.size) != 0)
-                    // {
-                    Logger.Assert((GameInput.GAMEINPUT_MAX_BYTES * GameInput.GAMEINPUT_MAX_PLAYERS * 8) < (1 << BitVector.NibbleSize));
-                    for (i = 0; i < current.size * 8; i++)
+                    if (Platform.memcmp(current.bits, last.bits, current.size) != 0)
                     {
-                        Logger.Assert(i < (1 << BitVector.NibbleSize));
-                        if (current.Value(i) != last.Value(i))
+                        Logger.Assert((GameInput.GAMEINPUT_MAX_BYTES * GameInput.GAMEINPUT_MAX_PLAYERS * 8) < (1 << BitVector.NibbleSize));
+                        for (i = 0; i < current.size * 8; i++)
                         {
-                            BitVector.SetBit(msg.bits, ref offset);
-                            if (current.Value(i)) { BitVector.SetBit(bits, ref offset); } else { BitVector.ClearBit(bits, ref offset); }
-                            BitVector.WriteNibblet(bits, i, ref offset);
+                            Logger.Assert(i < (1 << BitVector.NibbleSize));
+                            if (current.Value(i) != last.Value(i))
+                            {
+                                BitVector.SetBit(msg.bits, ref offset);
+                                if (current.Value(i)) { BitVector.SetBit(bits, ref offset); } else { BitVector.ClearBit(bits, ref offset); }
+                                BitVector.WriteNibblet(bits, i, ref offset);
+                            }
                         }
                     }
-                    // }
                     BitVector.ClearBit(msg.bits, ref offset);
                     last = last_sent_input = current;
                 }
@@ -668,23 +668,23 @@ namespace PleaseUndo
                     Logger.Assert(currentFrame <= (last_received_input.frame + 1));
                     bool useInputs = currentFrame == last_received_input.frame + 1;
 
-                    // while (BitVector_ReadBit(bits, &offset))
-                    // {
-                    //     int on = BitVector_ReadBit(bits, &offset);
-                    //     int button = BitVector_ReadNibblet(bits, &offset);
-                    //     if (useInputs)
-                    //     {
-                    //         if (on)
-                    //         {
-                    //             _last_received_input.set(button);
-                    //         }
-                    //         else
-                    //         {
-                    //             _last_received_input.clear(button);
-                    //         }
-                    //     }
-                    // }
-                    // ASSERT(offset <= numBits);
+                    while (BitVector.ReadBit(bits, ref offset) != 0)
+                    {
+                        int on = BitVector.ReadBit(bits, ref offset);
+                        int button = BitVector.ReadNibblet(bits, ref offset);
+                        if (useInputs)
+                        {
+                            if (on != 0)
+                            {
+                                last_received_input.Set(button);
+                            }
+                            else
+                            {
+                                last_received_input.Clear(button);
+                            }
+                        }
+                    }
+                    Logger.Assert(offset <= numBits);
 
                     /*
                     * Now if we want to use these inputs, go ahead and send them to
