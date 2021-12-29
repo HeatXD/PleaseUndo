@@ -32,7 +32,6 @@ namespace PleaseUndo
         public Peer2PeerBackend(ref GGPOSessionCallbacks cb, int num_players, int input_size)
         {
             _num_players = num_players;
-            _sync = new Sync(ref _local_connect_status);
             _disconnect_timeout = DEFAULT_DISCONNECT_TIMEOUT;
             _disconnect_notify_start = DEFAULT_DISCONNECT_NOTIFY_START;
             _num_spectators = 0;
@@ -43,8 +42,21 @@ namespace PleaseUndo
             _next_recommended_sleep = 0;
 
             /*
-             * Initialize the synchronziation layer
+             * Initialize endpoints
              */
+            //    _udp.Init(localport, &_poll, this);
+            _endpoints = new NetProto[_num_players];
+            _spectators = new NetProto[MAX_SPECTATORS];
+            _local_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
+            for (int i = 0; i < _local_connect_status.Length; i++)
+            {
+                _local_connect_status[i].last_frame = -1;
+            }
+
+            /*
+            * Initialize the synchronziation layer
+            */
+            _sync = new Sync(ref _local_connect_status);
             _sync.Init(new Sync.Config
             {
                 callbacks = _callbacks,
@@ -52,19 +64,6 @@ namespace PleaseUndo
                 num_players = _num_players,
                 num_prediction_frames = Sync.MAX_PREDICTION_FRAMES,
             });
-
-            /*
-             * Initialize the UDP port
-             */
-            //    _udp.Init(localport, &_poll, this);
-            _endpoints = new NetProto[_num_players];
-            _spectators = new NetProto[MAX_SPECTATORS];
-            _local_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
-            //    memset(_local_connect_status, 0, sizeof(_local_connect_status));
-            for (int i = 0; i < _local_connect_status.Length; i++)
-            {
-                _local_connect_status[i].last_frame = -1;
-            }
 
             /*
              * Preload the ROM
@@ -99,7 +98,7 @@ namespace PleaseUndo
 
             var queue = player.player_num - 1;
             handle = QueueToPlayerHandle(queue);
-            _endpoints[queue] = new NetProto(queue, ref peerNetAdapter, ref _poll);
+            _endpoints[queue] = new NetProto(queue, peerNetAdapter, _local_connect_status, ref _poll);
             _endpoints[queue].SetDisconnectTimeout(_disconnect_timeout);
             _endpoints[queue].SetDisconnectNotifyStart(_disconnect_notify_start);
             _endpoints[queue].Synchronize();

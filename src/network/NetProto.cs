@@ -105,6 +105,7 @@ namespace PleaseUndo
         const int KEEP_ALIVE_INTERVAL = 200;
         const int UDP_MSG_MAX_PLAYERS = 4;
         const int MAX_SEQ_DISTANCE = (1 << 15);
+        const int MAX_COMPRESSED_BITS = 4096;
 
         /*
          * Network transmission information
@@ -127,8 +128,8 @@ namespace PleaseUndo
         /*
         * The state machine
         */
-        protected NetMsg.ConnectStatus local_connect_status;
-        protected NetMsg.ConnectStatus[] peer_connect_status;
+        protected NetMsg.ConnectStatus[] _local_connect_status;
+        protected NetMsg.ConnectStatus[] _peer_connect_status;
         protected State current_state;
         protected InnerState inner_state; // _state
         /*
@@ -162,16 +163,22 @@ namespace PleaseUndo
          */
         protected RingBuffer<Event> event_queue;
 
-        public NetProto(int queue, ref IPeerNetAdapter peerNetAdapter, ref Poll poll)
+        public NetProto(int queue, IPeerNetAdapter peerNetAdapter, NetMsg.ConnectStatus[] status, ref Poll poll)
         {
             this.queue = queue;
             this.net_adapter = peerNetAdapter;
             poll.RegisterLoop(this);
             // init buffers and arrays
-            this.peer_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
+            this._local_connect_status = status;
+            this._peer_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
             this.send_queue = new RingBuffer<QueueEntry>(64);
             this.pending_output = new RingBuffer<GameInput>(64);
             this.event_queue = new RingBuffer<Event>(64);
+
+            for (var i = 0; i < _peer_connect_status.Length; i++)
+            {
+                _peer_connect_status[i].last_frame = -1;
+            }
         }
 
         public void SendInput(ref GameInput input)
@@ -243,17 +250,19 @@ namespace PleaseUndo
             msg.num_bits = (System.UInt16)offset;
 
             msg.disconnect_requested = current_state == State.Disconnected ? 1 : 0;
-            // TODO: find what's going on here
-            if (true /* local_connect_status != null */)
+            if (_local_connect_status != null)
             {
                 // memcpy(msg->u.input.peer_connect_status, _local_connect_status, sizeof(UdpMsg::connect_status) * UDP_MSG_MAX_PLAYERS);
+                msg.peer_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
+                Array.Copy(_local_connect_status, msg.peer_connect_status, UDP_MSG_MAX_PLAYERS);
             }
             else
             {
                 // memset(msg->u.input.peer_connect_status, 0, sizeof(UdpMsg::connect_status) * UDP_MSG_MAX_PLAYERS);
+                msg.peer_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
             }
 
-            // Logger.Assert(offset < MAX_COMPRESSED_BITS);
+            Logger.Assert(offset < MAX_COMPRESSED_BITS);
 
             SendMsg(msg);
         }
@@ -513,8 +522,8 @@ namespace PleaseUndo
 
         public bool GetPeerConnectStatus(int id, ref int frame)
         {
-            frame = peer_connect_status[id].last_frame;
-            return peer_connect_status[id].disconnected == 0;
+            frame = _peer_connect_status[id].last_frame;
+            return _peer_connect_status[id].disconnected == 0;
         }
 
         public void LogMsg(string prefix, NetMsg message)
@@ -632,13 +641,13 @@ namespace PleaseUndo
                 * of the network.
                 */
                 var remote_status = inputMsg.peer_connect_status;
-                for (var i = 0; i < peer_connect_status.Length; i++)
+                for (var i = 0; i < _peer_connect_status.Length; i++)
                 {
                     if (remote_status != null) // CHECK ADDED, NOT IN GGPO
                     {
-                        Logger.Assert(remote_status[i].last_frame >= peer_connect_status[i].last_frame);
-                        peer_connect_status[i].disconnected = (peer_connect_status[i].disconnected != 0 || remote_status[i].disconnected != 0) ? (uint)1 : (uint)0;
-                        peer_connect_status[i].last_frame = System.Math.Max(peer_connect_status[i].last_frame, remote_status[i].last_frame);
+                        Logger.Assert(remote_status[i].last_frame >= _peer_connect_status[i].last_frame);
+                        _peer_connect_status[i].disconnected = (_peer_connect_status[i].disconnected != 0 || remote_status[i].disconnected != 0) ? (uint)1 : (uint)0;
+                        _peer_connect_status[i].last_frame = System.Math.Max(_peer_connect_status[i].last_frame, remote_status[i].last_frame);
                     }
                 }
             }

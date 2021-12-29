@@ -28,7 +28,7 @@ namespace PleaseUndo
             /*
              * Init the host endpoint
              */
-            _host = new NetProto(0, ref net_adapter, ref _poll);
+            _host = new NetProto(0, net_adapter, null, ref _poll);
             _host.Synchronize();
             /*
              * Preload the ROM
