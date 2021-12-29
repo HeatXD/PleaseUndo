@@ -17,8 +17,8 @@ namespace PleaseUndoTest
         [TestMethod]
         public void Test_P2P()
         {
-            var session1_adapter = new UdpPeer(LOCAL_PORT_1, LOCAL_ADDRESS, LOCAL_PORT_2);
-            var session2_adapter = new UdpPeer(LOCAL_PORT_2, LOCAL_ADDRESS, LOCAL_PORT_1);
+            var session1_adapter = new UdpPeerNetAdapter(LOCAL_PORT_1, LOCAL_ADDRESS, LOCAL_PORT_2);
+            var session2_adapter = new UdpPeerNetAdapter(LOCAL_PORT_2, LOCAL_ADDRESS, LOCAL_PORT_1);
 
             try
             {
