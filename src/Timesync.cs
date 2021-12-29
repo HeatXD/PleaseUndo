@@ -1,6 +1,6 @@
 namespace PleaseUndo
 {
-    public class TimeSync<InputType>
+    public class TimeSync
     {
         const int FRAME_WINDOW_SIZE = 40;
         const int MIN_UNIQUE_FRAMES = 10;
@@ -11,9 +11,9 @@ namespace PleaseUndo
         protected int _next_prediction;
         protected int[] _local = new int[FRAME_WINDOW_SIZE];
         protected int[] _remote = new int[FRAME_WINDOW_SIZE];
-        protected GameInput<InputType>[] _last_inputs = new GameInput<InputType>[MIN_UNIQUE_FRAMES];
+        protected GameInput[] _last_inputs = new GameInput[MIN_UNIQUE_FRAMES];
 
-        public void advance_frame(GameInput<InputType> input, int advantage, int radvantage)
+        public void advance_frame(GameInput input, int advantage, int radvantage)
         {
             // Remember the last frame and frame advantage
             _last_inputs[input.frame % _last_inputs.Length] = input;

@@ -31,7 +31,7 @@ namespace PleaseUndo
         public class DisconnectedEvent : Event { }
         public class InputEvent : Event
         {
-            public GameInput<InputType> input;
+            public GameInput input;
         }
         public class SynchronizedEvent : Event { }
         public class SynchronizingEvent : Event
@@ -139,10 +139,10 @@ namespace PleaseUndo
         /*
          * Packet loss...
          */
-        protected RingBuffer<GameInput<InputType>> pending_output;
-        protected GameInput<InputType> last_received_input;
-        protected GameInput<InputType> last_sent_input;
-        protected GameInput<InputType> last_acked_input;
+        protected RingBuffer<GameInput> pending_output;
+        protected GameInput last_received_input;
+        protected GameInput last_sent_input;
+        protected GameInput last_acked_input;
         protected uint last_send_time;
         protected uint last_recv_time;
         protected uint shutdown_timeout;
@@ -155,7 +155,7 @@ namespace PleaseUndo
         /*
          * Rift synchronization.
          */
-        protected TimeSync<InputType> timesync;
+        protected TimeSync timesync;
 
         /*
          * Event queue
@@ -170,11 +170,11 @@ namespace PleaseUndo
             // init buffers and arrays
             this.peer_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
             this.send_queue = new RingBuffer<QueueEntry>(64);
-            this.pending_output = new RingBuffer<GameInput<InputType>>(64);
+            this.pending_output = new RingBuffer<GameInput>(64);
             this.event_queue = new RingBuffer<Event>(64);
         }
 
-        public void SendInput(ref GameInput<InputType> input)
+        public void SendInput(ref GameInput input)
         {
             //    if (_udp) {
             if (current_state == State.Running)
@@ -203,14 +203,14 @@ namespace PleaseUndo
             var msg = new NetInputMsg { type = NetMsg.MsgType.Input };
             int i, j, offset = 0;
             byte[] bits;
-            GameInput<InputType> last;
+            GameInput last;
 
             if (pending_output.Size() > 0)
             {
                 last = last_acked_input;
                 bits = msg.bits;
                 msg.start_frame = (uint)pending_output.Front().frame;
-                // msg.input_size = (uint)pending_output.Front().size;
+                msg.input_size = (byte)pending_output.Front().size;
 
                 Logger.Assert(last.frame == -1 || last.frame + 1 == msg.start_frame);
                 for (j = 0; j < pending_output.Size(); j++)
@@ -218,26 +218,26 @@ namespace PleaseUndo
                     var current = pending_output.Item(j);
                     // if (memcmp(current.bits, last.bits, current.size) != 0)
                     // {
-                    //     ASSERT((GAMEINPUT_MAX_BYTES * GAMEINPUT_MAX_PLAYERS * 8) < (1 << BITVECTOR_NIBBLE_SIZE));
-                    //     for (i = 0; i < current.size * 8; i++)
-                    //     {
-                    //         ASSERT(i < (1 << BITVECTOR_NIBBLE_SIZE));
-                    //         if (current.value(i) != last.value(i))
-                    //         {
-                    //             BitVector_SetBit(msg->u.input.bits, &offset);
-                    //             (current.value(i) ? BitVector_SetBit : BitVector_ClearBit)(bits, &offset);
-                    //             BitVector_WriteNibblet(bits, i, &offset);
-                    //         }
-                    //     }
+                    Logger.Assert((GameInput.GAMEINPUT_MAX_BYTES * GameInput.GAMEINPUT_MAX_PLAYERS * 8) < (1 << BitVector.NibbleSize));
+                    for (i = 0; i < current.size * 8; i++)
+                    {
+                        Logger.Assert(i < (1 << BitVector.NibbleSize));
+                        if (current.Value(i) != last.Value(i))
+                        {
+                            BitVector.SetBit(msg.bits, ref offset);
+                            if (current.Value(i)) { BitVector.SetBit(bits, ref offset); } else { BitVector.ClearBit(bits, ref offset); }
+                            BitVector.WriteNibblet(bits, i, ref offset);
+                        }
+                    }
                     // }
-                    // BitVector_ClearBit(msg->u.input.bits, &offset);
-                    // last = _last_sent_input = current;
+                    BitVector.ClearBit(msg.bits, ref offset);
+                    last = last_sent_input = current;
                 }
             }
             else
             {
                 msg.start_frame = 0;
-                // msg.input_size = 0;
+                msg.input_size = 0;
             }
             msg.ack_frame = last_received_input.frame;
             msg.num_bits = (System.UInt16)offset;

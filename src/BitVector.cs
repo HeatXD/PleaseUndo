@@ -2,7 +2,7 @@ namespace PleaseUndo
 {
     public static class BitVector
     {
-        const int NibbleSize = 8;
+        public const int NibbleSize = 8;
 
         public static void SetBit(byte[] vector, ref int offset)
         {

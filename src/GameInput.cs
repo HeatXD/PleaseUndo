@@ -9,8 +9,8 @@ namespace PleaseUndo
         // GAMEINPUT_MAX_PLAYERS * GAMEINPUT_MAX_BYTES * 8 must be less than
         // 2^NibbleSize (see BitVector)
 
-        const int GAMEINPUT_MAX_PLAYERS = 2;
-        const int GAMEINPUT_MAX_BYTES = 8;
+        public const int GAMEINPUT_MAX_PLAYERS = 2;
+        public const int GAMEINPUT_MAX_BYTES = 8;
 
         public byte[] bits;
         public uint size;
