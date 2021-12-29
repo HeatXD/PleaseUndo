@@ -71,11 +71,6 @@ namespace PleaseUndo
             }
         }
 
-        public void SetFrameDelay(int queue, int delay)
-        {
-            _input_queues[queue].SetFrameDelay(delay);
-        }
-
         public bool AddLocalInput(int queue, ref GameInput input)
         {
             int frames_behind = _framecount - _last_confirmed_frame;
@@ -161,6 +156,12 @@ namespace PleaseUndo
             }
         }
 
+        public void IncrementFrame()
+        {
+            _framecount++;
+            SaveCurrentFrame();
+        }
+
         public void AdjustSimulation(int seek_to)
         {
             int framecount = _framecount;
@@ -189,33 +190,6 @@ namespace PleaseUndo
             _rollingback = false;
 
             Logger.Log("---\n");
-        }
-
-        public void IncrementFrame()
-        {
-            _framecount++;
-            SaveCurrentFrame();
-        }
-
-        public int GetFrameCount()
-        {
-            return _framecount;
-        }
-
-        public bool InRollback()
-        {
-            return _rollingback;
-        }
-
-        public bool GetEvent(ref Event e)
-        {
-            if (_event_queue.Size() > 0)
-            {
-                e = _event_queue.Front();
-                _event_queue.Pop();
-                return true;
-            }
-            return false;
         }
 
         protected void LoadFrame(int frame)
@@ -252,6 +226,16 @@ namespace PleaseUndo
             _savedstate.head = (_savedstate.head + 1) % _savedstate.frames.Length;
         }
 
+        protected ref SavedFrame GetLastSavedFrame()
+        {
+            int i = _savedstate.head - 1;
+            if (i < 0)
+            {
+                i = _savedstate.frames.Length - 1;
+            }
+            return ref _savedstate.frames[i];
+        }
+
         protected int FindSavedFrameIndex(int frame)
         {
             int i, count = _savedstate.frames.Length;
@@ -267,16 +251,6 @@ namespace PleaseUndo
                 Logger.Assert(false);
             }
             return i;
-        }
-
-        protected ref SavedFrame GetLastSavedFrame()
-        {
-            int i = _savedstate.head - 1;
-            if (i < 0)
-            {
-                i = _savedstate.frames.Length - 1;
-            }
-            return ref _savedstate.frames[i];
         }
 
         protected bool CreateQueues(Config config)
@@ -313,12 +287,38 @@ namespace PleaseUndo
             return false;
         }
 
+        public void SetFrameDelay(int queue, int delay)
+        {
+            _input_queues[queue].SetFrameDelay(delay);
+        }
+
         protected void ResetPrediction(int frameNumber)
         {
             for (int i = 0; i < _config.num_players; i++)
             {
                 _input_queues[i].ResetPrediction(frameNumber);
             }
+        }
+
+        public bool GetEvent(ref Event e)
+        {
+            if (_event_queue.Size() > 0)
+            {
+                e = _event_queue.Front();
+                _event_queue.Pop();
+                return true;
+            }
+            return false;
+        }
+
+        public int GetFrameCount()
+        {
+            return _framecount;
+        }
+
+        public bool InRollback()
+        {
+            return _rollingback;
         }
     }
 }

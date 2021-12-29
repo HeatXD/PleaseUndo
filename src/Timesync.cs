@@ -20,6 +20,7 @@ namespace PleaseUndo
             _local[input.frame % _local.Length] = advantage;
             _remote[input.frame % _remote.Length] = radvantage;
         }
+
         public int recommend_frame_wait_duration(bool require_idle_input)
         {
             // Average our local and remote frame advantages
