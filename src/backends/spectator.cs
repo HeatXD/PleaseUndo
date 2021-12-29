@@ -15,21 +15,23 @@ namespace PleaseUndo
 
         public SpectatorBackend(ref GGPOSessionCallbacks cb, int num_players, ref IPeerNetAdapter net_adapter)
         {
-            _callbacks = cb;
-            _synchronizing = true;
-            _num_players = num_players;
-            _next_input_to_send = 0;
             _inputs = new GameInput[SPECTATOR_FRAME_BUFFER_SIZE];
+            _callbacks = cb;
+            _num_players = num_players;
+            _synchronizing = true;
+            _next_input_to_send = 0;
 
             for (int i = 0; i < _inputs.Length; i++)
             {
                 _inputs[i].frame = -1;
             }
+
             /*
              * Init the host endpoint
              */
             _host = new NetProto(0, net_adapter, null, ref _poll);
             _host.Synchronize();
+
             /*
              * Preload the ROM
              */
@@ -97,7 +99,70 @@ namespace PleaseUndo
 
         protected void OnNetProtocolEvent(NetProto.Event evt)
         {
-            GGPOEvent info = new GGPOEvent();
+            switch (evt.type)
+            {
+                case NetProto.Event.Type.Connected:
+                    _callbacks.OnEvent(new GGPOConnectedToPeerEvent
+                    {
+                        code = GGPOEventCode.GGPO_EVENTCODE_CONNECTED_TO_PEER,
+                        player = new GGPOPlayerHandle { handle = 0 }
+                    });
+                    break;
+                case NetProto.Event.Type.Synchronizing:
+                    var synchronizingEvent = evt as NetProto.SynchronizingEvent;
+                    _callbacks.OnEvent(new GGPOSynchronizingWithPeerEvent
+                    {
+                        code = GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZING_WITH_PEER,
+                        count = synchronizingEvent.count,
+                        total = synchronizingEvent.total,
+                        player = new GGPOPlayerHandle { handle = 0 }
+                    });
+                    break;
+                case NetProto.Event.Type.Synchronzied:
+                    if (_synchronizing)
+                    {
+                        _callbacks.OnEvent(new GGPOSynchronizedWithPeerEvent
+                        {
+                            code = GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZED_WITH_PEER,
+                            player = new GGPOPlayerHandle { handle = 0 }
+                        });
+                        _callbacks.OnEvent(new GGPORunningEvent
+                        {
+                            code = GGPOEventCode.GGPO_EVENTCODE_RUNNING
+                        });
+                        _synchronizing = false;
+                    }
+                    break;
+                case NetProto.Event.Type.NetworkInterrupted:
+                    var networkInterruptedEvent = evt as NetProto.NetworkInterruptedEvent;
+                    _callbacks.OnEvent(new GGPOConnectionInterruptedEvent
+                    {
+                        code = GGPOEventCode.GGPO_EVENTCODE_CONNECTION_INTERRUPTED,
+                        player = new GGPOPlayerHandle { handle = 0 },
+                        disconnect_timeout = networkInterruptedEvent.disconnect_timeout
+                    });
+                    break;
+                case NetProto.Event.Type.NetworkResumed:
+                    _callbacks.OnEvent(new GGPOConnectionResumedEvent
+                    {
+                        code = GGPOEventCode.GGPO_EVENTCODE_CONNECTION_RESUMED,
+                        player = new GGPOPlayerHandle { handle = 0 },
+                    });
+                    break;
+                case NetProto.Event.Type.Disconnected:
+                    _callbacks.OnEvent(new GGPODisconnectedFromPeerEvent
+                    {
+                        code = GGPOEventCode.GGPO_EVENTCODE_DISCONNECTED_FROM_PEER,
+                        player = new GGPOPlayerHandle { handle = 0 },
+                    });
+                    break;
+                case NetProto.Event.Type.Input:
+                    var input = (evt as NetProto.InputEvent).input;
+                    _host.SetLocalFrameNumber(input.frame);
+                    _host.SendInputAck();
+                    _inputs[input.frame % SPECTATOR_FRAME_BUFFER_SIZE] = input;
+                    break;
+            }
         }
     }
 }
