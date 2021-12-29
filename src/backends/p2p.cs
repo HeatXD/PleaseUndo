@@ -123,7 +123,10 @@ namespace PleaseUndo
                     int current_frame = _sync.GetFrameCount();
                     for (int i = 0; i < _num_players; i++)
                     {
-                        _endpoints[i].SetLocalFrameNumber(current_frame);
+                        if (_endpoints[i] != null) // CHECK ADDED, NOT IN GGPO
+                        {
+                            _endpoints[i].SetLocalFrameNumber(current_frame);
+                        }
                     }
 
                     int total_min_confirmed;
@@ -380,7 +383,7 @@ namespace PleaseUndo
             for (i = 0; i < _num_players; i++)
             {
                 bool queue_connected = true;
-                if (_endpoints[i].IsRunning())
+                if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN GGPO
                 {
                     int ignore = 0;
                     queue_connected = _endpoints[i].GetPeerConnectStatus(i, ref ignore);
@@ -554,7 +557,7 @@ namespace PleaseUndo
                 for (i = 0; i < _num_players; i++)
                 {
                     // xxx: IsInitialized() must go... we're actually using it as a proxy for "represents the local player"
-                    if (_endpoints[i].IsInitialized() && !_endpoints[i].IsSynchronized() && !(_local_connect_status[i].disconnected != 0))
+                    if (_endpoints[i] != null && _endpoints[i].IsInitialized() && !_endpoints[i].IsSynchronized() && !(_local_connect_status[i].disconnected != 0)) // CHECK ADDED != null, NOT IN GGPO
                     {
                         return;
                     }

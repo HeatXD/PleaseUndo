@@ -491,9 +491,12 @@ namespace PleaseUndo
                 var remote_status = inputMsg.peer_connect_status;
                 for (var i = 0; i < peer_connect_status.Length; i++)
                 {
-                    Logger.Assert(remote_status[i].last_frame >= peer_connect_status[i].last_frame);
-                    peer_connect_status[i].disconnected = (peer_connect_status[i].disconnected != 0 || remote_status[i].disconnected != 0) ? (uint)1 : (uint)0;
-                    peer_connect_status[i].last_frame = System.Math.Max(peer_connect_status[i].last_frame, remote_status[i].last_frame);
+                    if (remote_status != null) // CHECK ADDED, NOT IN GGPO
+                    {
+                        Logger.Assert(remote_status[i].last_frame >= peer_connect_status[i].last_frame);
+                        peer_connect_status[i].disconnected = (peer_connect_status[i].disconnected != 0 || remote_status[i].disconnected != 0) ? (uint)1 : (uint)0;
+                        peer_connect_status[i].last_frame = System.Math.Max(peer_connect_status[i].last_frame, remote_status[i].last_frame);
+                    }
                 }
             }
 
@@ -700,7 +703,7 @@ namespace PleaseUndo
 
                     if (inner_state.Running.last_quality_report_time == 0 || inner_state.Running.last_quality_report_time + QUALITY_REPORT_INTERVAL < now)
                     {
-                        NetQualityReportMsg msg = new NetQualityReportMsg();
+                        var msg = new NetQualityReportMsg { type = NetMsg.MsgType.QualityReport };
                         msg.ping = (uint)Platform.GetCurrentTimeMS();
                         msg.frame_advantage = (byte)local_frame_advantage;
                         SendMsg(msg);
