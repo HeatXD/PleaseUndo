@@ -406,7 +406,59 @@ namespace PleaseUndo
 
         private int PollNPlayers(int current_frame)
         {
-            throw new System.NotImplementedException();
+            int i, queue;
+            int last_received = 0;
+
+            // discard confirmed frames as appropriate
+            int total_min_confirmed = int.MaxValue;
+            for (queue = 0; queue < _num_players; queue++)
+            {
+                bool queue_connected = true;
+                int queue_min_confirmed = int.MaxValue;
+                Logger.Log("considering queue {0}.\n", queue);
+                for (i = 0; i < _num_players; i++)
+                {
+                    // we're going to do a lot of logic here in consideration of endpoint i.
+                    // keep accumulating the minimum confirmed point for all n*n packets and
+                    // throw away the rest.
+                    if (_endpoints[i].IsRunning())
+                    {
+                        bool connected = _endpoints[i].GetPeerConnectStatus(queue, ref last_received);
+
+                        queue_connected = queue_connected && connected;
+                        queue_min_confirmed = System.Math.Min(last_received, queue_min_confirmed);
+                        Logger.Log("  endpoint {0}: connected = {1}, last_received = {2}, queue_min_confirmed = {3}.\n", i, connected, last_received, queue_min_confirmed);
+                    }
+                    else
+                    {
+                        Logger.Log("  endpoint {0}: ignoring... not running.\n", i);
+                    }
+                }
+                // merge in our local status only if we're still connected!
+                if (_local_connect_status[queue].disconnected != 0)
+                {
+                    queue_min_confirmed = System.Math.Min(_local_connect_status[queue].last_frame, queue_min_confirmed);
+                }
+                Logger.Log("  local endp: connected = {0}, last_received = {1}, queue_min_confirmed = {2}.\n", _local_connect_status[queue].disconnected == 0, _local_connect_status[queue].last_frame, queue_min_confirmed);
+
+                if (queue_connected)
+                {
+                    total_min_confirmed = System.Math.Min(queue_min_confirmed, total_min_confirmed);
+                }
+                else
+                {
+                    // check to see if this disconnect notification is further back than we've been before.  If
+                    // so, we need to re-adjust.  This can happen when we detect our own disconnect at frame n
+                    // and later receive a disconnect notification for frame n-1.
+                    if (_local_connect_status[queue].disconnected == 0 || _local_connect_status[queue].last_frame > queue_min_confirmed)
+                    {
+                        Logger.Log("disconnecting queue {0} by remote request.\n", queue);
+                        DisconnectPlayerQueue(queue, queue_min_confirmed);
+                    }
+                }
+                Logger.Log("  total_min_confirmed = {0}.\n", total_min_confirmed);
+            }
+            return total_min_confirmed;
         }
 
         private void PollUdpProtocolEvents()
