@@ -1,7 +1,7 @@
 using PleaseUndo;
 using System.Net;
+using System.Linq;
 using System.Net.Sockets;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace PleaseUndoTest
@@ -9,10 +9,10 @@ namespace PleaseUndoTest
     [TestClass]
     public class P2PTest
     {
+        const int INPUT_SIZE = 8;
         const int LOCAL_PORT_1 = 7005;
         const int LOCAL_PORT_2 = 7006;
         const string LOCAL_ADDRESS = "127.0.0.1";
-
 
         [TestMethod]
         public void Test_P2P()
@@ -22,47 +22,87 @@ namespace PleaseUndoTest
 
             try
             {
+                var session1_synchronized = false;
                 var cbs1 = new GGPOSessionCallbacks
                 {
-                    OnEvent = (GGPOEvent ev) => { return false; },
+                    OnEvent = (GGPOEvent ev) =>
+                    {
+                        if (ev.code == GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZED_WITH_PEER)
+                        {
+                            session1_synchronized = true;
+                            return true;
+                        }
+                        return false;
+                    },
                     OnBeginGame = () => { return false; },
                     OnAdvanceFrame = () => { return false; },
                     OnLoadGameState = (byte[] buffer, int len) => { return false; },
                     OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
                 };
-                var session1 = new Peer2PeerBackend(ref cbs1, 2, sizeof(int));
+                var session1 = new Peer2PeerBackend(ref cbs1, 2, INPUT_SIZE);
                 var session1_handle1 = new GGPOPlayerHandle { };
                 var session1_handle2 = new GGPOPlayerHandle { };
 
                 session1.AddLocalPlayer(new GGPOPlayer { player_num = 1 }, ref session1_handle1);
                 session1.AddRemotePlayer(new GGPOPlayer { player_num = 2 }, ref session1_handle2, session1_adapter);
 
+                var session2_synchronized = false;
                 var cbs2 = new GGPOSessionCallbacks
                 {
-                    OnEvent = (ev) => { return false; },
+                    OnEvent = (ev) =>
+                    {
+                        if (ev.code == GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZED_WITH_PEER)
+                        {
+                            session2_synchronized = true;
+                            return true;
+                        }
+                        return false;
+                    },
                     OnBeginGame = () => { return false; },
                     OnAdvanceFrame = () => { return false; },
                     OnLoadGameState = (byte[] buffer, int len) => { return false; },
                     OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) => { return false; },
                 };
-                var session2 = new Peer2PeerBackend(ref cbs2, 2, sizeof(int));
+                var session2 = new Peer2PeerBackend(ref cbs2, 2, INPUT_SIZE);
                 var session2_handle1 = new GGPOPlayerHandle { };
                 var session2_handle2 = new GGPOPlayerHandle { };
 
                 session2.AddRemotePlayer(new GGPOPlayer { player_num = 1 }, ref session2_handle1, session2_adapter);
                 session2.AddLocalPlayer(new GGPOPlayer { player_num = 2 }, ref session2_handle2);
 
-                for (var i = 0; i < 100; i++)
+                for (var i = 0; i < 10; i++)
                 {
-                    session1.DoPoll(100);
-                    session2.DoPoll(100);
-
-                    session1.AddLocalInput(session1_handle1, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, sizeof(int));
-                    session2.AddLocalInput(session2_handle2, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, sizeof(int));
-
-                    session1.IncrementFrame();
-                    session2.IncrementFrame();
+                    Assert.AreEqual(GGPOErrorCode.GGPO_OK, session1.DoPoll(100));
+                    Assert.AreEqual(GGPOErrorCode.GGPO_OK, session2.DoPoll(100));
+                    if (session1_synchronized && session2_synchronized) { break; }
                 }
+
+                Assert.AreEqual(true, session1_synchronized);
+                Assert.AreEqual(true, session2_synchronized);
+
+                var values = new byte[16];
+                var disconnect_flags = 0;
+
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session1.AddLocalInput(session1_handle1, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, INPUT_SIZE));
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session2.AddLocalInput(session2_handle2, new byte[] { 9, 1, 2, 3, 4, 5, 6, 7 }, INPUT_SIZE));
+
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session1.SyncInput(ref values, INPUT_SIZE, ref disconnect_flags));
+                CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, values.Take(8).ToArray());
+                CollectionAssert.AreNotEqual(new byte[] { 9, 1, 2, 3, 4, 5, 6, 7 }, values.Skip(8).Take(8).ToArray());
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session2.SyncInput(ref values, INPUT_SIZE, ref disconnect_flags));
+                CollectionAssert.AreEqual(new byte[] { 9, 1, 2, 3, 4, 5, 6, 7 }, values.Skip(8).Take(8).ToArray());
+                CollectionAssert.AreNotEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, values.Take(8).ToArray());
+
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session1.DoPoll(100));
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session2.DoPoll(100));
+
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session1.SyncInput(ref values, INPUT_SIZE, ref disconnect_flags));
+                CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7 }, values);
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session2.SyncInput(ref values, INPUT_SIZE, ref disconnect_flags));
+                CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7 }, values);
+
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session1.IncrementFrame());
+                Assert.AreEqual(GGPOErrorCode.GGPO_OK, session2.IncrementFrame());
             }
             finally
             {
