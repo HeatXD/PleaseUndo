@@ -13,7 +13,7 @@ namespace PleaseUndo
         }
         public struct Config
         {
-            public GGPOSessionCallbacks callbacks;
+            public PUSessionCallbacks callbacks;
             public int num_prediction_frames;
             public int num_players;
             public int input_size;
@@ -41,7 +41,7 @@ namespace PleaseUndo
 
         protected Config _config;
         protected SavedState _savedstate = new SavedState(); // be cautious: should be a struct
-        protected GGPOSessionCallbacks _callbacks;
+        protected PUSessionCallbacks _callbacks;
 
         protected bool _rollingback;
         protected int _framecount = 0;

@@ -781,7 +781,7 @@ namespace PleaseUndo
             return true;
         }
 
-        public void GetNetworkStats(ref GGPONetworkStats stats)
+        public void GetNetworkStats(ref PUNetworkStats stats)
         {
             stats.Network.ping = round_trip_time;
             stats.Network.send_queue_len = pending_output.Size();

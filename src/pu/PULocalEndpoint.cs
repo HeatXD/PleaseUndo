@@ -1,6 +1,6 @@
 namespace PleaseUndo
 {
-    public struct GGPOLocalEndpoint
+    public struct PULocalEndpoint
     {
         public int player_num;
     }

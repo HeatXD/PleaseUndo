@@ -2,7 +2,7 @@ using System;
 
 namespace PleaseUndo
 {
-    public class Peer2PeerBackend : GGPOSession
+    public class Peer2PeerBackend : PUSession
     {
         const int UDP_MSG_MAX_PLAYERS = 4;
         const int RECOMMENDATION_INTERVAL = 240;
@@ -10,7 +10,7 @@ namespace PleaseUndo
         const int DEFAULT_DISCONNECT_NOTIFY_START = 750;
         const int MAX_SPECTATORS = 16;
 
-        protected GGPOSessionCallbacks _callbacks;
+        protected PUSessionCallbacks _callbacks;
         protected Poll _poll;
         protected Sync _sync;
         //   protected  Udp                   _udp; //Still dont know what to do with this... :HEAT /TODO
@@ -29,7 +29,7 @@ namespace PleaseUndo
 
         NetMsg.ConnectStatus[] _local_connect_status;
 
-        public Peer2PeerBackend(ref GGPOSessionCallbacks cb, int num_players, int input_size)
+        public Peer2PeerBackend(ref PUSessionCallbacks cb, int num_players, int input_size)
         {
             _num_players = num_players;
             _disconnect_timeout = DEFAULT_DISCONNECT_TIMEOUT;
@@ -71,9 +71,9 @@ namespace PleaseUndo
             _callbacks.OnBeginGame();
         }
 
-        public override GGPOErrorCode AddLocalPlayer(GGPOPlayer player, ref GGPOPlayerHandle handle)
+        public override PUErrorCode AddLocalPlayer(PUPlayer player, ref PUPlayerHandle handle)
         {
-            // if (player.type == GGPOPlayerType.SPECTATOR) // Should be AddSpectatorPlayer
+            // if (player.type == PUPlayerType.SPECTATOR) // Should be AddSpectatorPlayer
             // {
             //     return AddSpectator(player->u.remote.ip_address, player->u.remote.port);
             // }
@@ -81,18 +81,18 @@ namespace PleaseUndo
             int queue = player.player_num - 1;
             if (player.player_num < 1 || player.player_num > _num_players)
             {
-                return GGPOErrorCode.GGPO_ERRORCODE_PLAYER_OUT_OF_RANGE;
+                return PUErrorCode.PU_ERRORCODE_PLAYER_OUT_OF_RANGE;
             }
             handle = QueueToPlayerHandle(queue);
 
-            // if (player.type == GGPOPlayerType.REMOTE) // Is now AddRemotePlayer
+            // if (player.type == PUPlayerType.REMOTE) // Is now AddRemotePlayer
             // {
             //     AddRemotePlayer(player->u.remote.ip_address, player->u.remote.port, queue);
             // }
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode AddRemotePlayer(GGPOPlayer player, ref GGPOPlayerHandle handle, IPeerNetAdapter peerNetAdapter)
+        public override PUErrorCode AddRemotePlayer(PUPlayer player, ref PUPlayerHandle handle, IPeerNetAdapter peerNetAdapter)
         {
             _synchronizing = true;
 
@@ -103,10 +103,10 @@ namespace PleaseUndo
             _endpoints[queue].SetDisconnectNotifyStart(_disconnect_notify_start);
             _endpoints[queue].Synchronize();
 
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode DoPoll(int timeout)
+        public override PUErrorCode DoPoll(int timeout)
         {
             if (!_sync.InRollback())
             {
@@ -123,7 +123,7 @@ namespace PleaseUndo
                     int current_frame = _sync.GetFrameCount();
                     for (int i = 0; i < _num_players; i++)
                     {
-                        if (_endpoints[i] != null) // CHECK ADDED, NOT IN GGPO
+                        if (_endpoints[i] != null) // CHECK ADDED, NOT IN PU
                         {
                             _endpoints[i].SetLocalFrameNumber(current_frame);
                         }
@@ -170,7 +170,7 @@ namespace PleaseUndo
                         int interval = 0;
                         for (int i = 0; i < _num_players; i++)
                         {
-                            if (_endpoints[i] != null) // CHECK ADDED, NOT IN GGPO
+                            if (_endpoints[i] != null) // CHECK ADDED, NOT IN PU
                             {
                                 interval = System.Math.Max(interval, _endpoints[i].RecommendFrameDelay());
                             }
@@ -178,7 +178,7 @@ namespace PleaseUndo
 
                         if (interval > 0)
                         {
-                            GGPOEvent info = new GGPOTimesyncEvent { code = GGPOEventCode.GGPO_EVENTCODE_TIMESYNC, frames_ahead = interval };
+                            PUEvent info = new PUTimesyncEvent { code = PUEventCode.PU_EVENTCODE_TIMESYNC, frames_ahead = interval };
                             _callbacks.OnEvent(info);
                             _next_recommended_sleep = current_frame + RECOMMENDATION_INTERVAL;
                         }
@@ -191,43 +191,43 @@ namespace PleaseUndo
                     // }
                 }
             }
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode SyncInput(ref byte[] values, int size, ref int disconnect_flags)
+        public override PUErrorCode SyncInput(ref byte[] values, int size, ref int disconnect_flags)
         {
             int flags;
 
             // Wait until we've started to return inputs.
             if (_synchronizing)
             {
-                return GGPOErrorCode.GGPO_ERRORCODE_NOT_SYNCHRONIZED;
+                return PUErrorCode.PU_ERRORCODE_NOT_SYNCHRONIZED;
             }
             flags = _sync.SynchronizeInputs(ref values, size);
             if (disconnect_flags != 0)
             {
                 disconnect_flags = flags;
             }
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode AddLocalInput(GGPOPlayerHandle player, byte[] values, int size)
+        public override PUErrorCode AddLocalInput(PUPlayerHandle player, byte[] values, int size)
         {
             int queue = 0;
-            GGPOErrorCode result;
+            PUErrorCode result;
             GameInput input;
 
             if (_sync.InRollback())
             {
-                return GGPOErrorCode.GGPO_ERRORCODE_IN_ROLLBACK;
+                return PUErrorCode.PU_ERRORCODE_IN_ROLLBACK;
             }
             if (_synchronizing)
             {
-                return GGPOErrorCode.GGPO_ERRORCODE_NOT_SYNCHRONIZED;
+                return PUErrorCode.PU_ERRORCODE_NOT_SYNCHRONIZED;
             }
 
             result = PlayerHandleToQueue(player, ref queue);
-            if (!GGPO_SUCCEEDED(result))
+            if (!PU_SUCCEEDED(result))
             {
                 return result;
             }
@@ -237,7 +237,7 @@ namespace PleaseUndo
             // Feed the input for the current frame into the synchronzation layer.
             if (!_sync.AddLocalInput(queue, ref input))
             {
-                return GGPOErrorCode.GGPO_ERRORCODE_PREDICTION_THRESHOLD;
+                return PUErrorCode.PU_ERRORCODE_PREDICTION_THRESHOLD;
             }
 
             if (input.frame != (int)GameInput.Constants.NullFrame)
@@ -259,24 +259,24 @@ namespace PleaseUndo
                 }
             }
 
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode SetFrameDelay(GGPOPlayerHandle player, int delay)
+        public override PUErrorCode SetFrameDelay(PUPlayerHandle player, int delay)
         {
             int queue = 0;
-            GGPOErrorCode result;
+            PUErrorCode result;
 
             result = PlayerHandleToQueue(player, ref queue);
-            if (!GGPO_SUCCEEDED(result))
+            if (!PU_SUCCEEDED(result))
             {
                 return result;
             }
             _sync.SetFrameDelay(queue, delay);
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode SetDisconnectTimeout(int timeout)
+        public override PUErrorCode SetDisconnectTimeout(int timeout)
         {
             _disconnect_timeout = timeout;
             for (int i = 0; i < _num_players; i++)
@@ -286,10 +286,10 @@ namespace PleaseUndo
                     _endpoints[i].SetDisconnectTimeout(_disconnect_timeout);
                 }
             }
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode SetDisconnectNotifyStart(int timeout)
+        public override PUErrorCode SetDisconnectNotifyStart(int timeout)
         {
             _disconnect_notify_start = timeout;
             for (int i = 0; i < _num_players; i++)
@@ -299,31 +299,31 @@ namespace PleaseUndo
                     _endpoints[i].SetDisconnectNotifyStart(_disconnect_notify_start);
                 }
             }
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode Chat(string text)
+        public override PUErrorCode Chat(string text)
         {
             throw new NotImplementedException();
         }
 
-        public override GGPOErrorCode IncrementFrame()
+        public override PUErrorCode IncrementFrame()
         {
             Logger.Log("End of frame ({0})...\n", _sync.GetFrameCount());
             _sync.IncrementFrame();
             DoPoll(0);
             PollSyncEvents();
 
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode GetNetworkStats(ref GGPONetworkStats stats, GGPOPlayerHandle player)
+        public override PUErrorCode GetNetworkStats(ref PUNetworkStats stats, PUPlayerHandle player)
         {
             int queue = 0;
-            GGPOErrorCode result;
+            PUErrorCode result;
 
             result = PlayerHandleToQueue(player, ref queue);
-            if (!GGPO_SUCCEEDED(result))
+            if (!PU_SUCCEEDED(result))
             {
                 return result;
             }
@@ -331,7 +331,7 @@ namespace PleaseUndo
             // memset(stats, 0, sizeof *stats); // not needed in C#
             _endpoints[queue].GetNetworkStats(ref stats);
 
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
         /*
@@ -339,20 +339,20 @@ namespace PleaseUndo
          * decisions to disconnect are a result of us parsing the peer_connect_settings
          * blob in every endpoint periodically.
          */
-        public override GGPOErrorCode DisconnectPlayer(GGPOPlayerHandle player)
+        public override PUErrorCode DisconnectPlayer(PUPlayerHandle player)
         {
             int queue = 0;
-            GGPOErrorCode result;
+            PUErrorCode result;
 
             result = PlayerHandleToQueue(player, ref queue);
-            if (!GGPO_SUCCEEDED(result))
+            if (!PU_SUCCEEDED(result))
             {
                 return result;
             }
 
             if (_local_connect_status[queue].disconnected != 0)
             {
-                return GGPOErrorCode.GGPO_ERRORCODE_PLAYER_DISCONNECTED;
+                return PUErrorCode.PU_ERRORCODE_PLAYER_DISCONNECTED;
             }
 
             if (!_endpoints[queue].IsInitialized())
@@ -374,7 +374,7 @@ namespace PleaseUndo
                 Logger.Log("Disconnecting queue {0} at frame {1} by user request.\n", queue, _local_connect_status[queue].last_frame);
                 DisconnectPlayerQueue(queue, _local_connect_status[queue].last_frame);
             }
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
         private int Poll2Players(int current_frame)
@@ -386,7 +386,7 @@ namespace PleaseUndo
             for (i = 0; i < _num_players; i++)
             {
                 bool queue_connected = true;
-                if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN GGPO
+                if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN PU
                 {
                     int ignore = 0;
                     queue_connected = _endpoints[i].GetPeerConnectStatus(i, ref ignore);
@@ -484,16 +484,16 @@ namespace PleaseUndo
 
         private void OnUdpProtocolSpectatorEvent(ref NetProto.Event evt, int queue)
         {
-            GGPOPlayerHandle handle = QueueToSpectatorHandle(queue);
+            PUPlayerHandle handle = QueueToSpectatorHandle(queue);
             OnUdpProtocolEvent(ref evt, handle);
 
             switch (evt.type)
             {
                 case NetProto.Event.Type.Disconnected:
                     _spectators[queue].Disconnect();
-                    _callbacks.OnEvent(new GGPODisconnectedFromPeerEvent
+                    _callbacks.OnEvent(new PUDisconnectedFromPeerEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_DISCONNECTED_FROM_PEER,
+                        code = PUEventCode.PU_EVENTCODE_DISCONNECTED_FROM_PEER,
                         player = handle
                     });
                     break;
@@ -526,31 +526,31 @@ namespace PleaseUndo
             }
         }
 
-        private void OnUdpProtocolEvent(ref NetProto.Event evt, GGPOPlayerHandle handle)
+        private void OnUdpProtocolEvent(ref NetProto.Event evt, PUPlayerHandle handle)
         {
             switch (evt.type)
             {
                 case NetProto.Event.Type.Connected:
-                    _callbacks.OnEvent(new GGPOConnectedToPeerEvent
+                    _callbacks.OnEvent(new PUConnectedToPeerEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_CONNECTED_TO_PEER,
+                        code = PUEventCode.PU_EVENTCODE_CONNECTED_TO_PEER,
                         player = handle
                     });
                     break;
                 case NetProto.Event.Type.Synchronizing:
                     var connectedEvent = evt as NetProto.SynchronizingEvent;
-                    _callbacks.OnEvent(new GGPOSynchronizingWithPeerEvent
+                    _callbacks.OnEvent(new PUSynchronizingWithPeerEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZING_WITH_PEER,
+                        code = PUEventCode.PU_EVENTCODE_SYNCHRONIZING_WITH_PEER,
                         player = handle,
                         count = connectedEvent.count,
                         total = connectedEvent.total,
                     });
                     break;
                 case NetProto.Event.Type.Synchronzied:
-                    _callbacks.OnEvent(new GGPOSynchronizedWithPeerEvent
+                    _callbacks.OnEvent(new PUSynchronizedWithPeerEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZED_WITH_PEER,
+                        code = PUEventCode.PU_EVENTCODE_SYNCHRONIZED_WITH_PEER,
                         player = handle,
                     });
                     CheckInitialSync();
@@ -558,17 +558,17 @@ namespace PleaseUndo
 
                 case NetProto.Event.Type.NetworkInterrupted:
                     var netInterruptedEvent = evt as NetProto.NetworkInterruptedEvent;
-                    _callbacks.OnEvent(new GGPOConnectionInterruptedEvent
+                    _callbacks.OnEvent(new PUConnectionInterruptedEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_CONNECTION_INTERRUPTED,
+                        code = PUEventCode.PU_EVENTCODE_CONNECTION_INTERRUPTED,
                         player = handle,
                         disconnect_timeout = netInterruptedEvent.disconnect_timeout
                     });
                     break;
                 case NetProto.Event.Type.NetworkResumed:
-                    _callbacks.OnEvent(new GGPOConnectionResumedEvent
+                    _callbacks.OnEvent(new PUConnectionResumedEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_CONNECTION_INTERRUPTED,
+                        code = PUEventCode.PU_EVENTCODE_CONNECTION_INTERRUPTED,
                         player = handle,
                     });
                     break;
@@ -595,7 +595,7 @@ namespace PleaseUndo
                 Logger.Log("finished adjusting simulation.\n");
             }
 
-            GGPOEvent info = new GGPODisconnectedFromPeerEvent { code = GGPOEventCode.GGPO_EVENTCODE_DISCONNECTED_FROM_PEER, player = QueueToPlayerHandle(queue) };
+            PUEvent info = new PUDisconnectedFromPeerEvent { code = PUEventCode.PU_EVENTCODE_DISCONNECTED_FROM_PEER, player = QueueToPlayerHandle(queue) };
             _callbacks.OnEvent(info);
 
             CheckInitialSync();
@@ -612,7 +612,7 @@ namespace PleaseUndo
                 for (i = 0; i < _num_players; i++)
                 {
                     // xxx: IsInitialized() must go... we're actually using it as a proxy for "represents the local player"
-                    if (_endpoints[i] != null && _endpoints[i].IsInitialized() && !_endpoints[i].IsSynchronized() && !(_local_connect_status[i].disconnected != 0)) // CHECK ADDED != null, NOT IN GGPO
+                    if (_endpoints[i] != null && _endpoints[i].IsInitialized() && !_endpoints[i].IsSynchronized() && !(_local_connect_status[i].disconnected != 0)) // CHECK ADDED != null, NOT IN PU
                     {
                         return;
                     }
@@ -625,37 +625,37 @@ namespace PleaseUndo
                     }
                 }
 
-                GGPOEvent info = new GGPORunningEvent { code = GGPOEventCode.GGPO_EVENTCODE_RUNNING };
+                PUEvent info = new PURunningEvent { code = PUEventCode.PU_EVENTCODE_RUNNING };
                 _callbacks.OnEvent(info);
                 _synchronizing = false;
             }
         }
 
-        private GGPOPlayerHandle QueueToPlayerHandle(int queue)
+        private PUPlayerHandle QueueToPlayerHandle(int queue)
         {
-            return new GGPOPlayerHandle { handle = queue + 1 };
+            return new PUPlayerHandle { handle = queue + 1 };
         }
 
-        private GGPOPlayerHandle QueueToSpectatorHandle(int queue)
+        private PUPlayerHandle QueueToSpectatorHandle(int queue)
         {
             /* out of range of the player array, basically */
-            return new GGPOPlayerHandle { handle = queue + 1000 };
+            return new PUPlayerHandle { handle = queue + 1000 };
         }
 
-        private GGPOErrorCode PlayerHandleToQueue(GGPOPlayerHandle player, ref int queue)
+        private PUErrorCode PlayerHandleToQueue(PUPlayerHandle player, ref int queue)
         {
             int offset = ((int)player.handle - 1);
             if (offset < 0 || offset >= _num_players)
             {
-                return GGPOErrorCode.GGPO_ERRORCODE_INVALID_PLAYER_HANDLE;
+                return PUErrorCode.PU_ERRORCODE_INVALID_PLAYER_HANDLE;
             }
             queue = offset;
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        private bool GGPO_SUCCEEDED(GGPOErrorCode result)
+        private bool PU_SUCCEEDED(PUErrorCode result)
         {
-            return result == GGPOErrorCode.GGPO_ERRORCODE_SUCCESS;
+            return result == PUErrorCode.PU_ERRORCODE_SUCCESS;
         }
 
         private void PollSyncEvents()

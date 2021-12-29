@@ -1,6 +1,6 @@
 namespace PleaseUndo
 {
-    public struct GGPONetworkStats
+    public struct PUNetworkStats
     {
         public struct _Network
         {

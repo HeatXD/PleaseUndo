@@ -1,11 +1,11 @@
 
 namespace PleaseUndo
 {
-    public class SpectatorBackend : GGPOSession
+    public class SpectatorBackend : PUSession
     {
         const int SPECTATOR_FRAME_BUFFER_SIZE = 64;
 
-        protected GGPOSessionCallbacks _callbacks;
+        protected PUSessionCallbacks _callbacks;
         protected Poll _poll;
         protected NetProto _host;
         protected bool _synchronizing;
@@ -13,7 +13,7 @@ namespace PleaseUndo
         protected int _next_input_to_send;
         protected GameInput[] _inputs;
 
-        public SpectatorBackend(ref GGPOSessionCallbacks cb, int num_players, ref IPeerNetAdapter net_adapter)
+        public SpectatorBackend(ref PUSessionCallbacks cb, int num_players, ref IPeerNetAdapter net_adapter)
         {
             _inputs = new GameInput[SPECTATOR_FRAME_BUFFER_SIZE];
             _callbacks = cb;
@@ -38,33 +38,33 @@ namespace PleaseUndo
             _callbacks.OnBeginGame();
         }
 
-        public override GGPOErrorCode DoPoll(int timeout)
+        public override PUErrorCode DoPoll(int timeout)
         {
             _poll.Pump(0);
             PollNetProtocolEvents();
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode SyncInput(ref byte[] values, int size, ref int disconnect_flags)
+        public override PUErrorCode SyncInput(ref byte[] values, int size, ref int disconnect_flags)
         {
             // Wait until we've started to return inputs.
             if (_synchronizing)
             {
-                return GGPOErrorCode.GGPO_ERRORCODE_NOT_SYNCHRONIZED;
+                return PUErrorCode.PU_ERRORCODE_NOT_SYNCHRONIZED;
             }
 
             var input = _inputs[_next_input_to_send % SPECTATOR_FRAME_BUFFER_SIZE];
             if (input.frame < _next_input_to_send)
             {
                 // Haven't received the input from the host yet.  Wait
-                return GGPOErrorCode.GGPO_ERRORCODE_PREDICTION_THRESHOLD;
+                return PUErrorCode.PU_ERRORCODE_PREDICTION_THRESHOLD;
             }
 
             if (input.frame > _next_input_to_send)
             {
                 // The host is way way way far ahead of the spectator.  How'd this
                 // happen?  Anyway, the input we need is gone forever.                
-                return GGPOErrorCode.GGPO_ERRORCODE_GENERAL_FAILURE;
+                return PUErrorCode.PU_ERRORCODE_GENERAL_FAILURE;
             }
 
             //memcpy stuff
@@ -76,16 +76,16 @@ namespace PleaseUndo
             }
             _next_input_to_send++;
 
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
-        public override GGPOErrorCode IncrementFrame()
+        public override PUErrorCode IncrementFrame()
         {
             Logger.Log("End of frame ({0})...\n", _next_input_to_send - 1);
             DoPoll(0);
             PollNetProtocolEvents();
 
-            return GGPOErrorCode.GGPO_OK;
+            return PUErrorCode.PU_OK;
         }
 
         protected void PollNetProtocolEvents()
@@ -102,58 +102,58 @@ namespace PleaseUndo
             switch (evt.type)
             {
                 case NetProto.Event.Type.Connected:
-                    _callbacks.OnEvent(new GGPOConnectedToPeerEvent
+                    _callbacks.OnEvent(new PUConnectedToPeerEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_CONNECTED_TO_PEER,
-                        player = new GGPOPlayerHandle { handle = 0 }
+                        code = PUEventCode.PU_EVENTCODE_CONNECTED_TO_PEER,
+                        player = new PUPlayerHandle { handle = 0 }
                     });
                     break;
                 case NetProto.Event.Type.Synchronizing:
                     var synchronizingEvent = evt as NetProto.SynchronizingEvent;
-                    _callbacks.OnEvent(new GGPOSynchronizingWithPeerEvent
+                    _callbacks.OnEvent(new PUSynchronizingWithPeerEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZING_WITH_PEER,
+                        code = PUEventCode.PU_EVENTCODE_SYNCHRONIZING_WITH_PEER,
                         count = synchronizingEvent.count,
                         total = synchronizingEvent.total,
-                        player = new GGPOPlayerHandle { handle = 0 }
+                        player = new PUPlayerHandle { handle = 0 }
                     });
                     break;
                 case NetProto.Event.Type.Synchronzied:
                     if (_synchronizing)
                     {
-                        _callbacks.OnEvent(new GGPOSynchronizedWithPeerEvent
+                        _callbacks.OnEvent(new PUSynchronizedWithPeerEvent
                         {
-                            code = GGPOEventCode.GGPO_EVENTCODE_SYNCHRONIZED_WITH_PEER,
-                            player = new GGPOPlayerHandle { handle = 0 }
+                            code = PUEventCode.PU_EVENTCODE_SYNCHRONIZED_WITH_PEER,
+                            player = new PUPlayerHandle { handle = 0 }
                         });
-                        _callbacks.OnEvent(new GGPORunningEvent
+                        _callbacks.OnEvent(new PURunningEvent
                         {
-                            code = GGPOEventCode.GGPO_EVENTCODE_RUNNING
+                            code = PUEventCode.PU_EVENTCODE_RUNNING
                         });
                         _synchronizing = false;
                     }
                     break;
                 case NetProto.Event.Type.NetworkInterrupted:
                     var networkInterruptedEvent = evt as NetProto.NetworkInterruptedEvent;
-                    _callbacks.OnEvent(new GGPOConnectionInterruptedEvent
+                    _callbacks.OnEvent(new PUConnectionInterruptedEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_CONNECTION_INTERRUPTED,
-                        player = new GGPOPlayerHandle { handle = 0 },
+                        code = PUEventCode.PU_EVENTCODE_CONNECTION_INTERRUPTED,
+                        player = new PUPlayerHandle { handle = 0 },
                         disconnect_timeout = networkInterruptedEvent.disconnect_timeout
                     });
                     break;
                 case NetProto.Event.Type.NetworkResumed:
-                    _callbacks.OnEvent(new GGPOConnectionResumedEvent
+                    _callbacks.OnEvent(new PUConnectionResumedEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_CONNECTION_RESUMED,
-                        player = new GGPOPlayerHandle { handle = 0 },
+                        code = PUEventCode.PU_EVENTCODE_CONNECTION_RESUMED,
+                        player = new PUPlayerHandle { handle = 0 },
                     });
                     break;
                 case NetProto.Event.Type.Disconnected:
-                    _callbacks.OnEvent(new GGPODisconnectedFromPeerEvent
+                    _callbacks.OnEvent(new PUDisconnectedFromPeerEvent
                     {
-                        code = GGPOEventCode.GGPO_EVENTCODE_DISCONNECTED_FROM_PEER,
-                        player = new GGPOPlayerHandle { handle = 0 },
+                        code = PUEventCode.PU_EVENTCODE_DISCONNECTED_FROM_PEER,
+                        player = new PUPlayerHandle { handle = 0 },
                     });
                     break;
                 case NetProto.Event.Type.Input:
