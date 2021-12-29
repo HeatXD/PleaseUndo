@@ -14,6 +14,7 @@ namespace PleaseUndo
             public GGPOSessionCallbacks callbacks;
             public int num_prediction_frames;
             public int num_players;
+            public int input_size;
         }
         protected class SavedFrame
         {
@@ -39,7 +40,7 @@ namespace PleaseUndo
 
         protected NetMsg.ConnectStatus[] _local_connect_status;
         protected RingBuffer<Event> _event_queue = new RingBuffer<Event>(32);
-        protected InputQueue<InputType>[] _input_queues = null;
+        protected InputQueue[] _input_queues = null;
 
         public Sync(ref NetMsg.ConnectStatus[] connect_status)
         {
@@ -280,12 +281,11 @@ namespace PleaseUndo
 
         protected bool CreateQueues(Config config)
         {
-            _input_queues = new InputQueue<InputType>[_config.num_players];
+            _input_queues = new InputQueue[_config.num_players];
 
             for (int i = 0; i < _config.num_players; i++)
             {
-                _input_queues[i] = new InputQueue<InputType>();
-                _input_queues[i].Init(i);
+                _input_queues[i] = new InputQueue((uint)config.input_size, i);
             }
             return true;
         }

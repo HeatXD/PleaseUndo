@@ -1,6 +1,6 @@
 namespace PleaseUndo
 {
-    public class InputQueue<InputType>
+    public class InputQueue
     {
         const int INPUT_QUEUE_LENGTH = 128;
 
@@ -19,9 +19,9 @@ namespace PleaseUndo
         protected GameInput _prediction;
         protected GameInput[] _inputs = new GameInput[INPUT_QUEUE_LENGTH];
 
-        public InputQueue(uint input_size)
+        public InputQueue(uint input_size, int id = -1)
         {
-            Init(-1, input_size);
+            Init(id, input_size);
         }
 
         public void Init(int id, uint input_size)
