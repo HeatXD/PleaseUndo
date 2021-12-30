@@ -428,7 +428,7 @@ namespace PleaseUndo
                     // we're going to do a lot of logic here in consideration of endpoint i.
                     // keep accumulating the minimum confirmed point for all n*n packets and
                     // throw away the rest.
-                    if (_endpoints[i].IsRunning())
+                    if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN GGPO
                     {
                         bool connected = _endpoints[i].GetPeerConnectStatus(queue, ref last_received);
 
@@ -444,13 +444,13 @@ namespace PleaseUndo
                 // merge in our local status only if we're still connected!
                 if (_local_connect_status[queue].disconnected != 0)
                 {
-                    queue_min_confirmed = System.Math.Min(_local_connect_status[queue].last_frame, queue_min_confirmed);
+                    queue_min_confirmed = Math.Min(_local_connect_status[queue].last_frame, queue_min_confirmed);
                 }
                 Logger.Log("  local endp: connected = {0}, last_received = {1}, queue_min_confirmed = {2}.\n", _local_connect_status[queue].disconnected == 0, _local_connect_status[queue].last_frame, queue_min_confirmed);
 
                 if (queue_connected)
                 {
-                    total_min_confirmed = System.Math.Min(queue_min_confirmed, total_min_confirmed);
+                    total_min_confirmed = Math.Min(queue_min_confirmed, total_min_confirmed);
                 }
                 else
                 {
