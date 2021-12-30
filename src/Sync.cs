@@ -18,6 +18,7 @@ namespace PleaseUndo
             public int num_players;
             public int input_size;
         }
+
         public class SavedFrame
         {
             public byte[] buf;
@@ -25,6 +26,7 @@ namespace PleaseUndo
             public int frame = -1;
             public int checksum = 0;
         };
+
         protected class SavedState
         {
             public SavedFrame[] frames = new SavedFrame[MAX_PREDICTION_FRAMES + 2];
@@ -174,7 +176,7 @@ namespace PleaseUndo
             int framecount = _framecount;
             int count = _framecount - seek_to;
 
-            Logger.Log("Catching up\n");
+            Logger.Log("Catching up");
             _rollingback = true;
 
             /*
@@ -196,14 +198,14 @@ namespace PleaseUndo
 
             _rollingback = false;
 
-            Logger.Log("---\n");
+            Logger.Log("---");
         }
 
         public void LoadFrame(int frame)
         {
             if (frame == _framecount)
             {
-                Logger.Log("Skipping NOP.\n");
+                Logger.Log("Skipping NOP.");
                 return;
             }
 
@@ -211,7 +213,7 @@ namespace PleaseUndo
             _savedstate.head = FindSavedFrameIndex(frame);
             ref SavedFrame state = ref _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
 
-            Logger.Log("=== Loading frame info {0} (size: {1}  checksum: {2}).\n", state.frame, state.cbuf, state.checksum);
+            Logger.Log("=== Loading frame info {0} (size: {1}  checksum: {2}).", state.frame, state.cbuf, state.checksum);
 
             Logger.Assert(state.buf != null && state.cbuf != 0);
             _callbacks.OnLoadGameState(state.buf, state.cbuf);

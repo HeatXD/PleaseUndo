@@ -50,7 +50,7 @@ namespace PleaseUndo
             _local_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
             for (int i = 0; i < _local_connect_status.Length; i++)
             {
-                _local_connect_status[i].last_frame = -1;
+                _local_connect_status[i] = new NetMsg.ConnectStatus { last_frame = -1 };
             }
 
             /*

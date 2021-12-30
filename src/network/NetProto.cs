@@ -181,7 +181,7 @@ namespace PleaseUndo
 
             for (var i = 0; i < _peer_connect_status.Length; i++)
             {
-                _peer_connect_status[i].last_frame = -1;
+                _peer_connect_status[i] = new NetMsg.ConnectStatus { last_frame = -1 };
             }
         }
 
@@ -230,13 +230,23 @@ namespace PleaseUndo
                     if (Platform.memcmp(current.bits, last.bits, current.size) != 0)
                     {
                         Logger.Assert((GameInput.GAMEINPUT_MAX_BYTES * GameInput.GAMEINPUT_MAX_PLAYERS * 8) < (1 << BitVector.NibbleSize));
+
                         for (i = 0; i < current.size * 8; i++)
                         {
                             Logger.Assert(i < (1 << BitVector.NibbleSize));
+
                             if (current.Value(i) != last.Value(i))
                             {
                                 BitVector.SetBit(msg.bits, ref offset);
-                                if (current.Value(i)) { BitVector.SetBit(bits, ref offset); } else { BitVector.ClearBit(bits, ref offset); }
+
+                                if (current.Value(i))
+                                {
+                                    BitVector.SetBit(bits, ref offset);
+                                }
+                                else
+                                {
+                                    BitVector.ClearBit(bits, ref offset);
+                                }
                                 BitVector.WriteNibblet(bits, i, ref offset);
                             }
                         }
@@ -250,6 +260,7 @@ namespace PleaseUndo
                 msg.start_frame = 0;
                 msg.input_size = 0;
             }
+
             msg.ack_frame = last_received_input.frame;
             msg.num_bits = (System.UInt16)offset;
 
@@ -273,7 +284,11 @@ namespace PleaseUndo
 
         public void SendInputAck()
         {
-            SendMsg(new NetInputAckMsg { type = NetMsg.MsgType.InputAck, ack_frame = last_received_input.frame });
+            SendMsg(new NetInputAckMsg
+            {
+                type = NetMsg.MsgType.InputAck,
+                ack_frame = last_received_input.frame
+            });
         }
 
         public bool GetEvent(ref NetProto.Event e)
@@ -326,10 +341,12 @@ namespace PleaseUndo
 
                     if (inner_state.Running.last_quality_report_time == 0 || inner_state.Running.last_quality_report_time + QUALITY_REPORT_INTERVAL < now)
                     {
-                        var msg = new NetQualityReportMsg { type = NetMsg.MsgType.QualityReport };
-                        msg.ping = (uint)Platform.GetCurrentTimeMS();
-                        msg.frame_advantage = (byte)local_frame_advantage;
-                        SendMsg(msg);
+                        SendMsg(new NetQualityReportMsg
+                        {
+                            type = NetMsg.MsgType.QualityReport,
+                            ping = (uint)Platform.GetCurrentTimeMS(),
+                            frame_advantage = (byte)local_frame_advantage
+                        });
                         inner_state.Running.last_quality_report_time = now;
                     }
 
@@ -349,9 +366,11 @@ namespace PleaseUndo
                         !disconnect_notify_sent && (last_recv_time + disconnect_notify_start < now))
                     {
                         Logger.Log("Endpoint has stopped receiving packets for {0} ms.  Sending notification.\n", disconnect_notify_start);
-                        NetworkInterruptedEvent evt = new NetworkInterruptedEvent();
-                        evt.disconnect_timeout = (int)(disconnect_timeout - disconnect_notify_start);
-                        QueueEvent(evt);
+                        QueueEvent(new NetworkInterruptedEvent
+                        {
+                            type = Event.Type.NetworkInterrupted,
+                            disconnect_timeout = (int)(disconnect_timeout - disconnect_notify_start)
+                        });
                         disconnect_notify_sent = true;
                     }
 
@@ -360,9 +379,10 @@ namespace PleaseUndo
                         if (!disconnect_event_sent)
                         {
                             Logger.Log("Endpoint has stopped receiving packets for {0} ms.  Disconnecting.\n", disconnect_timeout);
-                            Event evt = new Event();
-                            evt.type = Event.Type.Disconnected;
-                            QueueEvent(evt);
+                            QueueEvent(new DisconnectedEvent
+                            {
+                                type = Event.Type.Disconnected
+                            });
                             disconnect_event_sent = true;
                         }
                     }
@@ -403,11 +423,12 @@ namespace PleaseUndo
 
             msg.sequence_number = (ushort)next_send_seq++;
 
-            var entry = new QueueEntry();
-            entry.queue_time = Platform.GetCurrentTimeMS();
-            entry.msg = msg;
+            send_queue.Push(new QueueEntry
+            {
+                queue_time = Platform.GetCurrentTimeMS(),
+                msg = msg
+            });
 
-            send_queue.Push(entry);
             PumpSendQueue();
         }
 
@@ -432,7 +453,7 @@ namespace PleaseUndo
 
                 // filter out out-of-order packets
                 var skipped = (System.UInt16)((int)seq - (int)next_recv_seq);
-                // Log("checking sequence number -> next - seq : %d - %d = %d\n", seq, _next_recv_seq, skipped);
+                Logger.Log("checking sequence number -> next - seq : {0} - {1} = {2}\n", seq, next_recv_seq, skipped);
                 if (skipped > MAX_SEQ_DISTANCE)
                 {
                     Logger.Log("dropping out of order packet (seq: {0}, last seq:{1})\n", seq, next_recv_seq);
@@ -620,8 +641,11 @@ namespace PleaseUndo
             }
             else
             {
-                var evt = new SynchronizingEvent { total = NUM_SYNC_PACKETS, count = (int)(NUM_SYNC_PACKETS - inner_state.Sync.roundtrips_remaining) };
-                QueueEvent(evt);
+                QueueEvent(new SynchronizingEvent
+                {
+                    total = NUM_SYNC_PACKETS,
+                    count = (int)(NUM_SYNC_PACKETS - inner_state.Sync.roundtrips_remaining)
+                });
                 SendSyncRequest();
             }
             return true;
@@ -647,7 +671,7 @@ namespace PleaseUndo
                 var remote_status = inputMsg.peer_connect_status;
                 for (var i = 0; i < _peer_connect_status.Length; i++)
                 {
-                    if (remote_status != null) // CHECK ADDED, NOT IN GGPO
+                    if (remote_status != null && remote_status[i] != null && _peer_connect_status[i] != null) // CHECK ADDED, NOT IN GGPO
                     {
                         Logger.Assert(remote_status[i].last_frame >= _peer_connect_status[i].last_frame);
                         _peer_connect_status[i].disconnected = (_peer_connect_status[i].disconnected != 0 || remote_status[i].disconnected != 0) ? (uint)1 : (uint)0;
@@ -660,14 +684,14 @@ namespace PleaseUndo
             * Decompress the input.
             */
             var last_received_frame_number = last_received_input.frame;
-            // if (inputMsg.num_bits != 0)
+            if (inputMsg.num_bits != 0)
             {
                 var offset = 0;
                 var bits = inputMsg.bits;
                 var numBits = inputMsg.num_bits;
                 var currentFrame = inputMsg.start_frame;
 
-                // _last_received_input.size = msg->u.input.input_size;
+                last_received_input.size = inputMsg.input_size;
                 if (last_received_input.frame < 0)
                 {
                     last_received_input.frame = (int)(inputMsg.start_frame - 1);
@@ -716,9 +740,7 @@ namespace PleaseUndo
                         * Send the event to the emualtor
                         */
                         var evt = new InputEvent { type = Event.Type.Input, input = last_received_input };
-
                         inner_state.Running.last_input_packet_recv_time = (uint)Platform.GetCurrentTimeMS();
-
                         QueueEvent(evt);
                     }
                     else
@@ -732,6 +754,7 @@ namespace PleaseUndo
                     currentFrame++;
                 }
             }
+
             Logger.Assert(last_received_input.frame >= last_received_frame_number);
 
             /*
@@ -762,11 +785,11 @@ namespace PleaseUndo
 
         public bool OnQualityReport(NetMsg msg)
         {
-            var report = (msg as NetQualityReportMsg);
-            var reply = new NetQualityReplyMsg { type = NetMsg.MsgType.QualityReply, pong = report.ping };
-            SendMsg(reply);
+            var qualityReportMsg = (msg as NetQualityReportMsg);
+            var qualityReplyMsg = new NetQualityReplyMsg { type = NetMsg.MsgType.QualityReply, pong = qualityReportMsg.ping };
+            SendMsg(qualityReplyMsg);
 
-            remote_frame_advantage = report.frame_advantage;
+            remote_frame_advantage = qualityReportMsg.frame_advantage;
             return true;
         }
 
@@ -880,8 +903,8 @@ namespace PleaseUndo
             // Unused
         }
 
-        public bool IsInitialized() => net_adapter != null;
         public bool IsRunning() => current_state == State.Running;
+        public bool IsInitialized() => net_adapter != null;
         public bool IsSynchronized() => current_state == State.Running;
     }
 }
