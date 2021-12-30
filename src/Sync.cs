@@ -158,8 +158,7 @@ namespace PleaseUndo
 
         public void CheckSimulation(int timeout)
         {
-            int seek_to = 0;
-            if (!CheckSimulationConsistency(ref seek_to))
+            if (!CheckSimulationConsistency(out int seek_to))
             {
                 AdjustSimulation(seek_to);
             }
@@ -255,10 +254,7 @@ namespace PleaseUndo
                     break;
                 }
             }
-            if (i == count)
-            {
-                Logger.Assert(false);
-            }
+            Logger.Assert(i != count);
             return i;
         }
 
@@ -273,7 +269,7 @@ namespace PleaseUndo
             return true;
         }
 
-        protected bool CheckSimulationConsistency(ref int seekTo)
+        protected bool CheckSimulationConsistency(out int seekTo)
         {
             int first_incorrect = (int)GameInput.Constants.NullFrame;
             for (int i = 0; i < _config.num_players; i++)
@@ -290,8 +286,10 @@ namespace PleaseUndo
             if (first_incorrect == (int)GameInput.Constants.NullFrame)
             {
                 Logger.Log("prediction ok.  proceeding.\n");
+                seekTo = 0;
                 return true;
             }
+
             seekTo = first_incorrect;
             return false;
         }

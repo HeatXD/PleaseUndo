@@ -7,7 +7,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>PleaseUndo is a C# port of GGPO with the option of using built-in godot networking options.</Description>
-    <Version>1.0.7</Version>
+    <Version>1.0.8</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="2.3.85" />
