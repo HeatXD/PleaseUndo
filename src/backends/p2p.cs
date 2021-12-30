@@ -44,10 +44,10 @@ namespace PleaseUndo
             /*
              * Initialize endpoints
              */
-            //    _udp.Init(localport, &_poll, this);
             _endpoints = new NetProto[_num_players];
             _spectators = new NetProto[MAX_SPECTATORS];
             _local_connect_status = new NetMsg.ConnectStatus[UDP_MSG_MAX_PLAYERS];
+
             for (int i = 0; i < _local_connect_status.Length; i++)
             {
                 _local_connect_status[i] = new NetMsg.ConnectStatus { last_frame = -1 };
@@ -111,7 +111,6 @@ namespace PleaseUndo
             if (!_sync.InRollback())
             {
                 _poll.Pump(0);
-
                 PollUdpProtocolEvents();
 
                 if (!_synchronizing)
@@ -123,7 +122,7 @@ namespace PleaseUndo
                     int current_frame = _sync.GetFrameCount();
                     for (int i = 0; i < _num_players; i++)
                     {
-                        if (_endpoints[i] != null) // CHECK ADDED, NOT IN PU
+                        if (_endpoints[i] != null) // CHECK ADDED, NOT IN GGPO
                         {
                             _endpoints[i].SetLocalFrameNumber(current_frame);
                         }
@@ -149,10 +148,13 @@ namespace PleaseUndo
                             {
                                 Logger.Log("pushing frame %d to spectators.", _next_spectator_frame);
 
-                                var input = new GameInput();
-                                input.frame = _next_spectator_frame;
-                                // input.size = _input_size * _num_players; // Not needed in C#
+                                var input = new GameInput
+                                {
+                                    frame = _next_spectator_frame,
+                                    size = (uint)(_input_size * _num_players),
+                                };
                                 _sync.GetConfirmedInputs(input.bits, _input_size * _num_players, _next_spectator_frame);
+
                                 for (int i = 0; i < _num_spectators; i++)
                                 {
                                     _spectators[i].SendInput(ref input);
@@ -170,16 +172,19 @@ namespace PleaseUndo
                         int interval = 0;
                         for (int i = 0; i < _num_players; i++)
                         {
-                            if (_endpoints[i] != null) // CHECK ADDED, NOT IN PU
+                            if (_endpoints[i] != null) // CHECK ADDED, NOT IN GGPO
                             {
-                                interval = System.Math.Max(interval, _endpoints[i].RecommendFrameDelay());
+                                interval = Math.Max(interval, _endpoints[i].RecommendFrameDelay());
                             }
                         }
 
                         if (interval > 0)
                         {
-                            PUEvent info = new PUTimesyncEvent { code = PUEventCode.PU_EVENTCODE_TIMESYNC, frames_ahead = interval };
-                            _callbacks.OnEvent(info);
+                            _callbacks.OnEvent(new PUTimesyncEvent
+                            {
+                                code = PUEventCode.PU_EVENTCODE_TIMESYNC,
+                                frames_ahead = interval
+                            });
                             _next_recommended_sleep = current_frame + RECOMMENDATION_INTERVAL;
                         }
                     }
@@ -191,6 +196,7 @@ namespace PleaseUndo
                     // }
                 }
             }
+
             return PUErrorCode.PU_OK;
         }
 
@@ -215,7 +221,6 @@ namespace PleaseUndo
         {
             int queue = 0;
             PUErrorCode result;
-            GameInput input;
 
             if (_sync.InRollback())
             {
@@ -232,7 +237,7 @@ namespace PleaseUndo
                 return result;
             }
 
-            input = new GameInput(-1, values, (uint)size);
+            var input = new GameInput(-1, values, (uint)values.Length);
 
             // Feed the input for the current frame into the synchronzation layer.
             if (!_sync.AddLocalInput(queue, ref input))
@@ -386,7 +391,7 @@ namespace PleaseUndo
             for (i = 0; i < _num_players; i++)
             {
                 bool queue_connected = true;
-                if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN PU
+                if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN GGPO
                 {
                     int ignore = 0;
                     queue_connected = _endpoints[i].GetPeerConnectStatus(i, ref ignore);
@@ -506,7 +511,7 @@ namespace PleaseUndo
             switch (evt.type)
             {
                 case NetProto.Event.Type.Input:
-                    if (!(_local_connect_status[queue].disconnected != 0))
+                    if (_local_connect_status[queue].disconnected == 0)
                     {
                         var inputEvent = (evt as NetProto.InputEvent);
 
@@ -514,7 +519,9 @@ namespace PleaseUndo
                         int new_remote_frame = inputEvent.input.frame;
                         Logger.Assert(current_remote_frame == -1 || new_remote_frame == (current_remote_frame + 1));
 
-                        _sync.AddRemoteInput(queue, ref inputEvent.input);
+                        var input = inputEvent.input;
+                        _sync.AddRemoteInput(queue, ref input);
+
                         // Notify the other endpoints which frame we received from a peer
                         Logger.Log("setting remote connect status for queue {0} to {1}\n", queue, inputEvent.input.frame);
                         _local_connect_status[queue].last_frame = inputEvent.input.frame;
@@ -595,8 +602,11 @@ namespace PleaseUndo
                 Logger.Log("finished adjusting simulation.\n");
             }
 
-            PUEvent info = new PUDisconnectedFromPeerEvent { code = PUEventCode.PU_EVENTCODE_DISCONNECTED_FROM_PEER, player = QueueToPlayerHandle(queue) };
-            _callbacks.OnEvent(info);
+            _callbacks.OnEvent(new PUDisconnectedFromPeerEvent
+            {
+                code = PUEventCode.PU_EVENTCODE_DISCONNECTED_FROM_PEER,
+                player = QueueToPlayerHandle(queue)
+            });
 
             CheckInitialSync();
         }
@@ -612,11 +622,12 @@ namespace PleaseUndo
                 for (i = 0; i < _num_players; i++)
                 {
                     // xxx: IsInitialized() must go... we're actually using it as a proxy for "represents the local player"
-                    if (_endpoints[i] != null && _endpoints[i].IsInitialized() && !_endpoints[i].IsSynchronized() && !(_local_connect_status[i].disconnected != 0)) // CHECK ADDED != null, NOT IN PU
+                    if (_endpoints[i] != null && _endpoints[i].IsInitialized() && !_endpoints[i].IsSynchronized() && _local_connect_status[i].disconnected == 0) // CHECK ADDED != null, NOT IN GGPO
                     {
                         return;
                     }
                 }
+
                 for (i = 0; i < _num_spectators; i++)
                 {
                     if (_spectators[i].IsInitialized() && !_spectators[i].IsSynchronized())
@@ -625,8 +636,7 @@ namespace PleaseUndo
                     }
                 }
 
-                PUEvent info = new PURunningEvent { code = PUEventCode.PU_EVENTCODE_RUNNING };
-                _callbacks.OnEvent(info);
+                _callbacks.OnEvent(new PURunningEvent { code = PUEventCode.PU_EVENTCODE_RUNNING });
                 _synchronizing = false;
             }
         }

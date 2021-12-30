@@ -43,7 +43,6 @@ namespace PleaseUndo
 
         public int PacketSize()
         {
-            //return Marshal.SizeOf(this);
             return Serialize(this).Length;
         }
     }
