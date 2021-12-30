@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using AF = Abacus.Fixed64Precision;
 using MessagePack;
 
@@ -9,6 +8,14 @@ public class GameState
     [Key(0)]
     public Player[] Players;
 
+    public GameState(Player[] players)
+    {
+        Players = new Player[players.Length];
+        for (byte i = 0; i < Players.Length; i++)
+        {
+            Players[i] = new Player(players[i]);
+        }
+    }
     public GameState(byte playerCount)
     {
         this.Players = new Player[playerCount];

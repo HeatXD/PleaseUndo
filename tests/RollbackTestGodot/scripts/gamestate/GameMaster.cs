@@ -19,6 +19,7 @@ public class GameMaster : Node2D
     private PUSession GameSession;
     private PUSessionCallbacks GameCallbacks;
     private PUPlayerHandle[] PlayerHandles;
+    private byte[] buffer;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -46,17 +47,9 @@ public class GameMaster : Node2D
         this.GameCallbacks.OnAdvanceFrame += OnAdvanceFrame;
         this.GameCallbacks.OnLoadGameState += OnLoadGameState;
         this.GameCallbacks.OnSaveGameState += OnSaveGameState;
-        // still cant find message pack?
-        // var buffer = new byte[64];
-        // int len = 0;
-        // int check = 0;
-        // int frame = 0;
-        // OnSaveGameState(ref buffer, ref len, ref check, frame);
-        // OnLoadGameState(buffer, len);
         this.GameSession = new Peer2PeerBackend(ref GameCallbacks, 2, sizeof(ushort));
         // for now we only support 2 balls
         this.PlayerHandles = new PUPlayerHandle[2];
-
         for (int i = 1; i < PlayerHandles.Length + 1; i++)
         {
             if (i == LocalID)
@@ -74,13 +67,16 @@ public class GameMaster : Node2D
     {
         var bytes = MessagePackSerializer.Serialize(GameState);
         len = bytes.Length;
+        buffer = new byte[len];
         Array.Copy(bytes, buffer, len);
+        //GD.Print("State Saved");
         return true;
     }
 
     private bool OnLoadGameState(byte[] buffer, int len)
     {
         GameState = MessagePackSerializer.Deserialize<GameState>(buffer);
+        //GD.Print("State Loaded");
         return true;
     }
 
@@ -109,6 +105,21 @@ public class GameMaster : Node2D
             GameState.UpdateState(DeltaTime, LocalID, GetViewportRect().Size);
             Time = diff;
         }
+        // if (Input.IsActionPressed("load_game"))
+        // {
+        //     if (buffer != null)
+        //     {
+        //         OnLoadGameState(buffer, buffer.Length);
+        //     }
+        // }
+
+        // if (Input.IsActionPressed("save_game"))
+        // {
+        //     int len = 0;
+        //     int check = 0;
+        //     int frame = 0;
+        //     OnSaveGameState(ref buffer, ref len, ref check, frame);
+        // }
         // draw
         Update();
     }

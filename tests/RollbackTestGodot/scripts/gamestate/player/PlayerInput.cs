@@ -1,5 +1,9 @@
+using MessagePack;
+
+[MessagePackObject]
 public struct PlayerInput
 {
+    [Key(0)]
     public ushort InputState;// 16 bits so 16 bools/buttons. index 0 to 15
     public PlayerInput(ushort input = 0)
     {
