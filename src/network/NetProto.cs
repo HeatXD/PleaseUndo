@@ -287,7 +287,7 @@ namespace PleaseUndo
             return true;
         }
 
-        public bool OnLoopPoll()
+        public override bool OnLoopPoll()
         {
             if (!IsInitialized())
             {

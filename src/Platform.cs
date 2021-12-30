@@ -15,7 +15,7 @@ namespace PleaseUndo
             Random rnd = new Random();
             byte[] rndBytes = new byte[4];
             rnd.NextBytes(rndBytes);
-            return BitConverter.ToUInt32(rndBytes);
+            return BitConverter.ToUInt32(rndBytes, 0);
         }
 
         public static int memcmp(byte[] a, byte[] b, uint count)
