@@ -36,6 +36,8 @@ namespace PleaseUndo
             /*
             * Initialize the synchronziation layer
             */
+            NetMsg.ConnectStatus[] connect_status = null;
+            _sync = new Sync(ref connect_status);
             _sync.Init(new Sync.Config
             {
                 callbacks = _callbacks,
