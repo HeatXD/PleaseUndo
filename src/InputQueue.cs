@@ -202,7 +202,7 @@ namespace PleaseUndo
             new_frame = AdvanceQueueHead(input.frame);
             if (new_frame != (int)GameInput.Constants.NullFrame)
             {
-                AddDelayedInputToQueue(input, new_frame);
+                AddDelayedInputToQueue(ref input, new_frame);
             }
 
             /*
@@ -253,22 +253,21 @@ namespace PleaseUndo
                  * left.
                  */
                 Logger.Log("Adding padding frame {0} to account for change in frame delay.\n", expected_frame);
-                var last_frame = _inputs[PREVIOUS_FRAME(_head)];
-                AddDelayedInputToQueue(last_frame, expected_frame);
+                // var last_frame = ;
+                AddDelayedInputToQueue(ref _inputs[PREVIOUS_FRAME(_head)], expected_frame);
                 expected_frame++;
             }
 
             Logger.Assert(frame == 0 || frame == _inputs[PREVIOUS_FRAME(_head)].frame + 1);
             return frame;
         }
-        protected void AddDelayedInputToQueue(GameInput input, int frame_number)
+
+        protected void AddDelayedInputToQueue(ref GameInput input, int frame_number)
         {
             Logger.Log("adding delayed input frame number {0} to queue.\n", frame_number);
 
-            // Logger.Assert(input.size == _prediction.size); // Not needed in C#
-
+            Logger.Assert(input.size == _prediction.size);
             Logger.Assert(_last_added_frame == (int)GameInput.Constants.NullFrame || frame_number == _last_added_frame + 1);
-
             Logger.Assert(frame_number == 0 || _inputs[PREVIOUS_FRAME(_head)].frame == frame_number - 1);
 
             /*
