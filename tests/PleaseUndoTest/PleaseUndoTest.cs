@@ -110,7 +110,7 @@ namespace PleaseUndoTest
                 session2_adapter.Close();
             }
 
-            throw new System.Exception(); // uncomment if you want logs...
+            // throw new System.Exception(); // uncomment if you want logs...
         }
 
         [TestMethod]

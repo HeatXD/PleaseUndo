@@ -1,5 +1,9 @@
 <Project Sdk="Godot.NET.Sdk/3.3.0">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MessagePack" Version="2.3.85" />
+    <ProjectReference Include="..\..\src\PleaseUndo.csproj" />
+  </ItemGroup>
 </Project>
