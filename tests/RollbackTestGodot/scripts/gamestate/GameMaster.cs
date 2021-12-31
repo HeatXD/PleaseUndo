@@ -11,6 +11,7 @@ public class GameMaster : Node2D
 
     // loop timing
     private int WaitFrames;
+    private bool SkippedLastFrame;
 
     // network
     private byte LocalID;
@@ -51,7 +52,7 @@ public class GameMaster : Node2D
         this.GameCallbacks.OnLoadGameState += OnLoadGameState;
         this.GameCallbacks.OnSaveGameState += OnSaveGameState;
 
-        this.GameSession = new Peer2PeerBackend(ref GameCallbacks, 2, sizeof(byte));
+        this.GameSession = new SyncTestBackend(ref GameCallbacks, 2, 2, sizeof(byte));
         // for now we only support 2 balls
         this.PlayerHandles = new PUPlayerHandle[2];
 
@@ -62,7 +63,7 @@ public class GameMaster : Node2D
                 var player = new PUPlayer { player_num = i, type = PUPlayerType.LOCAL };
                 GameSession.AddLocalPlayer(player, ref PlayerHandles[i - 1]);
                 GD.Print(player.player_num);
-                // GameSession.SetFrameDelay(PlayerHandles[i - 1], (int)GetNode("/root/NetworkGlobals").Get("local_delay"));
+                GameSession.SetFrameDelay(PlayerHandles[i - 1], (int)GetNode("/root/NetworkGlobals").Get("local_delay"));
             }
             else
             {
@@ -76,9 +77,11 @@ public class GameMaster : Node2D
 
     private bool OnSaveGameState(ref byte[] buffer, ref int len, ref int checksum, int frame)
     {
-        buffer = MessagePackSerializer.Serialize(GameState);
-        len = buffer.Length;
-        checksum = (int)FletcherChecksum.GetChecksumFromBytes(buffer, 32);
+        var save = MessagePackSerializer.Serialize(GameState);
+        buffer = new byte[save.Length];
+        Array.Copy(save, buffer, save.Length);
+        len = save.Length;
+        checksum = (int)FletcherChecksum.GetChecksumFromBytes(buffer, 16);
         return true;
     }
 
@@ -121,10 +124,13 @@ public class GameMaster : Node2D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(float delta)
     {
-        GameSession.DoPoll(69);// nice
 
-        if (WaitFrames <= 0)
+        if (WaitFrames <= 0 || SkippedLastFrame == true)
         {
+            SkippedLastFrame = false;
+
+            GameSession.DoPoll(69);// nice
+
             PUErrorCode result = PUErrorCode.PU_OK;
             int disconnect_flags = 0;
             byte[] inputs = new byte[sizeof(byte) * 2];
@@ -141,9 +147,11 @@ public class GameMaster : Node2D
                     GameSession.IncrementFrame();
                 }
             }
+
         }
         else
         {
+            SkippedLastFrame = true;
             WaitFrames--;
         }
         // draw
@@ -168,7 +176,6 @@ public class GameMaster : Node2D
     {
         DrawPlayers();
     }
-
 
     private void DrawPlayers()
     {

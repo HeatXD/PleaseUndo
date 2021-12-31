@@ -23,7 +23,7 @@ namespace PleaseUndo
         GameInput _current_input;
         RingBuffer<SavedInfo> _saved_frames = new RingBuffer<SavedInfo>(32);
 
-        public SyncTestBackend(PUSessionCallbacks cb, int frames, int num_players, int input_size)
+        public SyncTestBackend(ref PUSessionCallbacks cb, int frames, int num_players, int input_size)
         {
             _callbacks = cb;
             _num_players = num_players;

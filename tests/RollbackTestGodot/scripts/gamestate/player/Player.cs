@@ -1,4 +1,3 @@
-using Godot;
 using AF = Abacus.Fixed64Precision;
 using MessagePack;
 
@@ -16,7 +15,7 @@ public class Player
     [Key(4)]
     public PlayerInput GameInput;
     [Key(5)]
-    public int MoveSpeed;
+    public AF.Fixed64 MoveSpeed;
 
     public Player(int ID)
     {
@@ -25,7 +24,7 @@ public class Player
         this.Velocity = new AF.Vector2();
         this.Acceleration = new AF.Vector2();
         this.GameInput = new PlayerInput();
-        this.MoveSpeed = 10;
+        this.MoveSpeed = AF.Fixed64.CreateFrom(5);
     }
     public Player(Player p)
     {
@@ -57,7 +56,7 @@ public class Player
 
     private void MovePlayer()
     {
-        Velocity *= 0.96;
+        Velocity *= AF.Fixed64.CreateFrom(0.96);
 
         var dir = new AF.Vector2();
 
