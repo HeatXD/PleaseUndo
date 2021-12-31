@@ -266,8 +266,7 @@ namespace PleaseUndo
         protected void AddDelayedInputToQueue(ref GameInput input, int frame_number)
         {
             Logger.Log("adding delayed input frame number {0} to queue.\n", frame_number);
-
-            Logger.Assert(input.size == _prediction.size);
+            //Logger.Assert(input.size == _prediction.size);
             Logger.Assert(_last_added_frame == (int)GameInput.Constants.NullFrame || frame_number == _last_added_frame + 1);
             Logger.Assert(frame_number == 0 || _inputs[PREVIOUS_FRAME(_head)].frame == frame_number - 1);
 

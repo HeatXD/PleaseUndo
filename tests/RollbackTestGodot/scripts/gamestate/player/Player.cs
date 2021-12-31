@@ -24,7 +24,7 @@ public class Player
         this.Velocity = new AF.Vector2();
         this.Acceleration = new AF.Vector2();
         this.GameInput = new PlayerInput();
-        this.MoveSpeed = 100;
+        this.MoveSpeed = 10;
     }
     public Player(Player p)
     {
@@ -36,17 +36,17 @@ public class Player
         this.MoveSpeed = p.MoveSpeed;
     }
 
-    public void Update(AF.Fixed64 dt, byte[] playerInputs)
+    public void Update(byte[] playerInputs)
     {
         GetInput(playerInputs);
         UseInput();
-        ProcessMotion(dt);
+        ProcessMotion();
     }
 
-    private void ProcessMotion(AF.Fixed64 dt)
+    private void ProcessMotion()
     {
-        Velocity += Acceleration * dt;
-        Position += Velocity * dt;
+        Velocity += Acceleration;
+        Position += Velocity;
     }
 
     private void UseInput()

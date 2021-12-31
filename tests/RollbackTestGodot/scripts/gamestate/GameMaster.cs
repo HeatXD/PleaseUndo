@@ -1,17 +1,17 @@
 using Godot;
 using System;
-using AF = Abacus.Fixed64Precision;
 using PleaseUndo;
 using MessagePack;
 
 public class GameMaster : Node2D
 {
-	private const int FRAME_DELAY = 2;
 
 	private GameState GameState;
-	private AF.Fixed64 Time;
-	private AF.Fixed64 DeltaTime;
 	private DynamicFont DrawFont;
+
+	// loop timing
+	private float Accumulator;
+	private const float DELTA = 0.167f;
 
 	// network
 	private byte LocalID;
@@ -21,11 +21,13 @@ public class GameMaster : Node2D
 	private PUSession GameSession;
 	private PUSessionCallbacks GameCallbacks;
 	private PUPlayerHandle[] PlayerHandles;
+	private const int FRAME_DELAY = 2;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-
+		// setup loop timing
+		this.Accumulator = -0.5f;
 		// setup network
 		this.SessionAdapter = new GodotUdpPeer(
 			(int)GetNode("/root/NetworkGlobals").Get("local_port"),
@@ -36,8 +38,6 @@ public class GameMaster : Node2D
 
 		//setup game
 		this.GameState = new GameState(2);
-		this.Time = 0.0;
-		this.DeltaTime = 1.0 / 60.0;
 		this.DrawFont = new DynamicFont();
 
 		DrawFont.FontData = ResourceLoader.Load("res://assets/fonts/Roboto-Bold.ttf") as DynamicFontData;
@@ -55,7 +55,7 @@ public class GameMaster : Node2D
 		this.GameCallbacks.OnLoadGameState += OnLoadGameState;
 		this.GameCallbacks.OnSaveGameState += OnSaveGameState;
 
-		this.GameSession = new Peer2PeerBackend(ref GameCallbacks, 2, sizeof(ushort));
+		this.GameSession = new Peer2PeerBackend(ref GameCallbacks, 2, sizeof(byte));
 		// for now we only support 2 balls
 		this.PlayerHandles = new PUPlayerHandle[2];
 
@@ -63,13 +63,14 @@ public class GameMaster : Node2D
 		{
 			if (i == LocalID)
 			{
-				var player = new PUPlayer { player_num = i };
+				var player = new PUPlayer { player_num = i, type = PUPlayerType.LOCAL };
 				GameSession.AddLocalPlayer(player, ref PlayerHandles[i - 1]);
-				//GameSession.SetFrameDelay(PlayerHandles[i - 1], FRAME_DELAY); FIX PLEASE UNDO DOESNT LIKE IT :(
+				GD.Print(player.player_num);
+				//GameSession.SetFrameDelay(PlayerHandles[i - 1], FRAME_DELAY);
 			}
 			else
 			{
-				GameSession.AddRemotePlayer(new PUPlayer { player_num = i }, ref PlayerHandles[i - 1], SessionAdapter);
+				GameSession.AddRemotePlayer(new PUPlayer { player_num = i, type = PUPlayerType.REMOTE }, ref PlayerHandles[i - 1], SessionAdapter);
 			}
 		}
 		//GameSession.SetDisconnectTimeout(3000); FIX PLEASEUNDO DOESNT LIKE IT :(
@@ -97,11 +98,11 @@ public class GameMaster : Node2D
 
 	private bool OnAdvanceFrame()
 	{
-		byte[] inputs = new byte[sizeof(ushort) * 2]; // a ushort is 2 bytes
+		byte[] inputs = new byte[sizeof(byte) * 2]; //  2 bytes
 		int disconnect_flags = 0;
-		GameSession.SyncInput(ref inputs, sizeof(ushort) * 2, ref disconnect_flags);
+		GameSession.SyncInput(ref inputs, sizeof(byte) * 2, ref disconnect_flags);
 
-		GameState.UpdateState(inputs, DeltaTime, GetViewportRect().Size);
+		GameState.UpdateState(inputs, GetViewportRect().Size);
 		GameSession.IncrementFrame();
 		return true;
 	}
@@ -114,36 +115,41 @@ public class GameMaster : Node2D
 	private bool OnEvent(PUEvent ev)
 	{
 		GD.Print(ev.code.ToString());
+		switch (ev.code)
+		{
+			case PUEventCode.PU_EVENTCODE_TIMESYNC:
+				// var time_sync_event = (PUTimesyncEvent)ev;
+				// OS.DelayMsec(1000 * time_sync_event.frames_ahead / 60);
+				break;
+		}
 		return true;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(float delta)
 	{
-		Time += delta;
-		if (Time >= DeltaTime)
+		Accumulator += delta;
+		if (Accumulator >= DELTA)
 		{
 			GameSession.DoPoll(69); // nice
 
 			PUErrorCode result = PUErrorCode.PU_OK;
 			int disconnect_flags = 0;
-			byte[] inputs = new byte[sizeof(ushort) * 2];
+			byte[] inputs = new byte[sizeof(byte) * 2];
 
 			byte[] input = new byte[1] { GetLocalInput() };
 			result = GameSession.AddLocalInput(PlayerHandles[LocalID - 1], input, input.Length);
 
 			if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
 			{
-				result = GameSession.SyncInput(ref inputs, sizeof(ushort) * 2, ref disconnect_flags);
+				result = GameSession.SyncInput(ref inputs, sizeof(byte) * 2, ref disconnect_flags);
 				if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
 				{
-					GameState.UpdateState(inputs, DeltaTime, GetViewportRect().Size);
+					GameState.UpdateState(inputs, GetViewportRect().Size);
 					GameSession.IncrementFrame();
 				}
 			}
-			// loop timing stuff.
-			AF.Fixed64 diff = Time - DeltaTime;
-			Time = diff;
+			Accumulator -= DELTA;
 		}
 		// draw
 		Update();
@@ -165,13 +171,9 @@ public class GameMaster : Node2D
 
 	public override void _Draw()
 	{
-		DrawGameState();
-	}
-
-	private void DrawGameState()
-	{
 		DrawPlayers();
 	}
+
 
 	private void DrawPlayers()
 	{

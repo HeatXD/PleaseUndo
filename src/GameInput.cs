@@ -61,9 +61,9 @@ namespace PleaseUndo
             {
                 Logger.Log("sizes don't match: {0}, {1}", size, other.size);
             }
-            if (bits.SequenceEqual(other.bits))
+            if (!bits.SequenceEqual(other.bits))
             {
-                Logger.Log("bits don't match");
+                Logger.Log("bits don't match\n");
             }
 
             Logger.Assert(size > 0 && other.size > 0);

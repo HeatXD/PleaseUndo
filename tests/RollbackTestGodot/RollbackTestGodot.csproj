@@ -2,9 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
-  <ItemGroup></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PleaseUndo.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="2.3.85" />
-    <PackageReference Include="PleaseUndo" Version="1.0.9" />
   </ItemGroup>
 </Project>

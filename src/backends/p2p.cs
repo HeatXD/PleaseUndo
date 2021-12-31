@@ -138,7 +138,7 @@ namespace PleaseUndo
                         total_min_confirmed = PollNPlayers(current_frame);
                     }
 
-                    Logger.Log("last confirmed frame in p2p backend is {0}.", total_min_confirmed);
+                    Logger.Log("last confirmed frame in p2p backend is {0}. \n", total_min_confirmed);
                     if (total_min_confirmed >= 0)
                     {
                         Logger.Assert(total_min_confirmed != int.MaxValue);
@@ -146,7 +146,7 @@ namespace PleaseUndo
                         {
                             while (_next_spectator_frame <= total_min_confirmed)
                             {
-                                Logger.Log("pushing frame %d to spectators.", _next_spectator_frame);
+                                Logger.Log("pushing frame {0} to spectators.", _next_spectator_frame);
 
                                 var input = new GameInput
                                 {
@@ -162,7 +162,7 @@ namespace PleaseUndo
                                 _next_spectator_frame++;
                             }
                         }
-                        Logger.Log("setting confirmed frame in sync to {0}.", total_min_confirmed);
+                        Logger.Log("setting confirmed frame in sync to {0}.\n", total_min_confirmed);
                         _sync.SetLastConfirmedFrame(total_min_confirmed);
                     }
 
@@ -251,7 +251,7 @@ namespace PleaseUndo
               // confirmed local frame for this player.  this must come first so it
               // gets incorporated into the next packet we send.
 
-                Logger.Log("setting local connect status for local queue {0} to {1}", queue, input.frame);
+                Logger.Log("setting local connect status for local queue {0} to {1}\n", queue, input.frame);
                 _local_connect_status[queue].last_frame = input.frame;
 
                 // Send the input to all the remote players.

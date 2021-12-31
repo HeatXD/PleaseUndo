@@ -521,7 +521,7 @@ namespace PleaseUndo
 
             kbps_sent = (int)(Bps / 1024);
 
-            Logger.Log("(Just copied probably not correct) Network Stats --\n Bandwidth: {0} KBps Packets Sent: {1} ({2} pps)\n KB Sent: {3} UDP Overhead: {4} %%.\n",
+            Logger.Log("Network Stats --\n Bandwidth: {0} KBps Packets Sent: {1} ({2} pps)\n KB Sent: {3} UDP Overhead: {4} %%.\n",
                 kbps_sent,
                 packets_sent,
                 (float)packets_sent * 1000 / (now - stats_start_time),

@@ -1,0 +1,98 @@
+12/31/2021 05:12:12.075 send sync-request (678464903).
+12/31/2021 05:12:13.039 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:13.040 send sync-request (933407570).
+12/31/2021 05:12:13.705 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:13.706 send sync-request (2958570918).
+12/31/2021 05:12:14.373 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:14.374 send sync-request (2065252513).
+12/31/2021 05:12:14.875 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:14.876 send sync-request (3905939055).
+12/31/2021 05:12:15.543 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:15.543 send sync-request (391966159).
+12/31/2021 05:12:16.213 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:16.214 send sync-request (428068942).
+12/31/2021 05:12:16.878 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:16.879 send sync-request (3152427089).
+12/31/2021 05:12:17.546 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:17.546 send sync-request (2231074380).
+12/31/2021 05:12:18.214 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:18.215 send sync-request (3455871523).
+12/31/2021 05:12:18.882 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:18.883 send sync-request (3124633558).
+12/31/2021 05:12:19.550 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:19.551 send sync-request (3558559435).
+12/31/2021 05:12:20.052 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:20.053 send sync-request (1857093694).
+12/31/2021 05:12:20.720 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:20.720 send sync-request (960827725).
+12/31/2021 05:12:21.387 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:21.388 send sync-request (3213827847).
+12/31/2021 05:12:21.889 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:21.890 send sync-request (2880364834).
+12/31/2021 05:12:22.563 recv sync-request (4003961927).
+12/31/2021 05:12:22.563 send sync-reply (0).
+12/31/2021 05:12:23.224 No luck syncing after 500 ms... Re-queueing sync packet.
+12/31/2021 05:12:23.225 send sync-request (4137217914).
+12/31/2021 05:12:23.392 recv sync-request (21789951).
+12/31/2021 05:12:23.393 send sync-reply (0).
+12/31/2021 05:12:23.559 recv sync-reply (0).
+12/31/2021 05:12:23.560 Checking sync state (5 round trips remaining).
+12/31/2021 05:12:23.560 send sync-request (348262837).
+12/31/2021 05:12:23.726 recv sync-request (2783290584).
+12/31/2021 05:12:23.726 send sync-reply (0).
+12/31/2021 05:12:23.892 recv sync-reply (0).
+12/31/2021 05:12:23.893 Checking sync state (4 round trips remaining).
+12/31/2021 05:12:23.893 send sync-request (245939354).
+12/31/2021 05:12:24.059 recv sync-request (1562994833).
+12/31/2021 05:12:24.060 send sync-reply (0).
+12/31/2021 05:12:24.226 recv sync-reply (0).
+12/31/2021 05:12:24.226 Checking sync state (3 round trips remaining).
+12/31/2021 05:12:24.227 send sync-request (3831470241).
+12/31/2021 05:12:24.394 recv sync-request (529812928).
+12/31/2021 05:12:24.395 send sync-reply (0).
+12/31/2021 05:12:24.561 recv sync-reply (0).
+12/31/2021 05:12:24.561 Checking sync state (2 round trips remaining).
+12/31/2021 05:12:24.562 send sync-request (3890600174).
+12/31/2021 05:12:24.744 checking sequence number -> next - seq : 9 - 8 = 1
+12/31/2021 05:12:24.744 recv game input 0 (0 bits).
+12/31/2021 05:12:24.746 checking sequence number -> next - seq : 10 - 9 = 1
+12/31/2021 05:12:24.746 recv quality report.
+12/31/2021 05:12:24.747 send quality reply.
+12/31/2021 05:12:24.899 checking sequence number -> next - seq : 11 - 10 = 1
+12/31/2021 05:12:24.900 recv game input 0 (1 bits).
+12/31/2021 05:12:24.900 recv sync-reply (0).
+12/31/2021 05:12:24.900 Checking sync state (1 round trips remaining).
+12/31/2021 05:12:24.901 Synchronized!
+12/31/2021 05:12:24.902 Queuing event (event: Synchronzied).
+12/31/2021 05:12:24.902 send quality report.
+12/31/2021 05:12:24.909 Network Stats --
+ Bandwidth: -2147483648 KBps Packets Sent: 28 (Infinity pps)
+ KB Sent: 1.0615234375 UDP Overhead: 258.7459 %%.
+12/31/2021 05:12:24.909 adding input frame number 0 to queue.
+12/31/2021 05:12:24.910 advancing queue head to frame 0.
+12/31/2021 05:12:24.911 adding delayed input frame number 0 to queue.
+12/31/2021 05:12:24.911 setting remote connect status for queue 1 to 0
+12/31/2021 05:12:24.916 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:24.917 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:24.917 prediction ok.  proceeding.
+12/31/2021 05:12:24.918   local endp: connected = True, last_received = -1, total_min_confirmed = -1.
+12/31/2021 05:12:24.918   total_min_confirmed = -1.
+12/31/2021 05:12:24.919   local endp: connected = True, last_received = 0, total_min_confirmed = -1.
+12/31/2021 05:12:24.919   total_min_confirmed = -1.
+12/31/2021 05:12:24.920 last confirmed frame in p2p backend is -1. 
+12/31/2021 05:12:24.949 === Saved frame info 0 (size: 167  checksum: 824698062).
+12/31/2021 05:12:24.950 Sending undelayed local frame 0 to queue 0.
+12/31/2021 05:12:24.950 adding input frame number 0 to queue.
+12/31/2021 05:12:24.950 advancing queue head to frame 0.
+12/31/2021 05:12:24.951 adding delayed input frame number 0 to queue.
+12/31/2021 05:12:24.951 setting local connect status for local queue 0 to 0
+12/31/2021 05:12:24.953 send game input 0 (1 bits).
+12/31/2021 05:12:24.967 requesting input frame 0.
+12/31/2021 05:12:24.967 returning confirmed frame number 0.
+12/31/2021 05:12:24.968 requesting input frame 0.
+12/31/2021 05:12:24.968 returning confirmed frame number 0.
+12/31/2021 05:12:24.979 End of frame (0)...
+12/31/2021 05:12:24.980 === Saved frame info 1 (size: 167  checksum: 824763599).
+12/31/2021 05:12:24.980 checking sequence number -> next - seq : 13 - 12 = 1
+12/31/2021 05:12:24.980 recv game input 0 (2 bits).
+12/31/2021 05:12:24.981 Assertion Error!

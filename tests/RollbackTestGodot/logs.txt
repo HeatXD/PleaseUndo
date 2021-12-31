@@ -1,90 +1,468 @@
-12/31/2021 01:16:18.922 send sync-request (639884867).
-12/31/2021 01:16:19.516 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:19.516 send sync-request (1605584976).
-12/31/2021 01:16:20.019 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:20.019 send sync-request (2375845548).
-12/31/2021 01:16:20.537 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:20.538 send sync-request (534240408).
-12/31/2021 01:16:21.053 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:21.054 send sync-request (1793340199).
-12/31/2021 01:16:21.570 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:21.571 send sync-request (871122282).
-12/31/2021 01:16:22.087 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:22.088 send sync-request (3483337571).
-12/31/2021 01:16:22.604 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:22.604 send sync-request (2304011751).
-12/31/2021 01:16:23.121 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:23.122 send sync-request (3839170664).
-12/31/2021 01:16:23.638 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:23.639 send sync-request (1152506021).
-12/31/2021 01:16:24.156 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:24.157 send sync-request (86754914).
-12/31/2021 01:16:24.673 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:24.674 send sync-request (1745114059).
-12/31/2021 01:16:25.190 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:25.191 send sync-request (1919588089).
-12/31/2021 01:16:25.707 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:25.708 send sync-request (957677081).
-12/31/2021 01:16:26.224 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:26.225 send sync-request (1123415506).
-12/31/2021 01:16:26.741 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:26.742 send sync-request (1400476538).
-12/31/2021 01:16:27.258 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:27.258 send sync-request (3880197783).
-12/31/2021 01:16:27.775 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:27.775 send sync-request (4109250792).
-12/31/2021 01:16:28.292 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:28.292 send sync-request (3566921705).
-12/31/2021 01:16:28.810 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:28.811 send sync-request (3697360219).
-12/31/2021 01:16:29.327 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:29.328 send sync-request (798767030).
-12/31/2021 01:16:29.844 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:29.844 send sync-request (1296290122).
-12/31/2021 01:16:30.360 No luck syncing after 500 ms... Re-queueing sync packet.
-12/31/2021 01:16:30.361 send sync-request (64075671).
-12/31/2021 01:16:30.600 recv sync-request (3655463973).
-12/31/2021 01:16:30.600 send sync-reply (0).
-12/31/2021 01:16:30.944 recv sync-reply (0).
-12/31/2021 01:16:30.946 Checking sync state (5 round trips remaining).
-12/31/2021 01:16:30.946 send sync-request (175098941).
-12/31/2021 01:16:30.961 recv sync-request (3241527621).
-12/31/2021 01:16:30.961 send sync-reply (0).
-12/31/2021 01:16:30.978 recv sync-reply (0).
-12/31/2021 01:16:30.979 Checking sync state (4 round trips remaining).
-12/31/2021 01:16:30.979 send sync-request (2821750023).
-12/31/2021 01:16:31.028 recv sync-request (1391644281).
-12/31/2021 01:16:31.028 send sync-reply (0).
-12/31/2021 01:16:31.044 recv sync-reply (0).
-12/31/2021 01:16:31.045 Checking sync state (3 round trips remaining).
-12/31/2021 01:16:31.045 send sync-request (1376524843).
-12/31/2021 01:16:31.061 recv sync-request (3954168501).
-12/31/2021 01:16:31.062 send sync-reply (0).
-12/31/2021 01:16:31.079 recv sync-reply (0).
-12/31/2021 01:16:31.079 Checking sync state (2 round trips remaining).
-12/31/2021 01:16:31.080 send sync-request (476470364).
-12/31/2021 01:16:31.095 recv sync-request (3462848467).
-12/31/2021 01:16:31.096 send sync-reply (0).
-12/31/2021 01:16:31.112 recv sync-reply (0).
-12/31/2021 01:16:31.113 Checking sync state (1 round trips remaining).
-12/31/2021 01:16:31.113 Synchronized!
-12/31/2021 01:16:31.114 Queuing event (event: Synchronzied).
-12/31/2021 01:16:31.116 Haven't exchanged packets in a while (last received:-1  last sent:-1).  Resending.
-12/31/2021 01:16:31.118 send game input 0 (0 bits).
-12/31/2021 01:16:31.124 send quality report.
-12/31/2021 01:16:31.130 (Just copied probably not correct) Network Stats --
- Bandwidth: -2147483648 KBps Packets Sent: 34 (Infinity pps)
- KB Sent: 5.3115234375 UDP Overhead: 21.21685 %%.
-12/31/2021 01:16:31.135 considering incorrect frame -1 reported by queue 0.
-12/31/2021 01:16:31.136 considering incorrect frame -1 reported by queue 1.
-12/31/2021 01:16:31.136 prediction ok.  proceeding.
-12/31/2021 01:16:31.137   local endp: connected = True, last_received = -1, total_min_confirmed = -1.
-12/31/2021 01:16:31.138   total_min_confirmed = -1.
-12/31/2021 01:16:31.138   local endp: connected = True, last_received = -1, total_min_confirmed = -1.
-12/31/2021 01:16:31.139   total_min_confirmed = -1.
-12/31/2021 01:16:31.139 last confirmed frame in p2p backend is -1.12/31/2021 01:16:31.160 === Saved frame info 0 (size: 167  checksum: 1090119042).
-12/31/2021 01:16:31.161 Sending undelayed local frame 0 to queue 1.
-12/31/2021 01:16:31.162 adding input frame number 0 to queue.
-12/31/2021 01:16:31.163 advancing queue head to frame 0.
-12/31/2021 01:16:31.164 adding delayed input frame number 0 to queue.
-12/31/2021 01:16:31.164 Assertion Error!
+12/31/2021 05:12:22.275 send sync-request (4003961927).
+12/31/2021 05:12:23.331 recv sync-reply (0).
+12/31/2021 05:12:23.333 Checking sync state (5 round trips remaining).
+12/31/2021 05:12:23.334 send sync-request (21789951).
+12/31/2021 05:12:23.492 recv sync-request (4137217914).
+12/31/2021 05:12:23.493 send sync-reply (0).
+12/31/2021 05:12:23.656 recv sync-reply (0).
+12/31/2021 05:12:23.657 Checking sync state (4 round trips remaining).
+12/31/2021 05:12:23.658 send sync-request (2783290584).
+12/31/2021 05:12:23.824 recv sync-request (348262837).
+12/31/2021 05:12:23.825 send sync-reply (0).
+12/31/2021 05:12:23.991 recv sync-reply (0).
+12/31/2021 05:12:23.992 Checking sync state (3 round trips remaining).
+12/31/2021 05:12:23.992 send sync-request (1562994833).
+12/31/2021 05:12:24.157 recv sync-request (245939354).
+12/31/2021 05:12:24.158 send sync-reply (0).
+12/31/2021 05:12:24.325 recv sync-reply (0).
+12/31/2021 05:12:24.326 Checking sync state (2 round trips remaining).
+12/31/2021 05:12:24.327 send sync-request (529812928).
+12/31/2021 05:12:24.492 recv sync-request (3831470241).
+12/31/2021 05:12:24.493 send sync-reply (0).
+12/31/2021 05:12:24.658 recv sync-reply (0).
+12/31/2021 05:12:24.659 Checking sync state (1 round trips remaining).
+12/31/2021 05:12:24.660 Synchronized!
+12/31/2021 05:12:24.661 Queuing event (event: Synchronzied).
+12/31/2021 05:12:24.663 Haven't exchanged packets in a while (last received:-1  last sent:-1).  Resending.
+12/31/2021 05:12:24.664 send game input 0 (0 bits).
+12/31/2021 05:12:24.672 send quality report.
+12/31/2021 05:12:24.677 Network Stats --
+ Bandwidth: -2147483648 KBps Packets Sent: 11 (Infinity pps)
+ KB Sent: 4.4189453125 UDP Overhead: 7.303771 %%.
+12/31/2021 05:12:24.682 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:24.683 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:24.684 prediction ok.  proceeding.
+12/31/2021 05:12:24.685   local endp: connected = True, last_received = -1, total_min_confirmed = -1.
+12/31/2021 05:12:24.686   total_min_confirmed = -1.
+12/31/2021 05:12:24.687   local endp: connected = True, last_received = -1, total_min_confirmed = -1.
+12/31/2021 05:12:24.687   total_min_confirmed = -1.
+12/31/2021 05:12:24.688 last confirmed frame in p2p backend is -1. 
+12/31/2021 05:12:24.709 === Saved frame info 0 (size: 167  checksum: 824698062).
+12/31/2021 05:12:24.709 Sending undelayed local frame 0 to queue 1.
+12/31/2021 05:12:24.710 adding input frame number 0 to queue.
+12/31/2021 05:12:24.711 advancing queue head to frame 0.
+12/31/2021 05:12:24.712 adding delayed input frame number 0 to queue.
+12/31/2021 05:12:24.713 setting local connect status for local queue 1 to 0
+12/31/2021 05:12:24.714 send game input 0 (1 bits).
+12/31/2021 05:12:24.715 requesting input frame 0.
+12/31/2021 05:12:24.716 basing new prediction frame from nothing, you're client wants frame 0.
+12/31/2021 05:12:24.716 returning prediction frame number 0 (0).
+12/31/2021 05:12:24.717 requesting input frame 0.
+12/31/2021 05:12:24.717 returning confirmed frame number 0.
+12/31/2021 05:12:24.724 End of frame (0)...
+12/31/2021 05:12:24.725 === Saved frame info 1 (size: 167  checksum: 824763599).
+12/31/2021 05:12:24.727 recv sync-request (3890600174).
+12/31/2021 05:12:24.727 send sync-reply (0).
+12/31/2021 05:12:24.728 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:24.729 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:24.729 prediction ok.  proceeding.
+12/31/2021 05:12:24.730   local endp: connected = True, last_received = -1, total_min_confirmed = -1.
+12/31/2021 05:12:24.730   total_min_confirmed = -1.
+12/31/2021 05:12:24.731   local endp: connected = True, last_received = 0, total_min_confirmed = -1.
+12/31/2021 05:12:24.731   total_min_confirmed = -1.
+12/31/2021 05:12:24.732 last confirmed frame in p2p backend is -1. 
+12/31/2021 05:12:24.733 iteration 1:  sleep frames is 0
+12/31/2021 05:12:24.828 checking sequence number -> next - seq : 26 - 25 = 1
+12/31/2021 05:12:24.829 recv quality reply.
+12/31/2021 05:12:24.829 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:24.831 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:24.831 prediction ok.  proceeding.
+12/31/2021 05:12:24.832   local endp: connected = True, last_received = -1, total_min_confirmed = -1.
+12/31/2021 05:12:24.833   total_min_confirmed = -1.
+12/31/2021 05:12:24.833   local endp: connected = True, last_received = 0, total_min_confirmed = -1.
+12/31/2021 05:12:24.834   total_min_confirmed = -1.
+12/31/2021 05:12:24.835 last confirmed frame in p2p backend is -1. 
+12/31/2021 05:12:24.835 iteration 2:  sleep frames is 0
+12/31/2021 05:12:24.836 Sending undelayed local frame 1 to queue 1.
+12/31/2021 05:12:24.837 adding input frame number 1 to queue.
+12/31/2021 05:12:24.837 advancing queue head to frame 1.
+12/31/2021 05:12:24.838 adding delayed input frame number 1 to queue.
+12/31/2021 05:12:24.838 setting local connect status for local queue 1 to 1
+12/31/2021 05:12:24.839 send game input 0 (2 bits).
+12/31/2021 05:12:24.839 requesting input frame 1.
+12/31/2021 05:12:24.839 returning prediction frame number 1 (0).
+12/31/2021 05:12:24.840 requesting input frame 1.
+12/31/2021 05:12:24.841 returning confirmed frame number 1.
+12/31/2021 05:12:24.841 End of frame (1)...
+12/31/2021 05:12:24.841 === Saved frame info 2 (size: 167  checksum: 824829136).
+12/31/2021 05:12:24.842 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:24.843 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:24.843 prediction ok.  proceeding.
+12/31/2021 05:12:24.844   local endp: connected = True, last_received = -1, total_min_confirmed = -1.
+12/31/2021 05:12:24.844   total_min_confirmed = -1.
+12/31/2021 05:12:24.845   local endp: connected = True, last_received = 1, total_min_confirmed = -1.
+12/31/2021 05:12:24.845   total_min_confirmed = -1.
+12/31/2021 05:12:24.846 last confirmed frame in p2p backend is -1. 
+12/31/2021 05:12:24.992 checking sequence number -> next - seq : 27 - 26 = 1
+12/31/2021 05:12:24.993 recv quality report.
+12/31/2021 05:12:24.994 send quality reply.
+12/31/2021 05:12:24.995 Haven't exchanged packets in a while (last received:-1  last sent:1).  Resending.
+12/31/2021 05:12:24.995 send game input 0 (2 bits).
+12/31/2021 05:12:24.996 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:24.997 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:24.997 prediction ok.  proceeding.
+12/31/2021 05:12:24.998   local endp: connected = True, last_received = -1, total_min_confirmed = -1.
+12/31/2021 05:12:24.998   total_min_confirmed = -1.
+12/31/2021 05:12:24.999   local endp: connected = True, last_received = 1, total_min_confirmed = -1.
+12/31/2021 05:12:24.999   total_min_confirmed = -1.
+12/31/2021 05:12:25.000 last confirmed frame in p2p backend is -1. 
+12/31/2021 05:12:25.000 Sending undelayed local frame 2 to queue 1.
+12/31/2021 05:12:25.001 adding input frame number 2 to queue.
+12/31/2021 05:12:25.001 advancing queue head to frame 2.
+12/31/2021 05:12:25.002 adding delayed input frame number 2 to queue.
+12/31/2021 05:12:25.002 setting local connect status for local queue 1 to 2
+12/31/2021 05:12:25.003 send game input 0 (3 bits).
+12/31/2021 05:12:25.004 requesting input frame 2.
+12/31/2021 05:12:25.004 returning prediction frame number 2 (0).
+12/31/2021 05:12:25.005 requesting input frame 2.
+12/31/2021 05:12:25.005 returning confirmed frame number 2.
+12/31/2021 05:12:25.005 End of frame (2)...
+12/31/2021 05:12:25.006 === Saved frame info 3 (size: 167  checksum: 824894673).
+12/31/2021 05:12:25.012 checking sequence number -> next - seq : 28 - 27 = 1
+12/31/2021 05:12:25.013 recv game input 0 (1 bits).
+12/31/2021 05:12:25.014 adding input frame number 0 to queue.
+12/31/2021 05:12:25.015 advancing queue head to frame 0.
+12/31/2021 05:12:25.015 adding delayed input frame number 0 to queue.
+12/31/2021 05:12:25.018 setting remote connect status for queue 0 to 0
+12/31/2021 05:12:25.019 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.019 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.020 prediction ok.  proceeding.
+12/31/2021 05:12:25.020   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.021   total_min_confirmed = 0.
+12/31/2021 05:12:25.021   local endp: connected = True, last_received = 2, total_min_confirmed = 0.
+12/31/2021 05:12:25.022   total_min_confirmed = 0.
+12/31/2021 05:12:25.022 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.023 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.159 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.160 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.161 prediction ok.  proceeding.
+12/31/2021 05:12:25.161   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.162   total_min_confirmed = 0.
+12/31/2021 05:12:25.162   local endp: connected = True, last_received = 2, total_min_confirmed = 0.
+12/31/2021 05:12:25.162   total_min_confirmed = 0.
+12/31/2021 05:12:25.163 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.163 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.164 Sending undelayed local frame 3 to queue 1.
+12/31/2021 05:12:25.164 adding input frame number 3 to queue.
+12/31/2021 05:12:25.164 advancing queue head to frame 3.
+12/31/2021 05:12:25.165 adding delayed input frame number 3 to queue.
+12/31/2021 05:12:25.165 setting local connect status for local queue 1 to 3
+12/31/2021 05:12:25.166 send game input 0 (4 bits).
+12/31/2021 05:12:25.167 requesting input frame 3.
+12/31/2021 05:12:25.167 returning prediction frame number 3 (1).
+12/31/2021 05:12:25.168 requesting input frame 3.
+12/31/2021 05:12:25.168 returning confirmed frame number 3.
+12/31/2021 05:12:25.169 End of frame (3)...
+12/31/2021 05:12:25.170 === Saved frame info 4 (size: 167  checksum: 824960210).
+12/31/2021 05:12:25.170 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.171 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.171 prediction ok.  proceeding.
+12/31/2021 05:12:25.172   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.173   total_min_confirmed = 0.
+12/31/2021 05:12:25.174   local endp: connected = True, last_received = 3, total_min_confirmed = 0.
+12/31/2021 05:12:25.174   total_min_confirmed = 0.
+12/31/2021 05:12:25.174 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.175 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.326 Haven't exchanged packets in a while (last received:0  last sent:3).  Resending.
+12/31/2021 05:12:25.327 send game input 0 (4 bits).
+12/31/2021 05:12:25.328 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.328 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.329 prediction ok.  proceeding.
+12/31/2021 05:12:25.329   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.330   total_min_confirmed = 0.
+12/31/2021 05:12:25.331   local endp: connected = True, last_received = 3, total_min_confirmed = 0.
+12/31/2021 05:12:25.331   total_min_confirmed = 0.
+12/31/2021 05:12:25.332 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.332 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.333 Sending undelayed local frame 4 to queue 1.
+12/31/2021 05:12:25.333 adding input frame number 4 to queue.
+12/31/2021 05:12:25.334 advancing queue head to frame 4.
+12/31/2021 05:12:25.334 adding delayed input frame number 4 to queue.
+12/31/2021 05:12:25.334 setting local connect status for local queue 1 to 4
+12/31/2021 05:12:25.335 send game input 0 (5 bits).
+12/31/2021 05:12:25.336 requesting input frame 4.
+12/31/2021 05:12:25.336 returning prediction frame number 4 (1).
+12/31/2021 05:12:25.337 requesting input frame 4.
+12/31/2021 05:12:25.337 returning confirmed frame number 4.
+12/31/2021 05:12:25.338 End of frame (4)...
+12/31/2021 05:12:25.339 === Saved frame info 5 (size: 167  checksum: 825025747).
+12/31/2021 05:12:25.339 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.340 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.340 prediction ok.  proceeding.
+12/31/2021 05:12:25.341   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.341   total_min_confirmed = 0.
+12/31/2021 05:12:25.342   local endp: connected = True, last_received = 4, total_min_confirmed = 0.
+12/31/2021 05:12:25.343   total_min_confirmed = 0.
+12/31/2021 05:12:25.343 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.344 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.494 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.495 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.495 prediction ok.  proceeding.
+12/31/2021 05:12:25.496   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.497   total_min_confirmed = 0.
+12/31/2021 05:12:25.497   local endp: connected = True, last_received = 4, total_min_confirmed = 0.
+12/31/2021 05:12:25.498   total_min_confirmed = 0.
+12/31/2021 05:12:25.498 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.499 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.499 Sending undelayed local frame 5 to queue 1.
+12/31/2021 05:12:25.499 adding input frame number 5 to queue.
+12/31/2021 05:12:25.500 advancing queue head to frame 5.
+12/31/2021 05:12:25.501 adding delayed input frame number 5 to queue.
+12/31/2021 05:12:25.502 setting local connect status for local queue 1 to 5
+12/31/2021 05:12:25.502 send game input 0 (6 bits).
+12/31/2021 05:12:25.503 requesting input frame 5.
+12/31/2021 05:12:25.504 returning prediction frame number 5 (1).
+12/31/2021 05:12:25.504 requesting input frame 5.
+12/31/2021 05:12:25.505 returning confirmed frame number 5.
+12/31/2021 05:12:25.505 End of frame (5)...
+12/31/2021 05:12:25.506 === Saved frame info 6 (size: 167  checksum: 825091284).
+12/31/2021 05:12:25.507 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.507 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.507 prediction ok.  proceeding.
+12/31/2021 05:12:25.508   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.508   total_min_confirmed = 0.
+12/31/2021 05:12:25.510   local endp: connected = True, last_received = 5, total_min_confirmed = 0.
+12/31/2021 05:12:25.510   total_min_confirmed = 0.
+12/31/2021 05:12:25.511 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.514 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.661 Haven't exchanged packets in a while (last received:0  last sent:5).  Resending.
+12/31/2021 05:12:25.662 send game input 0 (6 bits).
+12/31/2021 05:12:25.662 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.663 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.663 prediction ok.  proceeding.
+12/31/2021 05:12:25.664   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.664   total_min_confirmed = 0.
+12/31/2021 05:12:25.665   local endp: connected = True, last_received = 5, total_min_confirmed = 0.
+12/31/2021 05:12:25.665   total_min_confirmed = 0.
+12/31/2021 05:12:25.666 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.666 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.667 Sending undelayed local frame 6 to queue 1.
+12/31/2021 05:12:25.667 adding input frame number 6 to queue.
+12/31/2021 05:12:25.667 advancing queue head to frame 6.
+12/31/2021 05:12:25.668 adding delayed input frame number 6 to queue.
+12/31/2021 05:12:25.668 setting local connect status for local queue 1 to 6
+12/31/2021 05:12:25.669 send game input 0 (7 bits).
+12/31/2021 05:12:25.670 requesting input frame 6.
+12/31/2021 05:12:25.670 returning prediction frame number 6 (1).
+12/31/2021 05:12:25.671 requesting input frame 6.
+12/31/2021 05:12:25.671 returning confirmed frame number 6.
+12/31/2021 05:12:25.672 End of frame (6)...
+12/31/2021 05:12:25.673 === Saved frame info 7 (size: 167  checksum: 825156821).
+12/31/2021 05:12:25.673 send quality report.
+12/31/2021 05:12:25.674 Network Stats --
+ Bandwidth: 45 KBps Packets Sent: 24 (24 pps)
+ KB Sent: 45.0546875 UDP Overhead: 1.478093 %%.
+12/31/2021 05:12:25.674 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.675 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.675 prediction ok.  proceeding.
+12/31/2021 05:12:25.676   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.677   total_min_confirmed = 0.
+12/31/2021 05:12:25.678   local endp: connected = True, last_received = 6, total_min_confirmed = 0.
+12/31/2021 05:12:25.678   total_min_confirmed = 0.
+12/31/2021 05:12:25.679 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.680 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.828 Endpoint has stopped receiving packets for 750 ms.  Sending notification.
+12/31/2021 05:12:25.830 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.830 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.830 prediction ok.  proceeding.
+12/31/2021 05:12:25.831   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.831   total_min_confirmed = 0.
+12/31/2021 05:12:25.832   local endp: connected = True, last_received = 6, total_min_confirmed = 0.
+12/31/2021 05:12:25.832   total_min_confirmed = 0.
+12/31/2021 05:12:25.833 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.833 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.834 Sending undelayed local frame 7 to queue 1.
+12/31/2021 05:12:25.834 adding input frame number 7 to queue.
+12/31/2021 05:12:25.835 advancing queue head to frame 7.
+12/31/2021 05:12:25.835 adding delayed input frame number 7 to queue.
+12/31/2021 05:12:25.835 setting local connect status for local queue 1 to 7
+12/31/2021 05:12:25.836 send game input 0 (8 bits).
+12/31/2021 05:12:25.836 requesting input frame 7.
+12/31/2021 05:12:25.837 returning prediction frame number 7 (1).
+12/31/2021 05:12:25.837 requesting input frame 7.
+12/31/2021 05:12:25.838 returning confirmed frame number 7.
+12/31/2021 05:12:25.838 End of frame (7)...
+12/31/2021 05:12:25.839 === Saved frame info 8 (size: 167  checksum: 825222358).
+12/31/2021 05:12:25.839 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.839 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.840 prediction ok.  proceeding.
+12/31/2021 05:12:25.841   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.841   total_min_confirmed = 0.
+12/31/2021 05:12:25.841   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:25.842   total_min_confirmed = 0.
+12/31/2021 05:12:25.842 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:25.843 setting confirmed frame in sync to 0.
+12/31/2021 05:12:25.995 Haven't exchanged packets in a while (last received:0  last sent:7).  Resending.
+12/31/2021 05:12:25.996 send game input 0 (8 bits).
+12/31/2021 05:12:25.996 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:25.997 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:25.997 prediction ok.  proceeding.
+12/31/2021 05:12:25.998   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:25.998   total_min_confirmed = 0.
+12/31/2021 05:12:25.999   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:25.999   total_min_confirmed = 0.
+12/31/2021 05:12:25.999 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:26.000 setting confirmed frame in sync to 0.
+12/31/2021 05:12:26.001 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:26.162 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:26.163 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:26.163 prediction ok.  proceeding.
+12/31/2021 05:12:26.163   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:26.164   total_min_confirmed = 0.
+12/31/2021 05:12:26.164   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:26.165   total_min_confirmed = 0.
+12/31/2021 05:12:26.165 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:26.165 setting confirmed frame in sync to 0.
+12/31/2021 05:12:26.166 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:26.329 Haven't exchanged packets in a while (last received:0  last sent:7).  Resending.
+12/31/2021 05:12:26.329 send game input 0 (8 bits).
+12/31/2021 05:12:26.330 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:26.330 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:26.331 prediction ok.  proceeding.
+12/31/2021 05:12:26.331   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:26.331   total_min_confirmed = 0.
+12/31/2021 05:12:26.332   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:26.332   total_min_confirmed = 0.
+12/31/2021 05:12:26.333 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:26.333 setting confirmed frame in sync to 0.
+12/31/2021 05:12:26.333 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:26.495 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:26.496 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:26.496 prediction ok.  proceeding.
+12/31/2021 05:12:26.497   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:26.497   total_min_confirmed = 0.
+12/31/2021 05:12:26.498   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:26.498   total_min_confirmed = 0.
+12/31/2021 05:12:26.498 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:26.499 setting confirmed frame in sync to 0.
+12/31/2021 05:12:26.499 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:26.663 Haven't exchanged packets in a while (last received:0  last sent:7).  Resending.
+12/31/2021 05:12:26.663 send game input 0 (8 bits).
+12/31/2021 05:12:26.664 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:26.664 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:26.664 prediction ok.  proceeding.
+12/31/2021 05:12:26.665   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:26.665   total_min_confirmed = 0.
+12/31/2021 05:12:26.666   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:26.666   total_min_confirmed = 0.
+12/31/2021 05:12:26.666 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:26.667 setting confirmed frame in sync to 0.
+12/31/2021 05:12:26.667 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:26.830 send quality report.
+12/31/2021 05:12:26.831 Network Stats --
+ Bandwidth: 30 KBps Packets Sent: 29 (13.4446 pps)
+ KB Sent: 61.3037109375 UDP Overhead: 1.310459 %%.
+12/31/2021 05:12:26.831 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:26.832 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:26.832 prediction ok.  proceeding.
+12/31/2021 05:12:26.832   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:26.833   total_min_confirmed = 0.
+12/31/2021 05:12:26.833   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:26.833   total_min_confirmed = 0.
+12/31/2021 05:12:26.834 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:26.834 setting confirmed frame in sync to 0.
+12/31/2021 05:12:26.835 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:26.996 Haven't exchanged packets in a while (last received:0  last sent:7).  Resending.
+12/31/2021 05:12:26.997 send game input 0 (8 bits).
+12/31/2021 05:12:26.997 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:26.998 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:26.998 prediction ok.  proceeding.
+12/31/2021 05:12:26.999   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:26.999   total_min_confirmed = 0.
+12/31/2021 05:12:27.000   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:27.000   total_min_confirmed = 0.
+12/31/2021 05:12:27.001 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:27.001 setting confirmed frame in sync to 0.
+12/31/2021 05:12:27.002 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:27.165 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:27.166 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:27.167 prediction ok.  proceeding.
+12/31/2021 05:12:27.168   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:27.168   total_min_confirmed = 0.
+12/31/2021 05:12:27.168   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:27.169   total_min_confirmed = 0.
+12/31/2021 05:12:27.169 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:27.170 setting confirmed frame in sync to 0.
+12/31/2021 05:12:27.170 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:27.331 Haven't exchanged packets in a while (last received:0  last sent:7).  Resending.
+12/31/2021 05:12:27.332 send game input 0 (8 bits).
+12/31/2021 05:12:27.332 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:27.333 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:27.333 prediction ok.  proceeding.
+12/31/2021 05:12:27.333   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:27.334   total_min_confirmed = 0.
+12/31/2021 05:12:27.334   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:27.335   total_min_confirmed = 0.
+12/31/2021 05:12:27.335 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:27.336 setting confirmed frame in sync to 0.
+12/31/2021 05:12:27.336 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:27.498 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:27.499 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:27.499 prediction ok.  proceeding.
+12/31/2021 05:12:27.499   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:27.500   total_min_confirmed = 0.
+12/31/2021 05:12:27.500   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:27.501   total_min_confirmed = 0.
+12/31/2021 05:12:27.501 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:27.502 setting confirmed frame in sync to 0.
+12/31/2021 05:12:27.502 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:27.665 Haven't exchanged packets in a while (last received:0  last sent:7).  Resending.
+12/31/2021 05:12:27.665 send game input 0 (8 bits).
+12/31/2021 05:12:27.666 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:27.666 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:27.667 prediction ok.  proceeding.
+12/31/2021 05:12:27.667   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:27.667   total_min_confirmed = 0.
+12/31/2021 05:12:27.668   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:27.668   total_min_confirmed = 0.
+12/31/2021 05:12:27.669 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:27.669 setting confirmed frame in sync to 0.
+12/31/2021 05:12:27.670 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:27.831 send quality report.
+12/31/2021 05:12:27.832 Network Stats --
+ Bandwidth: 24 KBps Packets Sent: 33 (10.44965 pps)
+ KB Sent: 73.5 UDP Overhead: 1.242938 %%.
+12/31/2021 05:12:27.833 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:27.833 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:27.834 prediction ok.  proceeding.
+12/31/2021 05:12:27.834   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:27.835   total_min_confirmed = 0.
+12/31/2021 05:12:27.835   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:27.836   total_min_confirmed = 0.
+12/31/2021 05:12:27.836 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:27.837 setting confirmed frame in sync to 0.
+12/31/2021 05:12:27.838 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:27.998 Haven't exchanged packets in a while (last received:0  last sent:7).  Resending.
+12/31/2021 05:12:27.998 send game input 0 (8 bits).
+12/31/2021 05:12:27.999 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:27.999 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:28.000 prediction ok.  proceeding.
+12/31/2021 05:12:28.000   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:28.001   total_min_confirmed = 0.
+12/31/2021 05:12:28.001   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:28.001   total_min_confirmed = 0.
+12/31/2021 05:12:28.002 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:28.002 setting confirmed frame in sync to 0.
+12/31/2021 05:12:28.003 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:28.165 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:28.166 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:28.166 prediction ok.  proceeding.
+12/31/2021 05:12:28.169   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:28.169   total_min_confirmed = 0.
+12/31/2021 05:12:28.170   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:28.170   total_min_confirmed = 0.
+12/31/2021 05:12:28.171 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:28.171 setting confirmed frame in sync to 0.
+12/31/2021 05:12:28.172 Rejecting input from emulator: reached prediction barrier.
+12/31/2021 05:12:28.333 Haven't exchanged packets in a while (last received:0  last sent:7).  Resending.
+12/31/2021 05:12:28.333 send game input 0 (8 bits).
+12/31/2021 05:12:28.334 considering incorrect frame -1 reported by queue 0.
+12/31/2021 05:12:28.334 considering incorrect frame -1 reported by queue 1.
+12/31/2021 05:12:28.335 prediction ok.  proceeding.
+12/31/2021 05:12:28.335   local endp: connected = True, last_received = 0, total_min_confirmed = 0.
+12/31/2021 05:12:28.336   total_min_confirmed = 0.
+12/31/2021 05:12:28.336   local endp: connected = True, last_received = 7, total_min_confirmed = 0.
+12/31/2021 05:12:28.336   total_min_confirmed = 0.
+12/31/2021 05:12:28.337 last confirmed frame in p2p backend is 0. 
+12/31/2021 05:12:28.337 setting confirmed frame in sync to 0.
+12/31/2021 05:12:28.338 Rejecting input from emulator: reached prediction barrier.
