@@ -44,7 +44,7 @@ namespace PleaseUndo
             _inputs = new GameInput[INPUT_QUEUE_LENGTH];
             for (int i = 0; i < _inputs.Length; i++)
             {
-                _inputs[i].size = input_size;
+                _inputs[i] = new GameInput(0, null, input_size); // struct was default constructed and bits would be null, important note is that the fist parameter is not NullFrame, but default int value in C++, which is zero.
             }
         }
 
