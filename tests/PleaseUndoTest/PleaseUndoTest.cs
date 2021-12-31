@@ -1,6 +1,7 @@
 using PleaseUndo;
 using System.Net;
 using System.Linq;
+using MessagePack;
 using System.Net.Sockets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -113,6 +114,76 @@ namespace PleaseUndoTest
             // throw new System.Exception(); // uncomment if you want logs...
         }
 
+        [MessagePackObject]
+        public struct GameState
+        {
+            [KeyAttribute(0)]
+            public int count;
+        }
+
+        [TestMethod]
+        public void Test_Synctest()
+        {
+            var state = new GameState { };
+            var handle1 = new PUPlayerHandle { };
+            var handle2 = new PUPlayerHandle { };
+            PUSession synctest = null;
+
+            var cb = new PUSessionCallbacks
+            {
+                OnEvent = (PUEvent ev) => { return false; },
+                OnBeginGame = () => { return false; },
+                OnAdvanceFrame = () =>
+                {
+                    var values = new byte[16];
+                    var disconnectFlags = 0;
+
+                    Assert.AreEqual(PUErrorCode.PU_OK, synctest.SyncInput(ref values, INPUT_SIZE, ref disconnectFlags));
+
+                    for (var j = 0; j < values.Length; j++)
+                    {
+                        state.count += j;
+                    }
+                    Assert.AreEqual(PUErrorCode.PU_OK, synctest.IncrementFrame());
+                    return true;
+                },
+                OnLoadGameState = (byte[] buffer, int len) =>
+                {
+                    state = MessagePackSerializer.Deserialize<GameState>(buffer);
+                    return true;
+                },
+                OnSaveGameState = (ref byte[] buffer, ref int len, ref int checksum, int frame) =>
+                {
+                    buffer = MessagePackSerializer.Serialize(state);
+                    len = buffer.Length;
+                    checksum = state.count;
+                    return true;
+                },
+            };
+
+            synctest = new SyncTestBackend(cb, 3, 2, INPUT_SIZE);
+
+            Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalPlayer(new PUPlayer { player_num = 1 }, ref handle1));
+            Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddRemotePlayer(new PUPlayer { player_num = 2 }, ref handle2, null));
+
+            Assert.AreEqual(PUErrorCode.PU_OK, synctest.DoPoll(100));
+
+            var values = new byte[16];
+            var disconnectFlags = 0;
+
+            for (var i = 0; i < 100; i++)
+            {
+                Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalInput(handle1, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, INPUT_SIZE));
+                Assert.AreEqual(PUErrorCode.PU_OK, synctest.SyncInput(ref values, INPUT_SIZE, ref disconnectFlags));
+
+                for (var j = 0; j < values.Length; j++)
+                {
+                    state.count += j;
+                }
+                Assert.AreEqual(PUErrorCode.PU_OK, synctest.IncrementFrame());
+            }
+        }
+
         [TestMethod]
         public void Test_UDP()
         {
@@ -151,6 +222,7 @@ namespace PleaseUndoTest
             client2.Close();
         }
     }
+
     [TestClass]
     public class NetMsgSerializationTest
     {

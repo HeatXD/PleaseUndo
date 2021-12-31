@@ -19,11 +19,11 @@ namespace PleaseUndo
         bool _rollingback;
         bool _running;
 
-        GameInput _current_input;
         GameInput _last_input;
+        GameInput _current_input;
         RingBuffer<SavedInfo> _saved_frames = new RingBuffer<SavedInfo>(32);
 
-        SyncTestBackend(PUSessionCallbacks cb, int frames, int num_players)
+        public SyncTestBackend(PUSessionCallbacks cb, int frames, int num_players, int input_size)
         {
             _callbacks = cb;
             _num_players = num_players;
@@ -31,6 +31,7 @@ namespace PleaseUndo
             _last_verified = 0;
             _rollingback = false;
             _running = false;
+            _current_input = new GameInput((int)GameInput.Constants.NullFrame, null, (uint)input_size);
             _current_input.Erase();
 
             /*
