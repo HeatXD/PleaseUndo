@@ -162,7 +162,7 @@ namespace PleaseUndo
                     int checksum = _sync.GetLastSavedFrame().checksum;
                     if (info.checksum != checksum)
                     {
-                        throw new System.Exception(string.Format("Checksum for frame %d does not match saved ({0} != {1})", frame, checksum, info.checksum));
+                        throw new System.Exception(string.Format("Checksum for frame {0} does not match saved ({1} != {2})", frame, checksum, info.checksum));
                     }
                     Logger.Log("Checksum {0} for frame {1} matches.\n", checksum, info.frame);
                     info.buf = null; // free(info.buf);
