@@ -1,0 +1,217 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://assets/fonts/Roboto-Bold.ttf" type="DynamicFontData" id=1]
+[ext_resource path="res://scripts/network/SetNetworkSettings.gd" type="Script" id=2]
+
+[sub_resource type="DynamicFont" id=1]
+size = 69
+use_filter = true
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=2]
+size = 32
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+use_filter = true
+font_data = ExtResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0, 0, 0, 1 )
+
+[sub_resource type="DynamicFont" id=3]
+use_filter = true
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=5]
+size = 64
+outline_size = 4
+outline_color = Color( 0, 0, 0, 1 )
+use_filter = true
+font_data = ExtResource( 1 )
+
+[node name="NetworkSettings" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.27979
+margin_right = 4.27979
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BG" type="ColorRect" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -287.5
+margin_top = -275.0
+margin_right = 287.5
+margin_bottom = 275.0
+color = Color( 0.913725, 0.898039, 0.898039, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LB_TITLE" type="Label" parent="BG"]
+margin_left = -112.0
+margin_top = -125.0
+margin_right = 688.0
+custom_fonts/font = SubResource( 1 )
+text = "ROLLBACK BALLS"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LB_SUBTITLE" type="Label" parent="BG"]
+margin_left = -112.0
+margin_top = 550.0
+margin_right = 689.0
+margin_bottom = 674.0
+custom_fonts/font = SubResource( 1 )
+text = "SETTINGS"
+align = 1
+valign = 1
+autowrap = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LB_LOCALID" type="Label" parent="BG"]
+margin_top = 233.02
+margin_right = 362.0
+margin_bottom = 306.02
+custom_fonts/font = SubResource( 2 )
+text = "LOCAL PLAYER NUM :"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LB_REMOTEIP" type="Label" parent="BG"]
+margin_top = 160.02
+margin_right = 362.0
+margin_bottom = 233.02
+custom_fonts/font = SubResource( 2 )
+text = "REMOTE IP :"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LB_REMOTEPORT" type="Label" parent="BG"]
+margin_top = 87.0203
+margin_right = 362.0
+margin_bottom = 160.02
+custom_fonts/font = SubResource( 2 )
+text = "REMOTE PORT :"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LB_LOCALPORT" type="Label" parent="BG"]
+margin_top = 14.0203
+margin_right = 362.0
+margin_bottom = 87.0203
+custom_fonts/font = SubResource( 2 )
+text = "LOCAL PORT :"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LB_DELAY" type="Label" parent="BG"]
+margin_top = 306.02
+margin_right = 362.0
+margin_bottom = 379.02
+custom_fonts/font = SubResource( 2 )
+text = "INPUT DELAY :"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LE_LOCALPORT" type="LineEdit" parent="BG"]
+margin_left = 362.0
+margin_top = 28.0406
+margin_right = 548.0
+margin_bottom = 76.0406
+custom_styles/normal = SubResource( 4 )
+custom_fonts/font = SubResource( 3 )
+custom_colors/clear_button_color = Color( 0, 0, 0, 1 )
+align = 1
+max_length = 5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LE_REMOTEPORT" type="LineEdit" parent="BG"]
+margin_left = 362.0
+margin_top = 101.144
+margin_right = 548.0
+margin_bottom = 149.144
+custom_styles/normal = SubResource( 4 )
+custom_fonts/font = SubResource( 3 )
+align = 1
+max_length = 5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LE_REMOTEIP" type="LineEdit" parent="BG"]
+margin_left = 362.0
+margin_top = 173.187
+margin_right = 548.0
+margin_bottom = 221.187
+custom_styles/normal = SubResource( 4 )
+custom_fonts/font = SubResource( 3 )
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LE_DELAY" type="LineEdit" parent="BG"]
+margin_left = 362.0
+margin_top = 319.187
+margin_right = 548.0
+margin_bottom = 367.187
+custom_styles/normal = SubResource( 4 )
+custom_fonts/font = SubResource( 3 )
+align = 1
+max_length = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LE_LOCALID" type="LineEdit" parent="BG"]
+margin_left = 362.0
+margin_top = 247.349
+margin_right = 548.0
+margin_bottom = 295.349
+custom_styles/normal = SubResource( 4 )
+custom_fonts/font = SubResource( 3 )
+align = 1
+max_length = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BTN_START" type="Button" parent="BG"]
+margin_top = 401.699
+margin_right = 575.0
+margin_bottom = 503.699
+custom_fonts/font = SubResource( 5 )
+text = "START"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="button_up" from="BG/BTN_START" to="." method="_on_BTN_START_button_up"]
