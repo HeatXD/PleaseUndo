@@ -163,7 +163,7 @@ namespace PleaseUndo
          */
         protected RingBuffer<Event> event_queue;
 
-        public NetProto(int queue, IPeerNetAdapter peerNetAdapter, NetMsg.ConnectStatus[] status, ref Poll poll)
+        public NetProto(int queue, IPeerNetAdapter peerNetAdapter, NetMsg.ConnectStatus[] status, Poll poll)
         {
             this.queue = queue;
             this.net_adapter = peerNetAdapter;

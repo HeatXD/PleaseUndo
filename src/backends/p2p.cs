@@ -98,7 +98,7 @@ namespace PleaseUndo
 
             var queue = player.player_num - 1;
             handle = QueueToPlayerHandle(queue);
-            _endpoints[queue] = new NetProto(queue, peerNetAdapter, _local_connect_status, ref _poll);
+            _endpoints[queue] = new NetProto(queue, peerNetAdapter, _local_connect_status, _poll);
             _endpoints[queue].SetDisconnectTimeout(_disconnect_timeout);
             _endpoints[queue].SetDisconnectNotifyStart(_disconnect_notify_start);
             _endpoints[queue].Synchronize();
@@ -286,7 +286,7 @@ namespace PleaseUndo
             _disconnect_timeout = timeout;
             for (int i = 0; i < _num_players; i++)
             {
-                if (_endpoints[i].IsInitialized())
+                if (_endpoints[i] != null && _endpoints[i].IsInitialized()) // CHECK ADDED, NOT IN GGPO, but should be fine
                 {
                     _endpoints[i].SetDisconnectTimeout(_disconnect_timeout);
                 }
@@ -299,7 +299,7 @@ namespace PleaseUndo
             _disconnect_notify_start = timeout;
             for (int i = 0; i < _num_players; i++)
             {
-                if (_endpoints[i].IsInitialized())
+                if (_endpoints[i] != null && _endpoints[i].IsInitialized()) // CHECK ADDED, NOT IN GGPO, but should be fine
                 {
                     _endpoints[i].SetDisconnectNotifyStart(_disconnect_notify_start);
                 }
@@ -391,7 +391,7 @@ namespace PleaseUndo
             for (i = 0; i < _num_players; i++)
             {
                 bool queue_connected = true;
-                if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN GGPO
+                if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN GGPO, but should be fine
                 {
                     int ignore = 0;
                     queue_connected = _endpoints[i].GetPeerConnectStatus(i, ref ignore);
@@ -428,7 +428,7 @@ namespace PleaseUndo
                     // we're going to do a lot of logic here in consideration of endpoint i.
                     // keep accumulating the minimum confirmed point for all n*n packets and
                     // throw away the rest.
-                    if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN GGPO
+                    if (_endpoints[i] != null && _endpoints[i].IsRunning()) // CHECK ADDED != null, NOT IN GGPO, but should be fine
                     {
                         bool connected = _endpoints[i].GetPeerConnectStatus(queue, ref last_received);
 
@@ -622,7 +622,7 @@ namespace PleaseUndo
                 for (i = 0; i < _num_players; i++)
                 {
                     // xxx: IsInitialized() must go... we're actually using it as a proxy for "represents the local player"
-                    if (_endpoints[i] != null && _endpoints[i].IsInitialized() && !_endpoints[i].IsSynchronized() && _local_connect_status[i].disconnected == 0) // CHECK ADDED != null, NOT IN GGPO
+                    if (_endpoints[i] != null && _endpoints[i].IsInitialized() && !_endpoints[i].IsSynchronized() && _local_connect_status[i].disconnected == 0) // CHECK ADDED != null, NOT IN GGPO, but should be fine
                     {
                         return;
                     }
