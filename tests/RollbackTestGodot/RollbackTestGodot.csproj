@@ -5,7 +5,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PleaseUndo.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MessagePack" Version="2.3.85" />
-  </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 using Godot;
 using AF = Abacus.Fixed64Precision;
 using MessagePack;
+
 [MessagePackObject]
 public class Player
 {
@@ -20,7 +21,7 @@ public class Player
     public Player(byte ID)
     {
         this.ID = ID;
-        this.Position = new AF.Vector2(400, 400);
+        this.Position = new AF.Vector2(ID == 1 ? 300 : 500, 400);
         this.Velocity = new AF.Vector2();
         this.Acceleration = new AF.Vector2();
         this.GameInput = new PlayerInput();
