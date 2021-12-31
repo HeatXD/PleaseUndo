@@ -15,12 +15,12 @@ outline_color = Color( 0, 0, 0, 1 )
 use_filter = true
 font_data = ExtResource( 1 )
 
-[sub_resource type="DynamicFont" id=3]
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0, 0, 0, 1 )
+
+[sub_resource type="DynamicFont" id=4]
 use_filter = true
 font_data = ExtResource( 1 )
-
-[sub_resource type="StyleBoxFlat" id=4]
-bg_color = Color( 0, 0, 0, 1 )
 
 [sub_resource type="DynamicFont" id=5]
 size = 64
@@ -150,9 +150,9 @@ margin_left = 362.0
 margin_top = 28.0406
 margin_right = 548.0
 margin_bottom = 76.0406
+custom_styles/normal = SubResource( 3 )
+custom_fonts/font = SubResource( 4 )
 custom_colors/clear_button_color = Color( 0, 0, 0, 1 )
-custom_fonts/font = SubResource( 3 )
-custom_styles/normal = SubResource( 4 )
 align = 1
 max_length = 5
 __meta__ = {
@@ -164,8 +164,8 @@ margin_left = 362.0
 margin_top = 101.144
 margin_right = 548.0
 margin_bottom = 149.144
-custom_fonts/font = SubResource( 3 )
-custom_styles/normal = SubResource( 4 )
+custom_styles/normal = SubResource( 3 )
+custom_fonts/font = SubResource( 4 )
 align = 1
 max_length = 5
 __meta__ = {
@@ -177,8 +177,8 @@ margin_left = 362.0
 margin_top = 173.187
 margin_right = 548.0
 margin_bottom = 221.187
-custom_fonts/font = SubResource( 3 )
-custom_styles/normal = SubResource( 4 )
+custom_styles/normal = SubResource( 3 )
+custom_fonts/font = SubResource( 4 )
 align = 1
 __meta__ = {
 "_edit_use_anchors_": false
@@ -189,8 +189,8 @@ margin_left = 362.0
 margin_top = 319.187
 margin_right = 548.0
 margin_bottom = 367.187
-custom_fonts/font = SubResource( 3 )
-custom_styles/normal = SubResource( 4 )
+custom_styles/normal = SubResource( 3 )
+custom_fonts/font = SubResource( 4 )
 align = 1
 max_length = 2
 __meta__ = {
@@ -202,8 +202,8 @@ margin_left = 362.0
 margin_top = 247.349
 margin_right = 548.0
 margin_bottom = 295.349
-custom_fonts/font = SubResource( 3 )
-custom_styles/normal = SubResource( 4 )
+custom_styles/normal = SubResource( 3 )
+custom_fonts/font = SubResource( 4 )
 align = 1
 max_length = 1
 __meta__ = {

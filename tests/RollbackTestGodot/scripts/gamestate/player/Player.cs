@@ -6,7 +6,7 @@ using MessagePack;
 public class Player
 {
     [Key(0)]
-    public byte ID; // ID of the player corresponds to the player's index in the array. an id shouldnt be negative
+    public int ID; // ID of the player corresponds to the player's index in the array. an id shouldnt be negative
     [Key(1)]
     public AF.Vector2 Position;
     [Key(2)]
@@ -18,7 +18,7 @@ public class Player
     [Key(5)]
     public int MoveSpeed;
 
-    public Player(byte ID)
+    public Player(int ID)
     {
         this.ID = ID;
         this.Position = new AF.Vector2(ID == 1 ? 300 : 500, 400);

@@ -10,8 +10,7 @@ public class GameMaster : Node2D
     private DynamicFont DrawFont;
 
     // loop timing
-    private float Accumulator;
-    private const float DELTA = 0.167f;
+    private int WaitFrames;
 
     // network
     private byte LocalID;
@@ -26,7 +25,6 @@ public class GameMaster : Node2D
     public override void _Ready()
     {
         // setup loop timing
-        this.Accumulator = -0.5f;
         // setup network
         this.SessionAdapter = new GodotUdpPeer(
             (int)GetNode("/root/NetworkGlobals").Get("local_port"),
@@ -44,9 +42,8 @@ public class GameMaster : Node2D
 
         // setup PleaseUndo
         System.Environment.SetEnvironmentVariable("PU_LOG_IGNORE", null);
-        System.Environment.SetEnvironmentVariable("PU_LOG_FILE_PATH", "logs.txt");
         System.Environment.SetEnvironmentVariable("PU_LOG_USE_TIMESTAMP", "x");
-        System.Environment.SetEnvironmentVariable("PU_LOG_CREATE_FILE", "x");
+        System.Environment.SetEnvironmentVariable("PU_LOG_CREATE_FILE", null);
 
         this.GameCallbacks.OnEvent += OnEvent;
         this.GameCallbacks.OnBeginGame += OnBeginGame;
@@ -73,8 +70,8 @@ public class GameMaster : Node2D
             }
         }
 
-        // GameSession.SetDisconnectTimeout(3000);
-        // GameSession.SetDisconnectNotifyStart(1000);
+        GameSession.SetDisconnectTimeout(3000);
+        GameSession.SetDisconnectNotifyStart(1000);
     }
 
     private bool OnSaveGameState(ref byte[] buffer, ref int len, ref int checksum, int frame)
@@ -114,8 +111,8 @@ public class GameMaster : Node2D
         switch (ev.code)
         {
             case PUEventCode.PU_EVENTCODE_TIMESYNC:
-                // var time_sync_event = (PUTimesyncEvent)ev;
-                // OS.DelayMsec(1000 * time_sync_event.frames_ahead / 60);
+                var ts_event = (PUTimesyncEvent)ev;
+                WaitFrames = ts_event.frames_ahead;
                 break;
         }
         return true;
@@ -124,11 +121,10 @@ public class GameMaster : Node2D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(float delta)
     {
-        Accumulator += delta;
-        if (Accumulator >= DELTA)
-        {
-            GameSession.DoPoll(69); // nice
+        GameSession.DoPoll(69);// nice
 
+        if (WaitFrames <= 0)
+        {
             PUErrorCode result = PUErrorCode.PU_OK;
             int disconnect_flags = 0;
             byte[] inputs = new byte[sizeof(byte) * 2];
@@ -145,7 +141,10 @@ public class GameMaster : Node2D
                     GameSession.IncrementFrame();
                 }
             }
-            Accumulator -= DELTA;
+        }
+        else
+        {
+            WaitFrames--;
         }
         // draw
         Update();
