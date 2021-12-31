@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://assets/fonts/Roboto-Bold.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://scripts/network/SetNetworkSettings.gd" type="Script" id=2]
@@ -15,16 +15,22 @@ outline_color = Color( 0, 0, 0, 1 )
 use_filter = true
 font_data = ExtResource( 1 )
 
-[sub_resource type="StyleBoxFlat" id=4]
-bg_color = Color( 0, 0, 0, 1 )
-
 [sub_resource type="DynamicFont" id=3]
 use_filter = true
 font_data = ExtResource( 1 )
 
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0, 0, 0, 1 )
+
 [sub_resource type="DynamicFont" id=5]
 size = 64
 outline_size = 4
+outline_color = Color( 0, 0, 0, 1 )
+use_filter = true
+font_data = ExtResource( 1 )
+
+[sub_resource type="DynamicFont" id=6]
+outline_size = 1
 outline_color = Color( 0, 0, 0, 1 )
 use_filter = true
 font_data = ExtResource( 1 )
@@ -144,9 +150,9 @@ margin_left = 362.0
 margin_top = 28.0406
 margin_right = 548.0
 margin_bottom = 76.0406
-custom_styles/normal = SubResource( 4 )
-custom_fonts/font = SubResource( 3 )
 custom_colors/clear_button_color = Color( 0, 0, 0, 1 )
+custom_fonts/font = SubResource( 3 )
+custom_styles/normal = SubResource( 4 )
 align = 1
 max_length = 5
 __meta__ = {
@@ -158,8 +164,8 @@ margin_left = 362.0
 margin_top = 101.144
 margin_right = 548.0
 margin_bottom = 149.144
-custom_styles/normal = SubResource( 4 )
 custom_fonts/font = SubResource( 3 )
+custom_styles/normal = SubResource( 4 )
 align = 1
 max_length = 5
 __meta__ = {
@@ -171,8 +177,8 @@ margin_left = 362.0
 margin_top = 173.187
 margin_right = 548.0
 margin_bottom = 221.187
-custom_styles/normal = SubResource( 4 )
 custom_fonts/font = SubResource( 3 )
+custom_styles/normal = SubResource( 4 )
 align = 1
 __meta__ = {
 "_edit_use_anchors_": false
@@ -183,8 +189,8 @@ margin_left = 362.0
 margin_top = 319.187
 margin_right = 548.0
 margin_bottom = 367.187
-custom_styles/normal = SubResource( 4 )
 custom_fonts/font = SubResource( 3 )
+custom_styles/normal = SubResource( 4 )
 align = 1
 max_length = 2
 __meta__ = {
@@ -196,8 +202,8 @@ margin_left = 362.0
 margin_top = 247.349
 margin_right = 548.0
 margin_bottom = 295.349
-custom_styles/normal = SubResource( 4 )
 custom_fonts/font = SubResource( 3 )
+custom_styles/normal = SubResource( 4 )
 align = 1
 max_length = 1
 __meta__ = {
@@ -214,4 +220,28 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="BTN_1P" type="Button" parent="BG"]
+margin_left = 1.0
+margin_top = 517.0
+margin_right = 131.0
+margin_bottom = 549.0
+custom_fonts/font = SubResource( 6 )
+text = "Quick P1 SETUP"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BTN_2P" type="Button" parent="BG"]
+margin_left = 444.0
+margin_top = 517.0
+margin_right = 574.0
+margin_bottom = 549.0
+custom_fonts/font = SubResource( 6 )
+text = "Quick P2 SETUP"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [connection signal="button_up" from="BG/BTN_START" to="." method="_on_BTN_START_button_up"]
+[connection signal="pressed" from="BG/BTN_1P" to="." method="_on_BTN_1P_pressed"]
+[connection signal="pressed" from="BG/BTN_2P" to="." method="_on_BTN_2P_pressed"]
