@@ -18,6 +18,7 @@ namespace PleaseUndo
             public int num_players;
             public int input_size;
         }
+
         public class SavedFrame
         {
             public byte[] buf;
@@ -25,6 +26,7 @@ namespace PleaseUndo
             public int frame = -1;
             public int checksum = 0;
         };
+
         protected class SavedState
         {
             public SavedFrame[] frames = new SavedFrame[MAX_PREDICTION_FRAMES + 2];
@@ -156,8 +158,7 @@ namespace PleaseUndo
 
         public void CheckSimulation(int timeout)
         {
-            int seek_to = 0;
-            if (!CheckSimulationConsistency(ref seek_to))
+            if (!CheckSimulationConsistency(out int seek_to))
             {
                 AdjustSimulation(seek_to);
             }
@@ -174,7 +175,7 @@ namespace PleaseUndo
             int framecount = _framecount;
             int count = _framecount - seek_to;
 
-            Logger.Log("Catching up\n");
+            Logger.Log("Catching up");
             _rollingback = true;
 
             /*
@@ -196,14 +197,14 @@ namespace PleaseUndo
 
             _rollingback = false;
 
-            Logger.Log("---\n");
+            Logger.Log("---");
         }
 
         public void LoadFrame(int frame)
         {
             if (frame == _framecount)
             {
-                Logger.Log("Skipping NOP.\n");
+                Logger.Log("Skipping NOP.");
                 return;
             }
 
@@ -211,7 +212,7 @@ namespace PleaseUndo
             _savedstate.head = FindSavedFrameIndex(frame);
             ref SavedFrame state = ref _savedstate.frames[_savedstate.head]; // SavedFrame* state = _savedstate.frames + _savedstate.head;
 
-            Logger.Log("=== Loading frame info {0} (size: {1}  checksum: {2}).\n", state.frame, state.cbuf, state.checksum);
+            Logger.Log("=== Loading frame info {0} (size: {1}  checksum: {2}).", state.frame, state.cbuf, state.checksum);
 
             Logger.Assert(state.buf != null && state.cbuf != 0);
             _callbacks.OnLoadGameState(state.buf, state.cbuf);
@@ -253,10 +254,7 @@ namespace PleaseUndo
                     break;
                 }
             }
-            if (i == count)
-            {
-                Logger.Assert(false);
-            }
+            Logger.Assert(i != count);
             return i;
         }
 
@@ -271,7 +269,7 @@ namespace PleaseUndo
             return true;
         }
 
-        protected bool CheckSimulationConsistency(ref int seekTo)
+        protected bool CheckSimulationConsistency(out int seekTo)
         {
             int first_incorrect = (int)GameInput.Constants.NullFrame;
             for (int i = 0; i < _config.num_players; i++)
@@ -288,8 +286,10 @@ namespace PleaseUndo
             if (first_incorrect == (int)GameInput.Constants.NullFrame)
             {
                 Logger.Log("prediction ok.  proceeding.\n");
+                seekTo = 0;
                 return true;
             }
+
             seekTo = first_incorrect;
             return false;
         }

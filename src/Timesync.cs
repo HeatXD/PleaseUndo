@@ -1,3 +1,5 @@
+using System;
+
 namespace PleaseUndo
 {
     public class TimeSync
@@ -7,8 +9,9 @@ namespace PleaseUndo
         const int MIN_FRAME_ADVANTAGE = 3;
         const int MAX_FRAME_ADVANTAGE = 9;
 
-        protected int _count;
-        protected int _next_prediction;
+        protected static int _count = 0;
+
+        protected int _next_prediction = FRAME_WINDOW_SIZE * 3;
         protected int[] _local = new int[FRAME_WINDOW_SIZE];
         protected int[] _remote = new int[FRAME_WINDOW_SIZE];
         protected GameInput[] _last_inputs = new GameInput[MIN_UNIQUE_FRAMES];
@@ -39,7 +42,6 @@ namespace PleaseUndo
             }
             radvantage = sum / (float)_remote.Length;
 
-            _count = 0;
             _count++;
 
             // See if someone should take action.  The person furthest ahead
@@ -81,7 +83,7 @@ namespace PleaseUndo
             }
 
             // Success!!! Recommend the number of frames to sleep and adjust
-            return System.Math.Min(sleep_frames, MAX_FRAME_ADVANTAGE);
+            return Math.Min(sleep_frames, MAX_FRAME_ADVANTAGE);
         }
     };
 }

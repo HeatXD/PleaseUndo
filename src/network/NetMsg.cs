@@ -25,7 +25,7 @@ namespace PleaseUndo
         };
 
         [MessagePackObject]
-        public struct ConnectStatus
+        public class ConnectStatus
         {
             [Key(0)]
             public int last_frame;
@@ -43,7 +43,6 @@ namespace PleaseUndo
 
         public int PacketSize()
         {
-            //return Marshal.SizeOf(this);
             return Serialize(this).Length;
         }
     }
