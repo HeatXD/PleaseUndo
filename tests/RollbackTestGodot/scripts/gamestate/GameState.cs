@@ -7,28 +7,35 @@ public class GameState
 {
     [Key(0)]
     public Player[] Players;
+    [Key(1)]
+    public int FrameNumber;
 
-    public GameState(Player[] players)
+    public GameState(Player[] players, int frameNumber)
     {
         Players = new Player[players.Length];
         for (byte i = 0; i < Players.Length; i++)
         {
             Players[i] = new Player(players[i]);
         }
+
+        FrameNumber = frameNumber;
     }
     public GameState(byte playerCount)
     {
         this.Players = new Player[playerCount];
-        for (byte i = 0; i < Players.Length; i++)
+        for (byte i = 1; i < Players.Length + 1; i++)
         {
-            Players[i] = new Player(i);
+            Players[i - 1] = new Player(i);
         }
+
+        this.FrameNumber = 0;
     }
-    public void UpdateState(AF.Fixed64 dt, byte localID, Vector2 screenSize)
+    public void UpdateState(byte[] playerInputs, AF.Fixed64 dt, Vector2 screenSize)
     {
+        FrameNumber++;
         foreach (var player in Players)
         {
-            player.Update(dt, localID);
+            player.Update(dt, playerInputs);
             ScreenWrap(player, screenSize);
         }
     }

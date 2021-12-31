@@ -20,7 +20,7 @@ public class Player
     public Player(byte ID)
     {
         this.ID = ID;
-        this.Position = new AF.Vector2();
+        this.Position = new AF.Vector2(400, 400);
         this.Velocity = new AF.Vector2();
         this.Acceleration = new AF.Vector2();
         this.GameInput = new PlayerInput();
@@ -36,9 +36,9 @@ public class Player
         this.MoveSpeed = p.MoveSpeed;
     }
 
-    public void Update(AF.Fixed64 dt, byte localID)
+    public void Update(AF.Fixed64 dt, byte[] playerInputs)
     {
-        GetInput(localID);
+        GetInput(playerInputs);
         UseInput();
         ProcessMotion(dt);
     }
@@ -75,20 +75,8 @@ public class Player
         }
     }
 
-    private void GetInput(byte localID)
+    private void GetInput(byte[] playerInputs)
     {
-        GameInput.InputState = 0;
-
-        if (ID == localID)
-        {
-            if (Input.IsActionPressed("move_up"))
-                GameInput.SetInputBit(0, true);
-            if (Input.IsActionPressed("move_down"))
-                GameInput.SetInputBit(1, true);
-            if (Input.IsActionPressed("move_left"))
-                GameInput.SetInputBit(2, true);
-            if (Input.IsActionPressed("move_right"))
-                GameInput.SetInputBit(3, true);
-        }
+        GameInput.InputState = playerInputs[ID - 1];
     }
 }
