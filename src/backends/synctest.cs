@@ -31,8 +31,8 @@ namespace PleaseUndo
             _last_verified = 0;
             _rollingback = false;
             _running = false;
-            _current_input = new GameInput((int)GameInput.Constants.NullFrame, null, (uint)input_size);
-            _current_input.Erase();
+            _current_input = new GameInput(0, null, (uint)input_size); // struct was default constructed and bits would be null, important note is that the fist parameter is not NullFrame, but default int value in C++, which is zero.
+            _current_input.Erase(); // CHECKME: this is useless in C# since byte[] are zeroed
 
             /*
             * Initialize the synchronziation layer
