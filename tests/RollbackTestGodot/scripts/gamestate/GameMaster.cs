@@ -20,8 +20,8 @@ public class GameMaster : Node2D
 
     //PleaseUndo
     private PUSession GameSession;
-    public PUPlayerHandle HandleOne;
-    private PUPlayerHandle HandleTwo;
+    private PUPlayerHandle LocalHandle;
+    private PUPlayerHandle RemoteHandle;
     private PUSessionCallbacks GameCallbacks;
 
     // Called when the node enters the scene tree for the first time.
@@ -54,29 +54,15 @@ public class GameMaster : Node2D
         this.GameCallbacks.OnLoadGameState += OnLoadGameState;
         this.GameCallbacks.OnSaveGameState += OnSaveGameState;
 
-        this.GameSession = new SyncTestBackend(ref GameCallbacks, 5, 2, INPUT_SIZE);
+        this.GameSession = new SyncTestBackend(ref GameCallbacks, 3, 2, INPUT_SIZE);
         // for now we only support 2 balls
-        this.HandleOne = new PUPlayerHandle { };
-        this.HandleTwo = new PUPlayerHandle { };
-        for (int i = 1; i < 3; i++)
-        {
-            var player = new PUPlayer { player_num = i };
-            if (i == LocalID)
-            {
-                GameSession.AddLocalPlayer(player, ref HandleOne);
-                //GameSession.SetFrameDelay(PlayerHandles[i - 1], (int)GetNode("/root/NetworkGlobals").Get("local_delay"));
-            }
-            else
-            {
-                GameSession.AddRemotePlayer(player, ref HandleTwo, null);
-                //GD.Print(player.player_num);
-            }
-        }
+        this.LocalHandle = new PUPlayerHandle();
+        this.RemoteHandle = new PUPlayerHandle();
 
-        GD.Print("Handles: ", HandleOne.handle, ",", HandleTwo.handle);
-
-        GameSession.SetDisconnectTimeout(3000);
-        GameSession.SetDisconnectNotifyStart(1000);
+        GameSession.AddLocalPlayer(new PUPlayer { player_num = 2 }, ref LocalHandle);
+        GameSession.AddRemotePlayer(new PUPlayer { player_num = 1 }, ref RemoteHandle, null);
+        // GameSession.SetDisconnectTimeout(3000);
+        // GameSession.SetDisconnectNotifyStart(1000);
     }
 
     private bool OnSaveGameState(ref byte[] buffer, ref int len, ref int checksum, int frame)
@@ -142,8 +128,8 @@ public class GameMaster : Node2D
             byte[] input = new byte[INPUT_SIZE];
 
             Array.Copy(GetLocalInput(), input, INPUT_SIZE);
-
-            result = GameSession.AddLocalInput(HandleOne, input, INPUT_SIZE);
+            GD.
+            result = GameSession.AddLocalInput(LocalHandle, input, INPUT_SIZE);
 
             if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
             {

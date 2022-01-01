@@ -182,8 +182,9 @@ namespace PleaseUndoTest
 
             for (var i = 0; i < 100; i++)
             {
-                Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalInput(localHandle, new byte[] { GetSeededInput(ref seed), 2, 3, 4, 5, 6, 7, 8 }, INPUT_SIZE));
-                Assert.AreEqual(PUErrorCode.PU_OK, synctest.SyncInput(ref values, INPUT_SIZE, ref disconnectFlags));
+                Assert.AreEqual(PUErrorCode.PU_OK, synctest.DoPoll(100));
+                Assert.AreEqual(PUErrorCode.PU_ERRORCODE_SUCCESS, synctest.AddLocalInput(localHandle, new byte[] { GetSeededInput(ref seed), 2, 3, 4, 5, 6, 7, 8 }, INPUT_SIZE));
+                Assert.AreEqual(PUErrorCode.PU_ERRORCODE_SUCCESS, synctest.SyncInput(ref values, INPUT_SIZE, ref disconnectFlags));
 
                 for (var j = 0; j < values.Length; j++)
                 {
