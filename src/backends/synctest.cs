@@ -1,4 +1,6 @@
 using System;
+using System.Runtime.CompilerServices;
+
 namespace PleaseUndo
 {
     public class SyncTestBackend : PUSession
@@ -104,15 +106,11 @@ namespace PleaseUndo
                 {
                     _sync.SaveCurrentFrame();
                 }
-                _last_input = _current_input;
+                _last_input = new GameInput(_current_input.frame, _current_input.bits, (uint)_current_input.bits.Length);
             }
 
             //values = _last_input.bits; // CHECKME: memcpy(values, _last_input.bits, size);
             Array.Copy(_last_input.bits, values, size);
-            foreach (var bit in _last_input.bits)
-            {
-                Console.WriteLine(bit);
-            }
 
             if (disconnect_flags != 0)
             {
