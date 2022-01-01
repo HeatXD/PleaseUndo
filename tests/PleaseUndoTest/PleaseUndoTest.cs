@@ -4,6 +4,7 @@ using System.Linq;
 using MessagePack;
 using System.Net.Sockets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace PleaseUndoTest
 {
@@ -142,8 +143,9 @@ namespace PleaseUndoTest
 
                     for (var j = 0; j < values.Length; j++)
                     {
-                        state.count += j;
+                        state.count += values[j];
                     }
+
                     Assert.AreEqual(PUErrorCode.PU_OK, synctest.IncrementFrame());
                     return true;
                 },
@@ -173,15 +175,24 @@ namespace PleaseUndoTest
 
             for (var i = 0; i < 100; i++)
             {
-                Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalInput(handle1, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }, INPUT_SIZE));
+                Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalInput(handle1, new byte[] { GetLocalInput(), 2, 3, 4, 5, 6, 7, 8 }, INPUT_SIZE));
                 Assert.AreEqual(PUErrorCode.PU_OK, synctest.SyncInput(ref values, INPUT_SIZE, ref disconnectFlags));
 
                 for (var j = 0; j < values.Length; j++)
                 {
-                    state.count += j;
+                    state.count += values[j];
                 }
+
                 Assert.AreEqual(PUErrorCode.PU_OK, synctest.IncrementFrame());
             }
+        }
+
+        private byte GetLocalInput()
+        {
+            Random rnd = new Random();
+            byte[] b = new byte[1];
+            rnd.NextBytes(b);
+            return b[0];
         }
 
         [TestMethod]

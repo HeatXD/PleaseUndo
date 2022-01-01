@@ -4,9 +4,9 @@ using MessagePack;
 [MessagePackObject]
 public class GameState
 {
-    [Key(0)]
+    [KeyAttribute(0)]
     public Player[] Players;
-    [Key(1)]
+    [KeyAttribute(1)]
     public int FrameNumber;
 
     public GameState(Player[] players, int frameNumber)
@@ -36,6 +36,11 @@ public class GameState
             player.Update(playerInputs);
             ScreenWrap(player, screenSize);
         }
+        foreach (var input in playerInputs)
+        {
+            GD.Print(input);
+        }
+        GD.Print("-----");
     }
 
     private void ScreenWrap(Player player, Vector2 screenSize)

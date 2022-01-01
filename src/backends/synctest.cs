@@ -109,6 +109,10 @@ namespace PleaseUndo
 
             //values = _last_input.bits; // CHECKME: memcpy(values, _last_input.bits, size);
             Array.Copy(_last_input.bits, values, size);
+            foreach (var bit in _last_input.bits)
+            {
+                Console.WriteLine(bit);
+            }
 
             if (disconnect_flags != 0)
             {

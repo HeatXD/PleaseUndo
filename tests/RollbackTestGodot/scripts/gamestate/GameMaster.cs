@@ -16,11 +16,13 @@ public class GameMaster : Node2D
     // network
     private byte LocalID;
     private GodotUdpPeer SessionAdapter;
+    private const int INPUT_SIZE = 8;
 
     //PleaseUndo
     private PUSession GameSession;
+    public PUPlayerHandle HandleOne;
+    private PUPlayerHandle HandleTwo;
     private PUSessionCallbacks GameCallbacks;
-    private PUPlayerHandle[] PlayerHandles;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -52,21 +54,22 @@ public class GameMaster : Node2D
         this.GameCallbacks.OnLoadGameState += OnLoadGameState;
         this.GameCallbacks.OnSaveGameState += OnSaveGameState;
 
-        this.GameSession = new SyncTestBackend(ref GameCallbacks, 10, 2, 1);
+        this.GameSession = new SyncTestBackend(ref GameCallbacks, 3, 2, INPUT_SIZE);
         // for now we only support 2 balls
-        this.PlayerHandles = new PUPlayerHandle[2];
-        for (int i = 1; i < PlayerHandles.Length + 1; i++)
+        this.HandleOne = new PUPlayerHandle { };
+        this.HandleTwo = new PUPlayerHandle { };
+        for (int i = 1; i < 3; i++)
         {
             if (i == LocalID)
             {
-                var player = new PUPlayer { player_num = i, type = PUPlayerType.LOCAL };
-                GameSession.AddLocalPlayer(player, ref PlayerHandles[i - 1]);
+                var player = new PUPlayer { player_num = i };
+                GameSession.AddLocalPlayer(player, ref HandleOne);
                 GD.Print(player.player_num);
-                GameSession.SetFrameDelay(PlayerHandles[i - 1], (int)GetNode("/root/NetworkGlobals").Get("local_delay"));
+                //GameSession.SetFrameDelay(PlayerHandles[i - 1], (int)GetNode("/root/NetworkGlobals").Get("local_delay"));
             }
             else
             {
-                GameSession.AddRemotePlayer(new PUPlayer { player_num = i, type = PUPlayerType.REMOTE }, ref PlayerHandles[i - 1], SessionAdapter);
+                GameSession.AddRemotePlayer(new PUPlayer { player_num = i }, ref HandleTwo, null);
             }
         }
 
@@ -93,10 +96,16 @@ public class GameMaster : Node2D
 
     private bool OnAdvanceFrame()
     {
-        byte[] inputs = new byte[2]; //  2 bytes
+        byte[] inputs = new byte[INPUT_SIZE * 2];
         int disconnect_flags = 0;
 
-        GameSession.SyncInput(ref inputs, inputs.Length, ref disconnect_flags);
+        GameSession.SyncInput(ref inputs, INPUT_SIZE, ref disconnect_flags);
+        GD.Print("*****");
+        for (int i = 0; i < inputs.Length; i++)
+        {
+            GD.Print(inputs[i]);
+        }
+        GD.Print("*****");
         GameState.UpdateState(inputs, GetViewportRect().Size);
         GameSession.IncrementFrame();
         return true;
@@ -133,14 +142,16 @@ public class GameMaster : Node2D
             PUErrorCode result = PUErrorCode.PU_OK;
             int disconnect_flags = 0;
 
-            byte[] inputs = new byte[2];
-            byte[] input = new byte[1] { GetLocalInput() };
+            byte[] inputs = new byte[INPUT_SIZE * 2];
+            byte[] input = new byte[INPUT_SIZE];
 
-            result = GameSession.AddLocalInput(PlayerHandles[LocalID - 1], input, input.Length);
+            Array.Copy(GetLocalInput(), input, INPUT_SIZE);
+
+            result = GameSession.AddLocalInput(HandleOne, input, INPUT_SIZE);
 
             if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
             {
-                result = GameSession.SyncInput(ref inputs, inputs.Length, ref disconnect_flags);
+                result = GameSession.SyncInput(ref inputs, INPUT_SIZE, ref disconnect_flags);
                 if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
                 {
                     GameState.UpdateState(inputs, GetViewportRect().Size);
@@ -158,7 +169,7 @@ public class GameMaster : Node2D
         Update();
     }
 
-    private byte GetLocalInput()
+    private byte[] GetLocalInput()
     {
         // PlayerInput game_input = new PlayerInput();
         // if (Input.IsActionPressed("move_up"))
@@ -171,9 +182,9 @@ public class GameMaster : Node2D
         // 	game_input.SetInputBit(3, true);
         // return game_input.InputState;
         Random rnd = new Random();
-        byte[] b = new byte[1];
+        byte[] b = new byte[INPUT_SIZE];
         rnd.NextBytes(b);
-        return b[0];
+        return b;
     }
 
     public override void _Draw()
