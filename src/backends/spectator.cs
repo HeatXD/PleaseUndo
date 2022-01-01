@@ -70,7 +70,7 @@ namespace PleaseUndo
             }
 
             //memcpy stuff
-            Array.Copy(values, input.bits, input.bits.Length);
+            Array.Copy(values, input.bits, size);
             // input.bits = values;
 
             if (disconnect_flags != 0)
