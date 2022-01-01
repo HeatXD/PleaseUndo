@@ -146,7 +146,7 @@ namespace PleaseUndoTest
                     var values = new byte[16];
                     var disconnectFlags = 0;
 
-                    Assert.AreEqual(PUErrorCode.PU_OK, synctest.SyncInput(ref values, INPUT_SIZE, ref disconnectFlags));
+                    Assert.AreEqual(PUErrorCode.PU_OK, synctest.SyncInput(ref values, INPUT_SIZE * 2, ref disconnectFlags));
 
                     for (var j = 0; j < values.Length; j++)
                     {
@@ -175,8 +175,6 @@ namespace PleaseUndoTest
             Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalPlayer(new PUPlayer { player_num = 2 }, ref localHandle));
             Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddRemotePlayer(new PUPlayer { player_num = 1 }, ref remoteHandle, null));
 
-            Assert.AreEqual(PUErrorCode.PU_OK, synctest.DoPoll(100));
-
             var values = new byte[16];
             var disconnectFlags = 0;
 
@@ -184,7 +182,7 @@ namespace PleaseUndoTest
             {
                 Assert.AreEqual(PUErrorCode.PU_OK, synctest.DoPoll(100));
                 Assert.AreEqual(PUErrorCode.PU_ERRORCODE_SUCCESS, synctest.AddLocalInput(localHandle, new byte[] { GetSeededInput(ref seed), 2, 3, 4, 5, 6, 7, 8 }, INPUT_SIZE));
-                Assert.AreEqual(PUErrorCode.PU_ERRORCODE_SUCCESS, synctest.SyncInput(ref values, INPUT_SIZE, ref disconnectFlags));
+                Assert.AreEqual(PUErrorCode.PU_ERRORCODE_SUCCESS, synctest.SyncInput(ref values, INPUT_SIZE * 2, ref disconnectFlags));
 
                 for (var j = 0; j < values.Length; j++)
                 {
