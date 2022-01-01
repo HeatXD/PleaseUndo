@@ -4,17 +4,30 @@ using System.Linq;
 using MessagePack;
 using System.Net.Sockets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace PleaseUndoTest
 {
     [TestClass]
-    public class P2PTest
+    public class SessionTest
     {
+        [MessagePackObject]
+        public struct GameState
+        {
+            [KeyAttribute(0)]
+            public int Count;
+        }
+
         const int INPUT_SIZE = 8;
         const int LOCAL_PORT_1 = 7005;
         const int LOCAL_PORT_2 = 7006;
         const string LOCAL_ADDRESS = "127.0.0.1";
+        static byte[] RANDOM_INPUTS = new byte[32] { 9, 83, 206, 251, 56, 198, 11, 125, 212, 220, 127, 160, 240, 131, 148, 134, 157, 18, 11, 192, 232, 197, 255, 181, 15, 138, 197, 109, 242, 181, 194, 75 };
+
+        private byte GetSeededInput(ref int seed)
+        {
+            seed += 1;
+            return RANDOM_INPUTS[seed % RANDOM_INPUTS.Length];
+        }
 
         [TestMethod]
         public void Test_P2P()
@@ -115,19 +128,13 @@ namespace PleaseUndoTest
             // throw new System.Exception(); // uncomment if you want logs...
         }
 
-        [MessagePackObject]
-        public struct GameState
-        {
-            [KeyAttribute(0)]
-            public int count;
-        }
-
         [TestMethod]
         public void Test_Synctest()
         {
+            var seed = 0;
             var state = new GameState { };
-            var handle1 = new PUPlayerHandle { };
-            var handle2 = new PUPlayerHandle { };
+            var localHandle = new PUPlayerHandle { };
+            var remoteHandle = new PUPlayerHandle { };
             PUSession synctest = null;
 
             var cb = new PUSessionCallbacks
@@ -143,7 +150,7 @@ namespace PleaseUndoTest
 
                     for (var j = 0; j < values.Length; j++)
                     {
-                        state.count += values[j];
+                        state.Count += values[j];
                     }
 
                     Assert.AreEqual(PUErrorCode.PU_OK, synctest.IncrementFrame());
@@ -158,15 +165,15 @@ namespace PleaseUndoTest
                 {
                     buffer = MessagePackSerializer.Serialize(state);
                     len = buffer.Length;
-                    checksum = state.count;
+                    checksum = state.Count;
                     return true;
                 },
             };
 
             synctest = new SyncTestBackend(ref cb, 3, 2, INPUT_SIZE);
 
-            Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddRemotePlayer(new PUPlayer { player_num = 1 }, ref handle2, null));
-            Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalPlayer(new PUPlayer { player_num = 2 }, ref handle1));
+            Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalPlayer(new PUPlayer { player_num = 2 }, ref localHandle));
+            Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddRemotePlayer(new PUPlayer { player_num = 1 }, ref remoteHandle, null));
 
             Assert.AreEqual(PUErrorCode.PU_OK, synctest.DoPoll(100));
 
@@ -175,25 +182,25 @@ namespace PleaseUndoTest
 
             for (var i = 0; i < 100; i++)
             {
-                Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalInput(handle1, new byte[] { GetLocalInput(), 2, 3, 4, 5, 6, 7, 8 }, INPUT_SIZE));
+                Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalInput(localHandle, new byte[] { GetSeededInput(ref seed), 2, 3, 4, 5, 6, 7, 8 }, INPUT_SIZE));
                 Assert.AreEqual(PUErrorCode.PU_OK, synctest.SyncInput(ref values, INPUT_SIZE, ref disconnectFlags));
 
                 for (var j = 0; j < values.Length; j++)
                 {
-                    state.count += values[j];
+                    state.Count += values[j];
                 }
 
                 Assert.AreEqual(PUErrorCode.PU_OK, synctest.IncrementFrame());
             }
         }
+    }
 
-        private byte GetLocalInput()
-        {
-            Random rnd = new Random();
-            byte[] b = new byte[1];
-            rnd.NextBytes(b);
-            return b[0];
-        }
+    [TestClass]
+    public class NetworkTest
+    {
+        const int LOCAL_PORT_1 = 7007;
+        const int LOCAL_PORT_2 = 7008;
+        const string LOCAL_ADDRESS = "127.0.0.1";
 
         [TestMethod]
         public void Test_UDP()
