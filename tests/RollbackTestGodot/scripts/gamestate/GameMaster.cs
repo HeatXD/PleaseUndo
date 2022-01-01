@@ -54,24 +54,26 @@ public class GameMaster : Node2D
         this.GameCallbacks.OnLoadGameState += OnLoadGameState;
         this.GameCallbacks.OnSaveGameState += OnSaveGameState;
 
-        this.GameSession = new SyncTestBackend(ref GameCallbacks, 3, 2, INPUT_SIZE);
+        this.GameSession = new SyncTestBackend(ref GameCallbacks, 5, 2, INPUT_SIZE);
         // for now we only support 2 balls
         this.HandleOne = new PUPlayerHandle { };
         this.HandleTwo = new PUPlayerHandle { };
         for (int i = 1; i < 3; i++)
         {
+            var player = new PUPlayer { player_num = i };
             if (i == LocalID)
             {
-                var player = new PUPlayer { player_num = i };
                 GameSession.AddLocalPlayer(player, ref HandleOne);
-                GD.Print(player.player_num);
                 //GameSession.SetFrameDelay(PlayerHandles[i - 1], (int)GetNode("/root/NetworkGlobals").Get("local_delay"));
             }
             else
             {
-                GameSession.AddRemotePlayer(new PUPlayer { player_num = i }, ref HandleTwo, null);
+                GameSession.AddRemotePlayer(player, ref HandleTwo, null);
+                //GD.Print(player.player_num);
             }
         }
+
+        GD.Print("Handles: ", HandleOne.handle, ",", HandleTwo.handle);
 
         GameSession.SetDisconnectTimeout(3000);
         GameSession.SetDisconnectNotifyStart(1000);
@@ -100,12 +102,6 @@ public class GameMaster : Node2D
         int disconnect_flags = 0;
 
         GameSession.SyncInput(ref inputs, INPUT_SIZE, ref disconnect_flags);
-        GD.Print("*****");
-        for (int i = 0; i < inputs.Length; i++)
-        {
-            GD.Print(inputs[i]);
-        }
-        GD.Print("*****");
         GameState.UpdateState(inputs, GetViewportRect().Size);
         GameSession.IncrementFrame();
         return true;
@@ -182,9 +178,10 @@ public class GameMaster : Node2D
         // 	game_input.SetInputBit(3, true);
         // return game_input.InputState;
         Random rnd = new Random();
-        byte[] b = new byte[INPUT_SIZE];
+        byte[] b = new byte[1];
         rnd.NextBytes(b);
-        return b;
+        var ret = new byte[INPUT_SIZE] { b[0], 0, 0, 0, 0, 0, 0, 0 };
+        return ret;
     }
 
     public override void _Draw()

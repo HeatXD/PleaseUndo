@@ -4,9 +4,9 @@ using MessagePack;
 [MessagePackObject]
 public class GameState
 {
-    [KeyAttribute(0)]
+    [Key(0)]
     public Player[] Players;
-    [KeyAttribute(1)]
+    [Key(1)]
     public int FrameNumber;
 
     public GameState(Player[] players, int frameNumber)
