@@ -161,7 +161,7 @@ namespace PleaseUndoTest
                 },
             };
 
-            synctest = new SyncTestBackend(cb, 3, 2, INPUT_SIZE);
+            synctest = new SyncTestBackend(ref cb, 3, 2, INPUT_SIZE);
 
             Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddLocalPlayer(new PUPlayer { player_num = 1 }, ref handle1));
             Assert.AreEqual(PUErrorCode.PU_OK, synctest.AddRemotePlayer(new PUPlayer { player_num = 2 }, ref handle2, null));

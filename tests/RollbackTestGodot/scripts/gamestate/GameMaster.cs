@@ -52,10 +52,9 @@ public class GameMaster : Node2D
         this.GameCallbacks.OnLoadGameState += OnLoadGameState;
         this.GameCallbacks.OnSaveGameState += OnSaveGameState;
 
-        this.GameSession = new SyncTestBackend(ref GameCallbacks, 2, 2, sizeof(byte));
+        this.GameSession = new SyncTestBackend(ref GameCallbacks, 10, 2, 1);
         // for now we only support 2 balls
         this.PlayerHandles = new PUPlayerHandle[2];
-
         for (int i = 1; i < PlayerHandles.Length + 1; i++)
         {
             if (i == LocalID)
@@ -77,10 +76,10 @@ public class GameMaster : Node2D
 
     private bool OnSaveGameState(ref byte[] buffer, ref int len, ref int checksum, int frame)
     {
-        var save = MessagePackSerializer.Serialize(GameState);
-        buffer = new byte[save.Length];
-        Array.Copy(save, buffer, save.Length);
-        len = save.Length;
+        var bytes = MessagePackSerializer.Serialize(GameState);
+        len = bytes.Length;
+        buffer = new byte[len];
+        Array.Copy(bytes, buffer, len);
         checksum = (int)FletcherChecksum.GetChecksumFromBytes(buffer, 16);
         return true;
     }
@@ -94,10 +93,10 @@ public class GameMaster : Node2D
 
     private bool OnAdvanceFrame()
     {
-        byte[] inputs = new byte[sizeof(byte) * 2]; //  2 bytes
+        byte[] inputs = new byte[2]; //  2 bytes
         int disconnect_flags = 0;
-        GameSession.SyncInput(ref inputs, sizeof(byte), ref disconnect_flags);
 
+        GameSession.SyncInput(ref inputs, inputs.Length, ref disconnect_flags);
         GameState.UpdateState(inputs, GetViewportRect().Size);
         GameSession.IncrementFrame();
         return true;
@@ -133,14 +132,15 @@ public class GameMaster : Node2D
 
             PUErrorCode result = PUErrorCode.PU_OK;
             int disconnect_flags = 0;
-            byte[] inputs = new byte[sizeof(byte) * 2];
 
+            byte[] inputs = new byte[2];
             byte[] input = new byte[1] { GetLocalInput() };
-            result = GameSession.AddLocalInput(PlayerHandles[LocalID - 1], input, sizeof(byte));
+
+            result = GameSession.AddLocalInput(PlayerHandles[LocalID - 1], input, input.Length);
 
             if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
             {
-                result = GameSession.SyncInput(ref inputs, sizeof(byte) * 2, ref disconnect_flags);
+                result = GameSession.SyncInput(ref inputs, inputs.Length, ref disconnect_flags);
                 if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
                 {
                     GameState.UpdateState(inputs, GetViewportRect().Size);
@@ -160,16 +160,20 @@ public class GameMaster : Node2D
 
     private byte GetLocalInput()
     {
-        PlayerInput game_input = new PlayerInput();
-        if (Input.IsActionPressed("move_up"))
-            game_input.SetInputBit(0, true);
-        if (Input.IsActionPressed("move_down"))
-            game_input.SetInputBit(1, true);
-        if (Input.IsActionPressed("move_left"))
-            game_input.SetInputBit(2, true);
-        if (Input.IsActionPressed("move_right"))
-            game_input.SetInputBit(3, true);
-        return game_input.InputState;
+        // PlayerInput game_input = new PlayerInput();
+        // if (Input.IsActionPressed("move_up"))
+        // 	game_input.SetInputBit(0, true);
+        // if (Input.IsActionPressed("move_down"))
+        // 	game_input.SetInputBit(1, true);
+        // if (Input.IsActionPressed("move_left"))
+        // 	game_input.SetInputBit(2, true);
+        // if (Input.IsActionPressed("move_right"))
+        // 	game_input.SetInputBit(3, true);
+        // return game_input.InputState;
+        Random rnd = new Random();
+        byte[] b = new byte[1];
+        rnd.NextBytes(b);
+        return b[0];
     }
 
     public override void _Draw()

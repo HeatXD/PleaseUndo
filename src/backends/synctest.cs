@@ -1,3 +1,4 @@
+using System;
 namespace PleaseUndo
 {
     public class SyncTestBackend : PUSession
@@ -106,7 +107,8 @@ namespace PleaseUndo
                 _last_input = _current_input;
             }
 
-            values = _last_input.bits; // CHECKME: memcpy(values, _last_input.bits, size);
+            //values = _last_input.bits; // CHECKME: memcpy(values, _last_input.bits, size);
+            Array.Copy(values, _last_input.bits, size);
 
             if (disconnect_flags != 0)
             {

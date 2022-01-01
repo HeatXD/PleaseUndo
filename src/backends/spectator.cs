@@ -1,4 +1,6 @@
 
+using System;
+
 namespace PleaseUndo
 {
     public class SpectatorBackend : PUSession
@@ -68,7 +70,8 @@ namespace PleaseUndo
             }
 
             //memcpy stuff
-            input.bits = values;
+            Array.Copy(values, input.bits, input.bits.Length);
+            // input.bits = values;
 
             if (disconnect_flags != 0)
             {
