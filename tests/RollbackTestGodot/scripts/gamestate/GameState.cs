@@ -36,11 +36,6 @@ public class GameState
             player.Update(playerInputs);
             ScreenWrap(player, screenSize);
         }
-        foreach (var input in playerInputs)
-        {
-            GD.Print(input);
-        }
-        GD.Print("-----");
     }
 
     private void ScreenWrap(Player player, Vector2 screenSize)

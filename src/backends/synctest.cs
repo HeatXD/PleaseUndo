@@ -110,7 +110,7 @@ namespace PleaseUndo
             }
 
             //values = _last_input.bits; // CHECKME: memcpy(values, _last_input.bits, size);
-            Array.Copy(_last_input.bits, values, _last_input.bits.Length);
+            Array.Copy(_last_input.bits, values, size);
 
             if (disconnect_flags != 0)
             {

@@ -54,7 +54,7 @@ public class Player
         Velocity *= AF.Fixed64.CreateFrom(0.96);
 
         var dir = new AF.Vector2();
-        var input = new PlayerInput(playerInputs[(ID - 1) * 8]);
+        var input = new PlayerInput(playerInputs[ID - 1]);
 
         if (input.IsInputBitSet(0))
             dir += new AF.Vector2(0, -1);
