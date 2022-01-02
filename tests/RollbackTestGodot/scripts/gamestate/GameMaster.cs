@@ -9,13 +9,9 @@ public class GameMaster : Node2D
     private GameState GameState;
     private DynamicFont DrawFont;
 
-    // loop timing
-    private int WaitFrames;
-    private bool SkippedLastFrame;
-
     // network
     private byte LocalID;
-    private GodotUdpPeer SessionAdapter;
+    private IPeerNetAdapter SessionAdapter;
     private const int INPUT_SIZE = 1;
     private const int PLAYER_COUNT = 2;
 
@@ -28,7 +24,6 @@ public class GameMaster : Node2D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        // setup loop timing
         // setup network
         this.SessionAdapter = new GodotUdpPeer(
             (int)GetNode("/root/NetworkGlobals").Get("local_port"),
@@ -100,12 +95,11 @@ public class GameMaster : Node2D
 
     private bool OnEvent(PUEvent ev)
     {
-        GD.Print(ev.code.ToString());
+        GD.Print("Player: ", LocalID, " Event: ", ev.code.ToString());
         switch (ev.code)
         {
             case PUEventCode.PU_EVENTCODE_TIMESYNC:
                 var ts_event = (PUTimesyncEvent)ev;
-                WaitFrames = ts_event.frames_ahead;
                 break;
         }
         return true;
@@ -114,36 +108,27 @@ public class GameMaster : Node2D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(float delta)
     {
-        if (WaitFrames <= 0 || SkippedLastFrame == true)
+        // it might be smart to put all the gamestate into a seperate thread.
+        // will look into that
+        GameSession.DoPoll(69);// nice
+
+        PUErrorCode result = PUErrorCode.PU_OK;
+        int disconnect_flags = 0;
+
+        byte[] inputs = new byte[INPUT_SIZE * PLAYER_COUNT];
+        byte[] input = new byte[INPUT_SIZE];
+
+        Array.Copy(GetLocalInput(), input, INPUT_SIZE);
+        result = GameSession.AddLocalInput(LocalHandle, input, INPUT_SIZE);
+
+        if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
         {
-            SkippedLastFrame = false;
-
-            GameSession.DoPoll(69);// nice
-
-            PUErrorCode result = PUErrorCode.PU_OK;
-            int disconnect_flags = 0;
-
-            byte[] inputs = new byte[INPUT_SIZE * PLAYER_COUNT];
-            byte[] input = new byte[INPUT_SIZE];
-
-            Array.Copy(GetLocalInput(), input, INPUT_SIZE);
-            result = GameSession.AddLocalInput(LocalHandle, input, INPUT_SIZE);
-
+            result = GameSession.SyncInput(ref inputs, INPUT_SIZE * PLAYER_COUNT, ref disconnect_flags);
             if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
             {
-                result = GameSession.SyncInput(ref inputs, INPUT_SIZE * PLAYER_COUNT, ref disconnect_flags);
-                if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
-                {
-                    GameState.UpdateState(inputs, GetViewportRect().Size);
-                    GameSession.IncrementFrame();
-                }
+                GameState.UpdateState(inputs, GetViewportRect().Size);
+                GameSession.IncrementFrame();
             }
-
-        }
-        else
-        {
-            SkippedLastFrame = true;
-            WaitFrames--;
         }
         // draw
         Update();

@@ -514,12 +514,13 @@ namespace PleaseUndo
                     if (_local_connect_status[queue].disconnected == 0)
                     {
                         var inputEvent = (evt as NetProto.InputEvent);
-
+                        //Console.WriteLine(inputEvent.input.Desc(true));
                         int current_remote_frame = _local_connect_status[queue].last_frame;
+                        //Console.WriteLine(current_remote_frame);
                         int new_remote_frame = inputEvent.input.frame;
                         Logger.Assert(current_remote_frame == -1 || new_remote_frame == (current_remote_frame + 1));
 
-                        var input = inputEvent.input;
+                        var input = new GameInput(inputEvent.input.frame, inputEvent.input.bits, inputEvent.input.size);
                         _sync.AddRemoteInput(queue, ref input);
 
                         // Notify the other endpoints which frame we received from a peer

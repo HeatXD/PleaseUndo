@@ -95,7 +95,7 @@ namespace PleaseUndo
 
             for (var i = 0; i < size; i++)
             {
-                builder.AppendFormat("{0:x2}", bits[size]);
+                builder.AppendFormat("{0}", bits[i]);
             }
 
             builder.Append(")");
