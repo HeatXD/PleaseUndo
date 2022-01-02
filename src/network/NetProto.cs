@@ -187,24 +187,26 @@ namespace PleaseUndo
 
         public void SendInput(ref GameInput input)
         {
-            //    if (_udp) {
-            if (current_state == State.Running)
+            if (net_adapter != null)
             {
-                /*
-                 * Check to see if this is a good time to adjust for the rift...
-                 */
-                timesync.advance_frame(input, local_frame_advantage, remote_frame_advantage);
+                if (current_state == State.Running)
+                {
+                    /*
+                     * Check to see if this is a good time to adjust for the rift...
+                     */
+                    timesync.advance_frame(input, local_frame_advantage, remote_frame_advantage);
 
-                /*
-                 * Save this input packet
-                 *
-                 * XXX: This queue may fill up for spectators who do not ack input packets in a timely
-                 * manner.  When this happens, we can either resize the queue (ug) or disconnect them
-                 * (better, but still ug).  For the meantime, make this queue really big to decrease
-                 * the odds of this happening...
-                 */
-                pending_output.Push(input);
-                //   }
+                    /*
+                     * Save this input packet
+                     *
+                     * XXX: This queue may fill up for spectators who do not ack input packets in a timely
+                     * manner.  When this happens, we can either resize the queue (ug) or disconnect them
+                     * (better, but still ug).  For the meantime, make this queue really big to decrease
+                     * the odds of this happening...
+                     */
+                    pending_output.Push(input);
+                }
+
                 SendPendingOutput();
             }
         }
