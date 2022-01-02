@@ -7,11 +7,12 @@ public class GameMaster : Node2D
 {
 
     private GameState GameState;
+    private GameInfo GameInfo;
     private DynamicFont DrawFont;
 
     // network
     private byte LocalID;
-    private IPeerNetAdapter SessionAdapter;
+    private GodotPeerUDP SessionAdapter;
     private const int INPUT_SIZE = 1;
     private const int PLAYER_COUNT = 2;
 
@@ -25,7 +26,7 @@ public class GameMaster : Node2D
     public override void _Ready()
     {
         // setup network
-        this.SessionAdapter = new GodotUdpPeer(
+        this.SessionAdapter = new GodotPeerUDP(
             (int)GetNode("/root/NetworkGlobals").Get("local_port"),
             (string)GetNode("/root/NetworkGlobals").Get("remote_addr"),
             (int)GetNode("/root/NetworkGlobals").Get("remote_port"));
@@ -33,6 +34,7 @@ public class GameMaster : Node2D
         this.LocalID = Convert.ToByte(GetNode("/root/NetworkGlobals").Get("player_id"));
 
         //setup game
+        this.GameInfo = new GameInfo();
         this.GameState = new GameState(PLAYER_COUNT);
         this.DrawFont = new DynamicFont();
 
@@ -66,7 +68,11 @@ public class GameMaster : Node2D
         len = bytes.Length;
         buffer = new byte[len];
         Array.Copy(bytes, buffer, len);
-        checksum = (int)FletcherChecksum.GetChecksumFromBytes(buffer, 16);
+
+        var check = FletcherChecksum.GetChecksumFromBytes(buffer, 32);
+        checksum = (int)check;
+        GameInfo.Checksum = check;
+
         return true;
     }
 
@@ -84,6 +90,7 @@ public class GameMaster : Node2D
 
         GameSession.SyncInput(ref inputs, INPUT_SIZE * PLAYER_COUNT, ref disconnect_flags);
         GameState.UpdateState(inputs, GetViewportRect().Size);
+        GameInfo.Frame = GameState.FrameNumber;
         GameSession.IncrementFrame();
         return true;
     }
@@ -95,11 +102,12 @@ public class GameMaster : Node2D
 
     private bool OnEvent(PUEvent ev)
     {
-        GD.Print("Player: ", LocalID, " Event: ", ev.code.ToString());
+        GD.Print(ev.code.ToString());
         switch (ev.code)
         {
             case PUEventCode.PU_EVENTCODE_TIMESYNC:
                 var ts_event = (PUTimesyncEvent)ev;
+                GameInfo.FramesAhead = ts_event.frames_ahead;
                 break;
         }
         return true;
@@ -127,6 +135,7 @@ public class GameMaster : Node2D
             if (result == PUErrorCode.PU_ERRORCODE_SUCCESS)
             {
                 GameState.UpdateState(inputs, GetViewportRect().Size);
+                GameInfo.Frame = GameState.FrameNumber;
                 GameSession.IncrementFrame();
             }
         }
@@ -136,20 +145,20 @@ public class GameMaster : Node2D
 
     private byte[] GetLocalInput()
     {
-        PlayerInput game_input = new PlayerInput();
-        if (Input.IsActionPressed("move_up"))
-            game_input.SetInputBit(0, true);
-        if (Input.IsActionPressed("move_down"))
-            game_input.SetInputBit(1, true);
-        if (Input.IsActionPressed("move_left"))
-            game_input.SetInputBit(2, true);
-        if (Input.IsActionPressed("move_right"))
-            game_input.SetInputBit(3, true);
-        return new byte[1] { game_input.InputState };
-        // Random rnd = new Random();
-        // byte[] b = new byte[1];
-        // rnd.NextBytes(b);
-        // return b;
+        // PlayerInput game_input = new PlayerInput();
+        // if (Input.IsActionPressed("move_up"))
+        //     game_input.SetInputBit(0, true);
+        // if (Input.IsActionPressed("move_down"))
+        //     game_input.SetInputBit(1, true);
+        // if (Input.IsActionPressed("move_left"))
+        //     game_input.SetInputBit(2, true);
+        // if (Input.IsActionPressed("move_right"))
+        //     game_input.SetInputBit(3, true);
+        // return new byte[1] { game_input.InputState };
+        Random rnd = new Random();
+        byte[] b = new byte[1];
+        rnd.NextBytes(b);
+        return b;
     }
 
     public override void _Draw()
@@ -164,6 +173,10 @@ public class GameMaster : Node2D
             var playerPos = new Vector2(GameState.Players[i].Position.X.ToSingle(), GameState.Players[i].Position.Y.ToSingle());
             DrawCircle(playerPos, 60, i == 0 ? Colors.Blue : Colors.Red);
             DrawString(DrawFont, playerPos, GameState.Players[i].ID.ToString());
+            DrawString(DrawFont, new Vector2(0, 30), "Frames Ahead: " + GameInfo.FramesAhead.ToString());
+            DrawString(DrawFont, new Vector2(0, 60), "Checksum: " + GameInfo.Checksum.ToString());
+            DrawString(DrawFont, new Vector2(0, 90), "Frame: " + GameInfo.Frame.ToString());
+            DrawString(DrawFont, new Vector2(0, 120), "FPS: " + Engine.GetFramesPerSecond());
         }
     }
 }
