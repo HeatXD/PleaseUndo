@@ -6,6 +6,8 @@ namespace PleaseUndo
 {
     public class UdpPeerNetAdapter : IPeerNetAdapter
     {
+        const int SIO_UDP_CONNRESET = -1744830452;
+
         private UdpClient _peer;
         private IPEndPoint _remoteEndPoint;
 
@@ -15,6 +17,10 @@ namespace PleaseUndo
             _peer = new UdpClient(localPort);
             _peer.Connect(remoteAddress, remotePort);
             _remoteEndPoint = new IPEndPoint(IPAddress.Parse(remoteAddress), remotePort);
+
+            // Ignore the connect reset message in Windows to prevent a UDP shutdown exception
+            // As seen in https://github.com/dhavatar/ggpo-sharp/blob/master/src/Network/Udp.cs
+            _peer.Client.IOControl((IOControlCode)SIO_UDP_CONNRESET, new byte[] { 0, 0, 0, 0 }, null);
         }
 
         public List<NetMsg> Poll()
